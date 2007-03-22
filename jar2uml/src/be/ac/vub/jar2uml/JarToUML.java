@@ -40,7 +40,7 @@ import org.eclipse.uml2.uml.resource.UMLResource;
 
 public class JarToUML implements Runnable {
 		
-	public static final String LOGGER = "be.ac.vub.platformkit.java";
+	public static final String LOGGER = "be.ac.vub.jar2uml";
 	
 	private static ResourceSet resourceSet = new ResourceSetImpl();
 	private static Logger logger = Logger.getLogger(LOGGER);
