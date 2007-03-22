@@ -1,4 +1,4 @@
-package be.ac.vub.platformkit.java;
+package be.ac.vub.jar2uml;
 
 public interface Filter {
 	

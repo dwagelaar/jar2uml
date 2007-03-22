@@ -1,4 +1,4 @@
-package be.ac.vub.platformkit.java;
+package be.ac.vub.jar2uml;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,45 +61,12 @@ public class JarToUML implements Runnable {
 			logger.setLevel(Level.INFO);
 			JarToUML jarToUML = new JarToUML();
 			jarToUML.setFilter(new JavaAPIFilter());
-//			jarToUML.addJar(new JarFile("/Users/dennis/Documents/Software/jdk1.1.8/lib/classes.zip"));
-//			jarToUML.setOutputFile("jdk-1_1-api.uml");
-//			jarToUML.setOutputModelName("jdk-1_1");
-//			jarToUML.run();
-//			jarToUML.clearJars();
-//			jarToUML.addJar(new JarFile("/Users/dennis/Documents/Software/jdk1.2.2/jre/lib/rt.jar"));
-//			jarToUML.setOutputFile("j2se-1_2-api.uml");
-//			jarToUML.setOutputModelName("j2se-1_2");
-//			jarToUML.run();
-//			jarToUML.clearJars();
-//			jarToUML.addJar(new JarFile("/System/Library/Frameworks/JavaVM.framework/Versions/1.3/Classes/classes.jar"));
-//			jarToUML.addJar(new JarFile("/System/Library/Frameworks/JavaVM.framework/Versions/1.3/Classes/ui.jar"));
-//			jarToUML.setOutputFile("j2se-1_3-api.uml");
-//			jarToUML.setOutputModelName("j2se-1_3");
-//			jarToUML.run();
-//			jarToUML.clearJars();
-//			jarToUML.addJar(new JarFile("/System/Library/Frameworks/JavaVM.framework/Versions/1.4/Classes/classes.jar"));
-//			jarToUML.addJar(new JarFile("/System/Library/Frameworks/JavaVM.framework/Versions/1.4/Classes/ui.jar"));
-//			jarToUML.setOutputFile("j2se-1_4-api.uml");
-//			jarToUML.setOutputModelName("j2se-1_4");
-//			jarToUML.run();
-//			jarToUML.clearJars();
-//			jarToUML.addJar(new JarFile("/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/classes.jar"));
-//			jarToUML.addJar(new JarFile("/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Classes/ui.jar"));
-//			jarToUML.setOutputFile("j2se-1_5-api.uml");
-//			jarToUML.setOutputModelName("j2se-1_5");
-//			jarToUML.run();
-//			jarToUML.clearJars();
-			jarToUML.addJar(new JarFile("/Users/dennis/j2me-pp-1_0/personal.jar"));
-			jarToUML.setOutputFile("j2me-pp-1_0-api.uml");
-			jarToUML.setOutputModelName("j2me-pp-1_0");
-			jarToUML.run();
-			jarToUML.clearJars();
-			jarToUML.addJar(new JarFile("/Users/dennis/WTK2.2/lib/cldcapi10.jar"));
-			jarToUML.addJar(new JarFile("/Users/dennis/WTK2.2/lib/midpapi10.jar"));
-			jarToUML.setOutputFile("j2me-midp-1_0-api.uml");
-			jarToUML.setOutputModelName("j2me-midp-1_0");
+			jarToUML.addJar(new JarFile(args[0]));
+			jarToUML.setOutputFile(args[1]);
+			jarToUML.setOutputModelName(args[2]);
 			jarToUML.run();
 		} catch (Exception e) {
+			logger.severe("Usage: JarToUML <jarfile> <umlfile> <umlmodelname>");
 			e.printStackTrace();
 		}
 	}
