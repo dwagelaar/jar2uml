@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="be.ac.vub.jar2uml"
-      label="Jar2UML Feature"
+      label="Jar2UML"
       version="1.0.0"
       provider-name="Vrije Universiteit Brussel"
       plugin="be.ac.vub.jar2uml"
