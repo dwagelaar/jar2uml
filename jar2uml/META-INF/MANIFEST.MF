@@ -1,11 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Platformkit Java Ontologies Plug-in
-Bundle-SymbolicName: be.ac.vub.platformkit.java;singleton:=true
-Bundle-Version: 1.1.0
+Bundle-Name: JarToUML Plug-in
+Bundle-SymbolicName: be.ac.vub.jar2uml;singleton:=true
+Bundle-Version: 1.0.0
 Bundle-Vendor: Vrije Universiteit Brussel
 Bundle-Localization: plugin
 Eclipse-LazyStart: true
-Require-Bundle: be.ac.vub.platformkit,
- org.junit,
+Require-Bundle: org.junit,
  org.eclipse.uml2.uml
