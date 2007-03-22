@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="be.ac.vub.jar2uml.ui.sampleCategory"
+            name="Jar2UML Import"/>
+      <wizard
+            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            class="be.ac.vub.jar2uml.ui.JarToUMLImportWizard"
+            icon="icons/importjar_wiz.gif"
+            id="be.ac.vub.jar2uml.ui.JarToUMLImportWizard"
+            name="Import Jar Files to UML Models">
+         <description>
+            Import a file from the local file system into the workspace.
+         </description>
+      </wizard>
+   </extension>
 
 </plugin>
