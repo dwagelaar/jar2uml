@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="be.ac.vub.jar2uml"
+      label="Jar2UML Feature"
+      version="1.0.0"
+      provider-name="Vrije Universiteit Brussel"
+      plugin="be.ac.vub.jar2uml"
+      image="VUB_logo_compact.gif">
+
+   <description url="about.html">
+      Jar2UML imports Java jar files as a UML model into the workspace. It is used to reverse engineer Java API class libraries for PlatformKit&apos;s Java platform model.
+
+It can be used to support development processes based on the
+Model Driven Architecture.
+   </description>
+
+   <copyright url="about.html">
+      © Copyright 2005, 2006, 2007 Dennis Wagelaar, Vrije Universiteit Brussel
+
+Jar2UML includes the BCEL software developed by
+The Apache Software Foundation (http://www.apache.org/).
+   </copyright>
+
+   <license url="about.html">
+      Vrije Universiteit Brussel makes available all content in this
+plug-in. The Content in this plug-in is provided to you under
+the terms and conditions of the Eclipse Public License Version
+1.0 (&quot;EPL&quot;). A copy of the EPL is available at http://www.eclipse.org/legal/epl-v10.html.
+   </license>
+
+   <url>
+      <update label="Jar2UML update site" url="http://ssel.vub.ac.be/tools/jar2uml/update"/>
+   </url>
+
+   <plugin
+         id="be.ac.vub.jar2uml"
+         download-size="48"
+         install-size="48"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.bcel"
+         download-size="1068"
+         install-size="1068"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
