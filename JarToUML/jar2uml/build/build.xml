@@ -1,0 +1,29 @@
+<project name="platformkit-java/build" default="createAPIModel">
+	
+	<target name="createAPIModel">
+		<javadoc 
+			access="protected" 
+			classpath="
+				../../platformkit-java/bin:
+				${eclipse.home}/plugins/org.junit_3.8.1/junit.jar"
+			destdir="doc/javadoc" 
+			nodeprecated="false" 
+			nodeprecatedlist="false" 
+			noindex="false" 
+			nonavbar="false" 
+			notree="false" 
+			packagenames="
+				be.ac.vub.platformkit.java,
+				java.lang"
+			source="1.5" 
+			sourcefiles="
+				../../platformkit-java/src/be/ac/vub/platformkit/java/UMLDoclet.java" 
+			sourcepath="
+				../../platformkit-java/src" 
+			splitindex="true" 
+			use="true" 
+			version="true">
+		</javadoc>
+	</target>
+	
+</project>

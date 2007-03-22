@@ -1,0 +1,380 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE uridef[
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema">
+  <!ENTITY DEFAULT "http://localhost/~dennis/Units.owl">
+]>
+
+<rdf:RDF
+  xmlns:rdf = "&rdf;#"
+  xmlns:rdfs = "&rdfs;#"
+  xmlns:owl = "&owl;#"
+  xmlns:xsd = "&xsd;#"
+  xmlns = "&DEFAULT;#"
+  xml:base = "&DEFAULT;">
+ 
+  <owl:Ontology rdf:about="">
+    <owl:versionInfo>
+      $Id: Units.owl,v 1.0 2005/04/10 14:23 davy Exp $
+    </owl:versionInfo> 
+    <rdfs:comment>
+      Message parameter units
+      Created by:
+        Davy Preuveneers
+    </rdfs:comment> 
+  </owl:Ontology>
+
+
+  <owl:Class rdf:ID="Value" />
+  
+  <owl:Class rdf:ID="IntegerValue">
+    <rdfs:subClassOf rdf:resource="#Value" />
+  </owl:Class>
+  
+  <owl:DatatypeProperty rdf:about="#ival">
+    <rdfs:range rdf:resource="&xsd;#int" />
+    <rdfs:domain rdf:resource="#IntegerValue" />
+  </owl:DatatypeProperty>
+    
+  <owl:Class rdf:ID="FloatValue">
+    <rdfs:subClassOf rdf:resource="#Value" />
+  </owl:Class>
+  
+  <owl:DatatypeProperty rdf:about="#fval">
+    <rdfs:range rdf:resource="&xsd;#float" />
+    <rdfs:domain rdf:resource="#FloatValue" />
+  </owl:DatatypeProperty>
+      
+  <owl:Class rdf:ID="StringValue">
+    <rdfs:subClassOf rdf:resource="#Value" />
+  </owl:Class>
+
+  <owl:DatatypeProperty rdf:about="#sval">
+    <rdfs:range rdf:resource="&xsd;#string" />
+    <rdfs:domain rdf:resource="#StringValue" />
+  </owl:DatatypeProperty>
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############               DISTANCE                ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Meter">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="MilliMeter">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="KiloMeter">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Feet">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Mile">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+        
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############                 TIME                  ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="MilliSecond">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="NanoSecond">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="Minute">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Hour">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Month">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="Year">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############             TEMPERATURE               ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+
+  <owl:Class rdf:ID="Celsius">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="Fahrenheit">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="Kelvin">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############                SPEED                  ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Meters_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Kilometers_Per_Hour">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Miles_Per_Hour">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="Knots">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############                WEIGHT                 ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Gram">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="KiloGram">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Ounce">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Pound">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+      
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############                ENERGY                 ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+
+  <owl:Class rdf:ID="Watt">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="KiloWatt">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Horse_Power">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+    
+  <owl:Class rdf:ID="Calories">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Joules">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############               DATA SIZE               ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  
+  <owl:Class rdf:ID="Bit">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 1.000 bits -->
+  <owl:Class rdf:ID="KiloBit">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 1.000.000 bits -->
+  <owl:Class rdf:ID="MegaBit">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 1.000.000.000 bits -->
+  <owl:Class rdf:ID="GigaBit">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+    
+  <!-- 2^10 bits -->
+  <owl:Class rdf:ID="KibiBit">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 2^20 bits -->
+  <owl:Class rdf:ID="MebiBit">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+  
+  <!-- 2^30 bits -->
+  <owl:Class rdf:ID="GibiBit">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 8 bits -->
+  <owl:Class rdf:ID="Byte">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 1.000 bytes -->
+  <owl:Class rdf:ID="KiloByte">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 1.000.000 bytes -->
+  <owl:Class rdf:ID="MegaByte">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 1.000.000.000 bytes -->
+  <owl:Class rdf:ID="GigaByte">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+        
+  <!-- 2^10 bytes -->
+  <owl:Class rdf:ID="KibiByte">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <!-- 2^20 bytes -->
+  <owl:Class rdf:ID="MebiByte">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+  
+  <!-- 2^30 bytes -->
+  <owl:Class rdf:ID="GibiByte">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############            TRANSFER SPEED             ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Bits_Per_Second">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="KiloBit_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="MegaBit_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="GigaBit_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+    
+
+  <owl:Class rdf:ID="Bytes_Per_Second">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="KiloByte_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="MegaByte_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="GigaByte_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+
+  <owl:Class rdf:ID="KibiBit_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="MebiBit_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="GibiBit_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  
+  <owl:Class rdf:ID="KibiByte_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="MebiByte_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="GibiByte_Per_Second">
+    <rdfs:subClassOf rdf:resource="#FloatValue" />
+  </owl:Class>
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############                 OTHER                 ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Pixel">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+  
+  <owl:Class rdf:ID="ColourDepth">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="Cycles_Per_Second">
+    <rdfs:subClassOf rdf:resource="#IntegerValue" />
+  </owl:Class>
+
+</rdf:RDF>
+
