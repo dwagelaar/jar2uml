@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DeployJar2UMLFeature" default="all">
+	<property name="deploy.host" value="dwagelaa@ssel.vub.ac.be"/>
+	<property name="deploy.path" value="/var/www/html/tools/jar2uml/update"/>
+
+	<target name="deploy">
+		<exec dir="../../" executable="rsync" logError="true">
+			<arg line="-rlvuzC"/>
+			<arg line="--delete"/>
+			<arg line="--exclude"/>
+			<arg line="deployment"/>
+			<arg line="--exclude"/>
+			<arg line=".*"/>
+			<arg line="."/>
+			<arg line="${deploy.host}:${deploy.path}"/>
+		</exec>
+	</target>
+	
+	<target name="fixFiles" depends="deploy">
+		<exec dir="." executable="ssh" logError="true">
+			<arg line="${deploy.host}"/>
+			<arg line="chown -R :ssel ${deploy.path};"/>
+			<arg line="find ${deploy.path} -type d | xargs chmod 775;"/>
+			<arg line="find ${deploy.path} -type f | xargs chmod 664"/>
+		</exec>
+	</target>
+
+	<target name="all" depends="fixFiles"/>
+</project>
