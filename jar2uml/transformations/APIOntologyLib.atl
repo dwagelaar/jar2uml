@@ -1,0 +1,211 @@
+-- @atlcompiler atl2006
+-- $Id$
+-- Helpers for transforming a UML2 model to an API OWL ontology
+library APIOntologyLib;
+
+-- metamodels: UML2, OWL;
+
+-- ======================================================================
+-- general helpers
+-- ======================================================================
+
+helper context UML2!uml::NamedElement def : qualifiedName(separator : String) : String =
+	if self.owner->oclIsTypeOf(UML2!uml::Package) then
+		self.owner->qualifiedName(separator) + separator + self.name
+	else
+		self.name
+	endif;
+
+helper context String def: firstToUpper() : String =
+	self->substring(1, 1)->toUpper() + self->substring(2, self->size());
+
+helper context UML2!uml::NamedElement def : ontClassName() : String =
+	if self.owner->oclIsTypeOf(UML2!uml::Package) then
+		self.owner->ontClassName()
+	else '' endif
+	+ self.name->firstToUpper();
+
+helper context UML2!uml::Package def : allOwnedClassifiers() : Sequence(UML2!uml::Classifier) =
+	UML2!uml::Classifier->allInstances()->select(c|
+		c->getNearestPackage() = self and 
+		(c->oclIsKindOf(UML2!uml::Class) or c->oclIsKindOf(UML2!uml::Interface)));
+
+-- ======================================================================
+-- helpers for finding references
+-- ======================================================================
+
+helper context UML2!uml::Package def : references() : Set(UML2!uml::Package) =
+	self->allOwnedClassifiers()
+		->collect(c|c->references())->flatten()->asSet()
+		->collect(r|r->referencesOtherPackageThan(self))->flatten()->asSet();
+
+helper context UML2!uml::PackageableElement def : referencesOtherPackageThan(p : UML2!uml::Package) : Set(UML2!uml::Package) =
+	if self->getNearestPackage() <> p then Set{self->getNearestPackage()} else Set{} endif;
+
+-- Non-transitive references
+helper context UML2!uml::Classifier def : references() : Set(UML2!uml::Classifier) =
+	self.general->union(
+		self->suppliers()->select(s|s->oclIsKindOf(UML2!uml::Classifier)))->union(
+		self.feature->collect(f|f->referencesOtherThan(self)))
+	->flatten()->asSet();
+
+-- Semi-transitive references (transitive type references not possible)
+--helper context UML2!uml::Classifier def : references() : Set(UML2!uml::Classifier) =
+--	self.general->union(
+--		self.general->collect(g|g->references()))->union(
+--		self->allSuppliers()->select(s|s->oclIsKindOf(UML2!uml::Classifier)))->union(
+--		self->allFeatures()->collect(f|f->referencesOtherThan(self)))
+--	->flatten()->asSet();
+
+helper context UML2!uml::BehavioralFeature def : referencesOtherThan(c : UML2!uml::Classifier) : Sequence(UML2!uml::Classifier) =
+	self.ownedParameter->collect(p|p->referencesOtherThan(c))->flatten();
+
+helper context UML2!uml::TypedElement def : referencesOtherThan(c : UML2!uml::Classifier) : Sequence(UML2!uml::Classifier) =
+	if thisModule.inElements->includes(self.type) and self.type <> c then
+		if self.type->oclIsKindOf(UML2!uml::Class) or self.type->oclIsKindOf(UML2!uml::Interface)
+		then Sequence{self.type} else Sequence{} endif
+	else Sequence{} endif;
+
+-- ======================================================================
+-- helpers for finding references
+-- ======================================================================
+
+--helper context UML2!uml::NamedElement def : owlClassesInPrev() : Sequence(OWL!owl::OWLClass) =
+--	OWL!owl::OWLClass->allInstancesFrom('PREVOUT')->select(c|c.localName = self->ontClassName() + 'Library');
+--
+--helper context UML2!uml::Package def : compatibleInPrev() : Sequence(UML2!uml::Package) =
+--	UML2!uml::Package->allInstancesFrom('PREVIN')->select(p|self->isCompatibleWith(p));
+--
+--helper context UML2!uml::Classifier def : compatibleInPrev() : Sequence(UML2!uml::Classifier) =
+--	UML2!uml::Classifier->allInstancesFrom('PREVIN')->select(c|self->isCompatibleWith(c));
+
+helper context UML2!uml::NamedElement def : owlClassesInPrev() : Sequence(OWL!owl::OWLClass) =
+	OWL!owl::OWLClass->allInstances()
+		->select(c|c.localName = self->ontClassName() + 'Library')
+		->select(o|o.namespace.name = self->getModel().name);
+
+helper context UML2!uml::Package def : compatibleInPrev() : Sequence(UML2!uml::Package) =
+	UML2!uml::Package->allInstances()
+		->select(i|UML2!uml::Package->allInstancesFrom('IN')->excludes(i))
+		->select(p|self->isCompatibleWith(p));
+
+helper context UML2!uml::Classifier def : compatibleInPrev() : Sequence(UML2!uml::Classifier) =
+	UML2!uml::Classifier->allInstances()
+		->select(i|UML2!uml::Classifier->allInstancesFrom('IN')->excludes(i))
+		->select(c|self->isCompatibleWith(c));
+
+helper context UML2!uml::Package def : isCompatibleWith(p : UML2!uml::Package) : Boolean =
+	if self->namedElementIsCompatibleWith(p)
+	then (let compClassifiers : Sequence(UML2!uml::Classifier) = p->allOwnedClassifiers()->select(c|not self->hasOwnedClassifierCompatibleWith(c))
+		  in if compClassifiers->isEmpty() then true
+		  	 else compClassifiers->debug(self.qualifiedName + ' misses classifiers compatible with ')->isEmpty() endif)
+	else false endif;
+
+helper context UML2!uml::Package def : hasOwnedClassifierCompatibleWith(c : UML2!uml::Classifier) : Boolean =
+	self->allOwnedClassifiers()->select(o|o->isCompatibleWith(c))->notEmpty();
+
+helper context UML2!uml::Classifier def : isCompatibleWith(c : UML2!uml::Classifier) : Boolean =
+	if self->namedElementIsCompatibleWith(c)
+	then (let compGenerals : Sequence(UML2!uml::Classifier) = c.general->select(g|not self->hasGeneralCompatibleWith(g))
+		  in if compGenerals->isEmpty() then true
+		  	 else compGenerals->debug(self.qualifiedName + ' misses generals compatible with ')->isEmpty() endif) and
+		 (let compFeatures : Sequence(UML2!uml::Feature) = c->allFeatures()->select(f|not self->hasFeatureCompatibleWith(f))
+		  in if compFeatures->isEmpty() then true
+		  	 else compFeatures->debug(self.qualifiedName + ' misses features compatible with ')->isEmpty() endif)
+	else false endif;
+
+helper context UML2!uml::Classifier def : hasFeatureCompatibleWith(f : UML2!uml::Feature) : Boolean =
+	self->allFeatures()->select(o|o->isCompatibleWith(f))->notEmpty();
+
+helper context UML2!uml::StructuralFeature def : isCompatibleWith(f : UML2!uml::StructuralFeature) : Boolean =
+	if self->typedElementIsCompatibleWith(f)
+	then (self.isStatic = f.isStatic) and
+		 (self.isReadOnly = f.isReadOnly)
+	else false endif;
+
+helper context UML2!uml::BehavioralFeature def : isCompatibleWith(f : UML2!uml::BehavioralFeature) : Boolean =
+	if self->namedElementIsCompatibleWith(f)
+	then (self.isStatic = f.isStatic) and
+		 (if self.isAbstract then f.isAbstract else true endif)
+	else false endif;
+
+helper context UML2!uml::Parameter def : isCompatibleWith(p : UML2!uml::Parameter) : Boolean =
+	if p->oclIsUndefined() then true
+	else
+		if self->typedElementIsCompatibleWith(p)
+		then (self.direction = p.direction)
+		else false endif
+	endif;
+
+helper context UML2!uml::TypedElement def : isCompatibleWith(t : UML2!uml::TypedElement) : Boolean =
+	self->typedElementIsCompatibleWith(t);
+	
+helper context UML2!uml::NamedElement def : isCompatibleWith(e : UML2!uml::NamedElement) : Boolean =
+	self->namedElementIsCompatibleWith(e);
+
+helper context UML2!uml::NamedElement def : visibilityIsCompatibleWith(e : UML2!uml::NamedElement) : Boolean =
+	if (self.visibility = #public) then true
+	else if (self.visibility = #protected) then (e.visibility = #protected) or (e.visibility = #private)
+	else if (self.visibility = #package) then (e.visibility = #package) or (e.visibility = #private)
+	else (self.visibility = e.visibility) endif endif endif;
+
+helper context UML2!uml::TypedElement def : typedElementIsCompatibleWith(t : UML2!uml::TypedElement) : Boolean =
+	if self->namedElementIsCompatibleWith(t)
+	then if self.type->oclIsUndefined()
+		 then t.type->oclIsUndefined()
+		 else if t.type->oclIsUndefined()
+		 	  then false
+			  else (self.type->qualifiedName('::') = t.type->qualifiedName('::')) endif endif
+	else false endif;
+	
+helper context UML2!uml::NamedElement def : namedElementIsCompatibleWith(e : UML2!uml::NamedElement) : Boolean =
+	if (self->qualifiedName('::') = e->qualifiedName('::')) and (self->oclType() = e->oclType()) and (self->visibilityIsCompatibleWith(e))
+	then (let ownedComp : Sequence(UML2!uml::NamedElement) = e->ownedNamed()->select(o|not self->containsElementCompatibleWith(o))
+		  in if ownedComp->isEmpty() then true 
+		  	 else if self->oclIsKindOf(UML2!uml::Package) or self->oclIsKindOf(UML2!uml::Classifier)
+			 	  then ownedComp->debug(self.qualifiedName + ' misses elements compatible with ')->isEmpty()
+			      else false endif endif) and
+		 (let compSuppliers : Sequence(UML2!uml::NamedElement) = e->suppliers()->select(d|not self->hasSupplierCompatibleWith(d))
+		  in if compSuppliers->isEmpty() then true
+		  	 else compSuppliers->debug(self.qualifiedName + ' misses dependency suppliers compatible with ')->isEmpty() endif)
+	else false endif;
+
+helper context UML2!uml::Element def : containsElementCompatibleWith(e : UML2!uml::NamedElement) : Boolean =
+	self->ownedNamed()->select(o|o->isCompatibleWith(e))->notEmpty();
+
+helper context UML2!uml::Classifier def : hasGeneralCompatibleWith(c : UML2!uml::Classifier) : Boolean =
+	self.general->select(g|if (g->qualifiedName('::') = c->qualifiedName('::')) then true else g->hasGeneralCompatibleWith(c) endif)->notEmpty();
+
+helper context UML2!uml::Classifier def : hasSupplierCompatibleWith(e : UML2!uml::NamedElement) : Boolean =
+	if self->namedElementHasSupplierCompatibleWith(e) then true
+	else self.general->select(g|g.hasSupplierCompatibleWith(e))->notEmpty() endif;
+
+helper context UML2!uml::NamedElement def : hasSupplierCompatibleWith(e : UML2!uml::NamedElement) : Boolean =
+	self->namedElementHasSupplierCompatibleWith(e);
+
+helper context UML2!uml::NamedElement def : namedElementHasSupplierCompatibleWith(e : UML2!uml::NamedElement) : Boolean =
+	self->allSuppliers()
+		->select(s|(s->qualifiedName('::') = e->qualifiedName('::')))->notEmpty();
+
+helper context UML2!uml::NamedElement def : suppliers() : Set(UML2!uml::NamedElement) =
+	self.clientDependency->collect(d|d.supplier
+			->select(n|not n.name->oclIsUndefined())
+		)->flatten()->asSet();
+
+helper context UML2!uml::NamedElement def : allSuppliers() : Set(UML2!uml::NamedElement) =
+	self.clientDependency->collect(d|d.supplier
+			->union(d.supplier->collect(s1|s1.allSuppliers())->flatten())
+			->select(n|not n.name->oclIsUndefined())
+		)->flatten()->asSet();
+
+helper context UML2!uml::Element def : ownedNamed() : Sequence(UML2!uml::NamedElement) =
+	self.ownedElement
+		->select(o|o->oclIsKindOf(UML2!uml::NamedElement) and 
+			       (not o->oclIsKindOf(UML2!uml::Package)) and
+			       (not o->oclIsKindOf(UML2!uml::Classifier)) and
+				   (not o->oclIsKindOf(UML2!uml::Feature)))
+		->select(n|not n.name->oclIsUndefined());
+
+-- ======================================================================
+-- helper methods end
+-- ======================================================================

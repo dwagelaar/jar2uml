@@ -1,0 +1,90 @@
+-- @atlcompiler atl2006
+-- $Id$
+-- Base module for transforming a UML2 model to an API OWL ontology
+module UML2ToAPIOntology; --abstract
+
+create OUT : OWL from IN : UML2, PLATFORM : OWL, JAVA : OWL;--, PREVOUT : OWL, PREVIN : UML2;
+
+uses APIOntologyLib;
+
+-- ======================================================================
+-- helper attributes begin
+-- ======================================================================
+
+helper def : inElements : Set(UML2!ecore::EObject) = UML2!ecore::EObject->allInstancesFrom('IN');
+
+helper def : includedPackages : Set(UML2!uml::Package) = UML2!uml::Package->allInstancesFrom('IN')
+	->select(p|p->oclIsTypeOf(UML2!uml::Package) and p.packagedElement
+		->select(c|c->oclIsKindOf(UML2!uml::Class) or c->oclIsKindOf(UML2!uml::Interface))->notEmpty());
+
+helper def : includedClassifiers : Set(UML2!uml::Classifier) =  UML2!uml::Classifier->allInstancesFrom('IN')
+	->select(c|c->oclIsKindOf(UML2!uml::Class) or c->oclIsKindOf(UML2!uml::Interface));
+
+helper def : platformPlatform : Set(OWL!owl::OWLClass) = OWL!owl::OWLClass->allInstancesFrom('PLATFORM')
+	->select(o|o.localName = 'Platform');
+
+helper def : javaLibrary : Set(OWL!owl::OWLClass) = OWL!owl::OWLClass->allInstancesFrom('JAVA')
+	->select(o|o.localName = 'JavaLibrary');
+
+helper def : javaJRE : Set(OWL!owl::OWLClass) = OWL!owl::OWLClass->allInstancesFrom('JAVA')
+	->select(o|o.localName = 'JRE');
+
+helper def : platformProvidesFeature : OWL!owl::OWLObjectProperty =
+	OWL!owl::OWLObjectProperty->allInstancesFrom('PLATFORM')
+		->select(p|p.localName = 'providesFeature')->first();
+
+helper def : jreProvidesBuiltinJavaLibrary : OWL!owl::OWLObjectProperty =
+	OWL!owl::OWLObjectProperty->allInstancesFrom('JAVA')
+		->select(p|p.localName = 'providesBuiltinJavaLibrary')->first();
+
+helper def : platformOntology : Set(OWL!owl::OWLOntology) = 
+	OWL!owl::OWLOntology->allInstancesFrom('PLATFORM');
+
+helper def : javaOntology : Set(OWL!owl::OWLOntology) = 
+	OWL!owl::OWLOntology->allInstancesFrom('JAVA');
+
+--helper def : prevOntology : Set(OWL!owl::OWLOntology) = 
+--	OWL!owl::OWLOntology->allInstancesFrom('PREVOUT');
+--
+--helper def : prevModel : Set(UML2!uml::Model) = 
+--	UML2!uml::Model->allInstancesFrom('PREVIN');
+
+helper def : importedOntologies : Set(OWL!owl::OWLOntology) = 
+	OWL!owl::OWLOntology->allInstances()->select(o|
+		OWL!owl::OWLOntology->allInstancesFrom('PLATFORM')->excludes(o) and
+		OWL!owl::OWLOntology->allInstancesFrom('JAVA')->excludes(o));
+
+helper def : prevModels : Set(UML2!uml::Model) = 
+	UML2!uml::Model->allInstances()->select(m|
+		UML2!uml::Model->allInstancesFrom('IN')->excludes(m));
+
+-- ======================================================================
+-- helper attributes end
+-- ======================================================================
+
+-- ======================================================================
+-- transformation rules begin
+-- ======================================================================
+
+rule PrevNamespace(o : OWL!owl::OWLOntology) {
+	to n : OWL!rdfs::Namespace (
+		URI <- o.namespace.URI,
+		name <- o.namespace.name)
+	do {
+		n;
+	}
+}
+
+rule PlatformClass(e : UML2!uml::Element) {
+	to platform : OWL!owl::SomeValuesFromRestriction (
+		OWLOnProperty <- thisModule.platformProvidesFeature,
+		OWLSomeValuesFrom <- e,
+		namespace <- e->getModel())
+	do {
+		platform;
+	}
+}
+
+-- ======================================================================
+-- transformation rules end
+-- ======================================================================

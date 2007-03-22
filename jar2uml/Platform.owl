@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE uridef[
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema">
+  <!ENTITY units "http://localhost/~dennis/Units.owl">
+  <!ENTITY DEFAULT "http://localhost/~dennis/Platform.owl">
+]>
+
+<rdf:RDF
+  xmlns:rdf = "&rdf;#"
+  xmlns:rdfs = "&rdfs;#"
+  xmlns:owl = "&owl;#"
+  xmlns:xsd = "&xsd;#"
+  xmlns:units = "&units;#"
+  xmlns = "&DEFAULT;#"
+  xml:base = "&DEFAULT;">
+ 
+  <owl:Ontology rdf:about="">
+    <rdfs:label xml:lang="en">CoDAMoS platform ontology</rdfs:label>
+    <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">
+      $Id: Platform.owl 326 2007-02-23 13:33:44Z dennis $
+    </owl:versionInfo> 
+    <rdfs:comment>
+      Platform ontology concepts and definitions
+      Created by:
+        Davy Preuveneers
+    </rdfs:comment>
+    <owl:imports rdf:resource="&units;" />
+  </owl:Ontology>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############          FEATURE PARAMETERS           ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Feature">
+    <owl:disjointWith rdf:resource="#Platform"/>
+    <owl:disjointWith rdf:resource="#Modality"/>
+    <owl:disjointWith rdf:resource="#Version"/>
+    <owl:disjointWith>
+      <rdf:Description rdf:about="&units;#Value">
+        <owl:disjointWith rdf:resource="#Feature"/>
+      </rdf:Description>
+    </owl:disjointWith>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="requiresFeature">
+    <rdfs:domain rdf:resource="#Feature"/>
+    <rdfs:range rdf:resource="#Feature"/>
+    <rdf:type rdf:resource="&owl;#TransitiveProperty"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="directlyRequiresFeature">
+    <rdfs:subPropertyOf rdf:resource="#requiresFeature"/>
+  </owl:ObjectProperty>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############          RESOURCE PARAMETERS          ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Resource">
+    <rdfs:subClassOf rdf:resource="#Hardware" />
+    <owl:disjointWith rdf:resource="#IODevice"/>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="maxCapacity">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#Resource" />
+    <rdfs:range rdf:resource="&units;#Value" />
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="currAvailable">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#Resource" />
+    <rdfs:range rdf:resource="&units;#Value" />
+  </owl:ObjectProperty>
+
+  <owl:Class rdf:ID="PowerResource">
+    <rdfs:subClassOf rdf:resource="#Resource" />
+    <owl:disjointWith rdf:resource="#MemoryResource"/>
+    <owl:disjointWith rdf:resource="#NetworkResource"/>
+    <owl:disjointWith rdf:resource="#CPUResource"/>
+    <owl:disjointWith rdf:resource="#StorageResource"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="MemoryResource">
+    <rdfs:subClassOf rdf:resource="#Resource" />
+    <owl:disjointWith rdf:resource="#PowerResource"/>
+    <owl:disjointWith rdf:resource="#NetworkResource"/>
+    <owl:disjointWith rdf:resource="#CPUResource"/>
+    <owl:disjointWith rdf:resource="#StorageResource"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="NetworkResource">
+    <rdfs:subClassOf rdf:resource="#Resource" />
+    <owl:disjointWith rdf:resource="#PowerResource"/>
+    <owl:disjointWith rdf:resource="#MemoryResource"/>
+    <owl:disjointWith rdf:resource="#CPUResource"/>
+    <owl:disjointWith rdf:resource="#StorageResource"/>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="reliability">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#NetworkResource" />
+    <rdfs:range rdf:resource="&units;#IntegerValue" />
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="latency">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#NetworkResource" />
+    <rdfs:range rdf:resource="&units;#IntegerValue" />
+  </owl:ObjectProperty>
+
+  <owl:Class rdf:ID="CPUResource">
+    <rdfs:subClassOf rdf:resource="#Resource" />
+    <owl:disjointWith rdf:resource="#PowerResource"/>
+    <owl:disjointWith rdf:resource="#MemoryResource"/>
+    <owl:disjointWith rdf:resource="#NetworkResource"/>
+    <owl:disjointWith rdf:resource="#StorageResource"/>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="instructionSet">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#CPUResource" />
+    <rdfs:range rdf:resource="&units;#StringValue" />
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="cpuCache">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#CPUResource" />
+    <rdfs:range rdf:resource="&units;#IntegerValue" />
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="branchPrediction">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#CPUResource" />
+    <rdfs:range rdf:resource="&units;#StringValue" />
+  </owl:ObjectProperty>
+
+  <owl:Class rdf:ID="StorageResource">
+    <rdfs:subClassOf rdf:resource="#Resource" />
+    <owl:disjointWith rdf:resource="#PowerResource"/>
+    <owl:disjointWith rdf:resource="#MemoryResource"/>
+    <owl:disjointWith rdf:resource="#NetworkResource"/>
+    <owl:disjointWith rdf:resource="#CPUResource"/>
+  </owl:Class>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############          HARDWARE PARAMETERS          ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Hardware">
+    <rdfs:subClassOf rdf:resource="#Feature" />
+    <owl:disjointWith rdf:resource="#Software"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="IODevice">
+    <rdfs:subClassOf rdf:resource="#Hardware" />
+    <owl:disjointWith rdf:resource="#Resource"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="OutputDevice">
+    <rdfs:subClassOf rdf:resource="#IODevice" />
+  </owl:Class>
+
+  <owl:Class rdf:ID="InputDevice">
+    <rdfs:subClassOf rdf:resource="#IODevice" />
+  </owl:Class>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############          SOFTWARE PARAMETERS          ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Software">
+    <rdfs:subClassOf rdf:resource="#Feature" />
+    <owl:disjointWith rdf:resource="#Hardware"/>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="installedSize">
+    <rdfs:domain rdf:resource="#Software"/>
+    <rdfs:range rdf:resource="&units;#KibiByte"/>
+    <rdf:type rdf:resource="&owl;#FunctionalProperty"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="memoryUsage">
+    <rdfs:domain rdf:resource="#Software"/>
+    <rdfs:range rdf:resource="&units;#KibiByte"/>
+    <rdf:type rdf:resource="&owl;#FunctionalProperty"/>
+  </owl:ObjectProperty>
+
+  <owl:Class rdf:ID="VirtualMachine">
+    <rdfs:subClassOf rdf:resource="#Software" />
+    <owl:disjointWith rdf:resource="#RenderingEngine"/>
+    <owl:disjointWith rdf:resource="#Library"/>
+    <owl:disjointWith rdf:resource="#OperatingSystem"/>
+    <owl:disjointWith rdf:resource="#Middleware"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="RenderingEngine">
+    <rdfs:subClassOf rdf:resource="#Software" />
+    <owl:disjointWith rdf:resource="#VirtualMachine"/>
+    <owl:disjointWith rdf:resource="#OperatingSystem"/>
+    <owl:disjointWith rdf:resource="#Middleware"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="Library">
+    <rdfs:subClassOf rdf:resource="#Software" />
+    <owl:disjointWith rdf:resource="#VirtualMachine"/>
+    <owl:disjointWith rdf:resource="#OperatingSystem"/>
+    <owl:disjointWith rdf:resource="#Middleware"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="OperatingSystem">
+    <rdfs:subClassOf rdf:resource="#Software" />
+    <owl:disjointWith rdf:resource="#VirtualMachine"/>
+    <owl:disjointWith rdf:resource="#RenderingEngine"/>
+    <owl:disjointWith rdf:resource="#Library"/>
+    <owl:disjointWith rdf:resource="#Middleware"/>
+  </owl:Class>
+
+  <owl:Class rdf:ID="Middleware">
+    <rdfs:subClassOf rdf:resource="#Software" />
+    <owl:disjointWith rdf:resource="#VirtualMachine"/>
+    <owl:disjointWith rdf:resource="#RenderingEngine"/>
+    <owl:disjointWith rdf:resource="#Library"/>
+    <owl:disjointWith rdf:resource="#OperatingSystem"/>
+  </owl:Class>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############          VERSION PARAMETERS           ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Version">
+    <owl:disjointWith rdf:resource="#Feature"/>
+    <owl:disjointWith rdf:resource="#Platform"/>
+    <owl:disjointWith rdf:resource="#Modality"/>
+    <owl:disjointWith>
+      <rdf:Description rdf:about="&units;#Value">
+        <owl:disjointWith rdf:resource="#Version"/>
+      </rdf:Description>
+    </owl:disjointWith>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="hasSubVersion">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:domain rdf:resource="#Version" />
+    <rdfs:range rdf:resource="#Version" />
+  </owl:ObjectProperty>
+
+  <owl:DatatypeProperty rdf:ID="versionNumber">
+    <rdf:type rdf:resource="&owl;#FunctionalProperty" />
+    <rdfs:range rdf:resource="&xsd;#nonNegativeInteger" />
+    <rdfs:domain rdf:resource="#Version" />
+  </owl:DatatypeProperty>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############          MODALITY PARAMETERS          ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Modality">
+    <owl:disjointWith rdf:resource="#Feature"/>
+    <owl:disjointWith rdf:resource="#Platform"/>
+    <owl:disjointWith rdf:resource="#Version"/>
+    <owl:disjointWith>
+      <rdf:Description rdf:about="&units;#Value">
+        <owl:disjointWith rdf:resource="#Modality"/>
+      </rdf:Description>
+    </owl:disjointWith>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="supportsModality">
+    <rdfs:domain rdf:resource="#RenderingEngine" />
+    <rdfs:range rdf:resource="#Modality" />
+  </owl:ObjectProperty>
+
+
+
+<!--   ############ ########### ############ ############ ########### -->
+<!--   ############                                       ########### -->
+<!--   ############          PLATFORM PARAMETERS          ########### -->
+<!--   ############                                       ########### -->
+<!--   ############ ########### ############ ############ ########### -->
+
+  <owl:Class rdf:ID="Platform">
+    <owl:disjointWith rdf:resource="#Feature"/>
+    <owl:disjointWith rdf:resource="#Modality"/>
+    <owl:disjointWith rdf:resource="#Version"/>
+    <owl:disjointWith>
+      <rdf:Description rdf:about="&units;#Value">
+        <owl:disjointWith rdf:resource="#Platform"/>
+      </rdf:Description>
+    </owl:disjointWith>
+  </owl:Class>
+
+  <owl:ObjectProperty rdf:ID="providesFeature">
+    <rdfs:domain rdf:resource="#Platform"/>
+    <rdfs:range rdf:resource="#Feature"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="providesSoftware">
+    <rdfs:range rdf:resource="#Software" />
+    <rdfs:domain rdf:resource="#Platform" />
+    <rdfs:subPropertyOf rdf:resource="#providesFeature" />
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="providesHardware">
+    <rdfs:domain rdf:resource="#Platform" />
+    <rdfs:range rdf:resource="#Hardware" />
+    <rdfs:subPropertyOf rdf:resource="#providesFeature" />
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:ID="requiresPlatform">
+    <rdfs:domain rdf:resource="#Software" />
+    <rdfs:range rdf:resource="#Platform" />
+    <rdf:type rdf:resource="&owl;#DeprecatedProperty" />
+  </owl:ObjectProperty>
+
+</rdf:RDF>
