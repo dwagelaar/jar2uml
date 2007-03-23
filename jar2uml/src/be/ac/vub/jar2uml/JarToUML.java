@@ -1,6 +1,7 @@
 package be.ac.vub.jar2uml;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -121,8 +122,10 @@ public class JarToUML implements Runnable {
 						continue;
 					}
 				}
-				ClassParser parser = new ClassParser(jar.getInputStream(entry), entry.getName());
+				InputStream input = jar.getInputStream(entry);
+				ClassParser parser = new ClassParser(input, entry.getName());
 				JavaClass javaClass = parser.parse();
+				input.close();
 				addClassifier(javaClass);
 			}
 		}
@@ -138,8 +141,10 @@ public class JarToUML implements Runnable {
 						continue;
 					}
 				}
-				ClassParser parser = new ClassParser(jar.getInputStream(entry), entry.getName());
+				InputStream input = jar.getInputStream(entry);
+				ClassParser parser = new ClassParser(input, entry.getName());
 				JavaClass javaClass = parser.parse();
+				input.close();
 				addClassifierProperties(javaClass);
 			}
 		}
