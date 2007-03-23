@@ -114,6 +114,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
+			replaceByClassifierSwitch.setClassifier(null);
 			logger.warning("Classifier " + parent + " replaced by Class " + newParent + " to support nested Classifiers");
 			return doSwitch(newParent);
 		}
