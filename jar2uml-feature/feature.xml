@@ -2,7 +2,7 @@
 <feature
       id="be.ac.vub.jar2uml"
       label="Jar2UML"
-      version="1.0.1"
+      version="1.0.2"
       provider-name="Vrije Universiteit Brussel"
       plugin="be.ac.vub.jar2uml"
       image="VUB_logo_compact.gif">
