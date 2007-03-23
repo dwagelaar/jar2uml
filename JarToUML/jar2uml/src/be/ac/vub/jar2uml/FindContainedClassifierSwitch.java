@@ -103,7 +103,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 				}
 			}
 		}
-		if (create) {
+		if (isCreate()) {
 			return parent.createPackagedElement(localClassName, getMetaClass());
 		}
 		return super.casePackage(parent);
@@ -113,7 +113,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		if (isCreate()) {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent);
+			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
 			logger.warning("Classifier " + parent + " replaced by Class " + newParent + " to support nested Classifiers");
 			return doSwitch(newParent);
 		}

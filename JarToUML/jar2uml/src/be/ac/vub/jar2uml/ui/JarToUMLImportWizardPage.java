@@ -34,6 +34,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
@@ -46,6 +47,7 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 	
 	protected FilesFieldEditor editor;
+	protected Button onlyJavaApiBtn;
 	protected JarToUML jarToUML = new JarToUML();
 
 	public JarToUMLImportWizardPage(String pageName, IStructuredSelection selection) {
@@ -80,8 +82,11 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 		});
 		String[] extensions = new String[] { "*.zip;*.jar" }; //NON-NLS-1
 		editor.setFileExtensions(extensions);
+		
 		fileSelectionArea.moveAbove(null);
 
+		onlyJavaApiBtn = new Button(parent, SWT.CHECK | SWT.LEFT);
+		onlyJavaApiBtn.setText("Only Java API packages");
 	}
 	
 	 /* (non-Javadoc)
@@ -96,7 +101,11 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 	protected InputStream getInitialContents() {
 		try {
         	jarToUML.clearJars();
-			jarToUML.setFilter(new JavaAPIFilter());
+        	if (onlyJavaApiBtn.getSelection()) {
+    			jarToUML.setFilter(new JavaAPIFilter());
+        	} else {
+    			jarToUML.setFilter(null);
+        	}
 	    	StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";");
 	    	while (files.hasMoreTokens()) {
 				jarToUML.addJar(new JarFile(files.nextToken()));
