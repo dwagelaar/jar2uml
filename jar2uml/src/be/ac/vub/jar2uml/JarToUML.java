@@ -92,9 +92,9 @@ public class JarToUML implements Runnable {
 		Resource res = resourceSet.createResource(URI.createURI(getOutputFile()));
 		Assert.assertNotNull(res);
 		try {
-			model = UMLFactory.eINSTANCE.createModel();
-			res.getContents().add(model);
-			model.setName(getOutputModelName());
+			setModel(UMLFactory.eINSTANCE.createModel());
+			res.getContents().add(getModel());
+			getModel().setName(getOutputModelName());
 			typeToClassifier = new TypeToClassifierSwitch(getModel());
 			for (Iterator it = getJars(); it.hasNext();) {
 				JarFile jar = (JarFile) it.next();
@@ -108,6 +108,8 @@ public class JarToUML implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		setModel(null);
+		typeToClassifier = null;
 		resourceSet.getResources().remove(res);
 		logger.info("Finished JarToUML");
 	}
@@ -186,6 +188,7 @@ public class JarToUML implements Runnable {
 		Assert.assertNotNull(classifier);
 		fixClassifier.setJavaClass(javaClass);
 		fixClassifier.doSwitch(classifier);
+		fixClassifier.setJavaClass(null);
 	}
 	
 	private void addClassifierProperties(JavaClass javaClass) {
@@ -211,6 +214,7 @@ public class JarToUML implements Runnable {
 				addClassifierInterface.doSwitch(classifier);
 			}
 		}
+		addClassifierInterface.setIface(null);
 	}
 	
 	private void addGeneralizations(Classifier classifier, JavaClass javaClass) {
@@ -244,6 +248,8 @@ public class JarToUML implements Runnable {
 				prop.setIsReadOnly(fields[i].isFinal());
 			}
 		}
+		addClassifierProperty.setPropertyName(null);
+		addClassifierProperty.setPropertyType(null);
 	}
 	
 	private void addOperations(Classifier classifier, JavaClass javaClass) {
@@ -265,6 +271,8 @@ public class JarToUML implements Runnable {
 				op.setIsStatic(methods[i].isStatic());
 			}
 		}
+		addClassifierOperation.setOperationName(null);
+		addClassifierOperation.setArgumentTypes(null);
 	}
 	
 	private EList toUMLTypes(org.apache.bcel.generic.Type[] types) {
@@ -400,8 +408,12 @@ public class JarToUML implements Runnable {
 		return jars.iterator();
 	}
 
-	public Model getModel() {
+	protected Model getModel() {
 		return model;
+	}
+
+	protected void setModel(Model model) {
+		this.model = model;
 	}
 
 	public Filter getFilter() {

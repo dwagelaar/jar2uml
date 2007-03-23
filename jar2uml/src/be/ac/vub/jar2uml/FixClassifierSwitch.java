@@ -45,6 +45,7 @@ public class FixClassifierSwitch extends UMLSwitch {
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getInterface());
 			replaceByClassifierSwitch.setClassifier(umlClass);
 			Interface umlIface = (Interface) replaceByClassifierSwitch.doSwitch(umlClass.getOwner());
+			replaceByClassifierSwitch.setClassifier(null);
 			umlIface.getNestedClassifiers().addAll(umlClass.getNestedClassifiers());
 			return doSwitch(umlIface);
 		}
@@ -59,6 +60,7 @@ public class FixClassifierSwitch extends UMLSwitch {
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			replaceByClassifierSwitch.setClassifier(umlIface);
 			Class umlClass = (Class) replaceByClassifierSwitch.doSwitch(umlIface.getOwner());
+			replaceByClassifierSwitch.setClassifier(null);
 			umlClass.getNestedClassifiers().addAll(umlIface.getNestedClassifiers());
 			return doSwitch(umlClass);
 		}
@@ -73,11 +75,13 @@ public class FixClassifierSwitch extends UMLSwitch {
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getInterface());
 			replaceByClassifierSwitch.setClassifier(datatype);
 			Interface umlIface = (Interface) replaceByClassifierSwitch.doSwitch(datatype.getOwner());
+			replaceByClassifierSwitch.setClassifier(null);
 			return doSwitch(umlIface);
 		} else {
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			replaceByClassifierSwitch.setClassifier(datatype);
 			Class umlClass = (Class) replaceByClassifierSwitch.doSwitch(datatype.getOwner());
+			replaceByClassifierSwitch.setClassifier(null);
 			return doSwitch(umlClass);
 		}
 	}
