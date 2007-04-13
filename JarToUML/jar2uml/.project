@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>platformkit-java</name>
+	<name>jar2uml</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -20,15 +20,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.atl.eclipse.adt.builder.atlBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.atl.eclipse.adt.builder.atlNature</nature>
 	</natures>
 </projectDescription>
