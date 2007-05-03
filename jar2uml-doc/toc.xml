@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Jar2UML Documentation">
+	<topic label="BCEL documentation" href="doc/bcel-docs/index.html"/> 
+	<topic label="BCEL API documentation" href="doc/bcel-docs/apidocs/index.html"/> 
+</toc>

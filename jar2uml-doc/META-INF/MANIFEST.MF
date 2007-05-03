@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jar2UML Documentation
+Bundle-SymbolicName: be.ac.vub.jar2uml.doc;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Vrije Universiteit Brussel
+Bundle-Localization: plugin
