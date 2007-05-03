@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="zip">
+
+	<target name="clean">
+		<delete file="../doc.zip"/>
+	</target>
+	
+	<target name="zip" depends="clean">
+		<zip destfile="../doc.zip">
+			<fileset dir=".">
+				<include name="doc/**"/>
+			</fileset>
+		</zip>
+	</target>
+	
+</project>
