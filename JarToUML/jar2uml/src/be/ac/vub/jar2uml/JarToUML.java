@@ -2,6 +2,8 @@ package be.ac.vub.jar2uml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -19,13 +21,15 @@ import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import org.apache.bcel.generic.Instruction;
+import org.apache.bcel.generic.InstructionList;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Model;
@@ -33,7 +37,6 @@ import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.PrimitiveType;
 import org.eclipse.uml2.uml.Property;
-import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.VisibilityKind;
@@ -59,7 +62,6 @@ public class JarToUML implements Runnable {
 	 */
 	public static void main(String[] args) {
 		try {
-			logger.setLevel(Level.INFO);
 			JarToUML jarToUML = new JarToUML();
 			jarToUML.setFilter(new JavaAPIFilter());
 			jarToUML.addJar(new JarFile(args[0]));
@@ -74,16 +76,28 @@ public class JarToUML implements Runnable {
 
 	private Model model = null;
 	private List jars = new ArrayList();
-	private TypeToClassifierSwitch typeToClassifier = null;
+	private ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
+	private TypeToClassifierSwitch typeToClassifier = new TypeToClassifierSwitch();
 	private FixClassifierSwitch fixClassifier = new FixClassifierSwitch();
 	private AddClassifierInterfaceSwitch addClassifierInterface = new AddClassifierInterfaceSwitch();
-	private AddClassifierPropertySwitch addClassifierProperty = new AddClassifierPropertySwitch();
-	private AddClassifierOperationSwitch addClassifierOperation = new AddClassifierOperationSwitch();
+	private AddClassifierPropertySwitch addClassifierProperty = new AddClassifierPropertySwitch(typeToClassifier);
+	private AddClassifierOperationSwitch addClassifierOperation = new AddClassifierOperationSwitch(typeToClassifier);
+	private AddInstructionReferencesVisitor addInstructionReferences = 
+		new AddInstructionReferencesVisitor(
+				typeToClassifier);
+	private AddInstructionDependenciesVisitor addInstructionDependencies = 
+		new AddInstructionDependenciesVisitor(
+				typeToClassifier,
+				addClassifierProperty,
+				addClassifierOperation);
 	private Filter filter = null;
 	private String outputFile = "api.uml";
 	private String outputModelName = "api";
+	private IProgressMonitor monitor = null;
+	private boolean includeInstructionReferences = false;
 
 	public JarToUML() {
+		logger.setLevel(Level.ALL);
 	}
 
 	public void run() {
@@ -95,21 +109,42 @@ public class JarToUML implements Runnable {
 			setModel(UMLFactory.eINSTANCE.createModel());
 			res.getContents().add(getModel());
 			getModel().setName(getOutputModelName());
-			typeToClassifier = new TypeToClassifierSwitch(getModel());
+			typeToClassifier.setRoot(getModel());
 			for (Iterator it = getJars(); it.hasNext();) {
 				JarFile jar = (JarFile) it.next();
 				addAllClassifiers(jar);
+				if (monitor != null) {
+					if (monitor.isCanceled()) {
+						break;
+					}
+				}
 			}
 			for (Iterator it = getJars(); it.hasNext();) {
 				JarFile jar = (JarFile) it.next();
 				addAllProperties(jar);
+				if (monitor != null) {
+					if (monitor.isCanceled()) {
+						break;
+					}
+				}
 			}
-			res.save(Collections.EMPTY_MAP);
+			if (monitor != null) {
+				if (!monitor.isCanceled()) {
+					res.save(Collections.EMPTY_MAP);
+				} else {
+					logger.info("JarToUML run cancelled");
+				}
+			} else {
+				res.save(Collections.EMPTY_MAP);
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			StringWriter stackTrace = new StringWriter();
+			e.printStackTrace(new PrintWriter(stackTrace));
+			logger.severe(e.getLocalizedMessage());
+			logger.severe(stackTrace.toString());
 		}
 		setModel(null);
-		typeToClassifier = null;
+		typeToClassifier.reset();
 		resourceSet.getResources().remove(res);
 		logger.info("Finished JarToUML");
 	}
@@ -130,7 +165,13 @@ public class JarToUML implements Runnable {
 				input.close();
 				addClassifier(javaClass);
 			}
+			if (monitor != null) {
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
 		}
+		fixClassifier.reset();
 	}
 	
 	private void addAllProperties(JarFile jar) throws IOException {
@@ -148,6 +189,11 @@ public class JarToUML implements Runnable {
 				JavaClass javaClass = parser.parse();
 				input.close();
 				addClassifierProperties(javaClass);
+			}
+			if (monitor != null) {
+				if (monitor.isCanceled()) {
+					break;
+				}
 			}
 		}
 	}
@@ -178,30 +224,55 @@ public class JarToUML implements Runnable {
 	}
 	
 	private void addClassifier(JavaClass javaClass) {
-		if (!isAPIClass(javaClass)) {
-			logger.fine("Skipped non-API class: " + javaClass.getClassName());
-			return;
+		String className = javaClass.getClassName();
+		if (getFilter() != null) {
+			if (!getFilter().filter(javaClass)) {
+				logger.fine("Skipped non-API class: " + className);
+				return;
+			}
 		}
-		logger.fine(javaClass.getClassName());
+		logger.fine(className);
 		Classifier classifier = 
-			findClassifier(getModel(), javaClass.getClassName(), UMLPackage.eINSTANCE.getClass_());
+			findClassifier(getModel(), className, UMLPackage.eINSTANCE.getClass_());
 		Assert.assertNotNull(classifier);
 		fixClassifier.setJavaClass(javaClass);
 		fixClassifier.doSwitch(classifier);
-		fixClassifier.setJavaClass(null);
+		addReferencedInterfaces(classifier, javaClass);
+		addReferencedGenerals(classifier, javaClass);
+		if (isIncludeInstructionReferences()) {
+			addOpCodeReferences(classifier, javaClass);
+		}
 	}
 	
 	private void addClassifierProperties(JavaClass javaClass) {
-		if (!isAPIClass(javaClass)) {
-			return;
+		String className = javaClass.getClassName();
+		if (getFilter() != null) {
+			if (!getFilter().filter(javaClass)) {
+				logger.fine("Skipped non-API class: " + className);
+				return;
+			}
 		}
-		logger.fine(javaClass.getClassName());
+		logger.fine(className);
 		Classifier classifier = 
-			findClassifier(getModel(), javaClass.getClassName(), null);
+			findClassifier(getModel(), className, null);
 		addInterfaceRealizations(classifier, javaClass);
 		addGeneralizations(classifier, javaClass);
 		addProperties(classifier, javaClass);
 		addOperations(classifier, javaClass);
+	}
+	
+	private void addReferencedInterfaces(Classifier classifier, JavaClass javaClass) {
+		Assert.assertNotNull(classifier);
+		String interfaces[] = javaClass.getInterfaceNames();
+		for (int i = 0; i < interfaces.length; i++) {
+			Classifier iface = findClassifier(getModel(), interfaces[i], UMLPackage.eINSTANCE.getInterface());
+			if (!(iface instanceof Interface)) {
+				replaceByClassifier.setClassifier(iface);
+				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getInterface());
+				iface = (Classifier) replaceByClassifier.doSwitch(iface.getOwner());
+			}
+		}
+		replaceByClassifier.reset();
 	}
 	
 	private void addInterfaceRealizations(Classifier classifier, JavaClass javaClass) {
@@ -209,19 +280,34 @@ public class JarToUML implements Runnable {
 		String interfaces[] = javaClass.getInterfaceNames();
 		for (int i = 0; i < interfaces.length; i++) {
 			Classifier iface = findClassifier(getModel(), interfaces[i], UMLPackage.eINSTANCE.getInterface());
-			if (iface instanceof Interface) {
-				addClassifierInterface.setIface((Interface) iface);
-				addClassifierInterface.doSwitch(classifier);
-			}
+			Assert.assertTrue(iface instanceof Interface);
+			addClassifierInterface.setIface((Interface) iface);
+			addClassifierInterface.doSwitch(classifier);
 		}
-		addClassifierInterface.setIface(null);
+		addClassifierInterface.reset();
 	}
 	
+	private void addReferencedGenerals(Classifier classifier, JavaClass javaClass) {
+		Assert.assertNotNull(classifier);
+		if (!"java.lang.Object".equals(javaClass.getSuperclassName())) {
+			Classifier superClass = findClassifier(getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
+			if (superClass != null) {
+				if (!(superClass instanceof Class)) {
+					replaceByClassifier.setClassifier(superClass);
+					replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
+					superClass = (Classifier) replaceByClassifier.doSwitch(superClass.getOwner());
+				}
+			}
+		}
+		replaceByClassifier.reset();
+	}
+
 	private void addGeneralizations(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		if (!"java.lang.Object".equals(javaClass.getSuperclassName())) {
 			Classifier superClass = findClassifier(getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
 			if (superClass != null) {
+				Assert.assertTrue(superClass instanceof Class);
 				classifier.createGeneralization(superClass);
 			}
 		}
@@ -231,60 +317,93 @@ public class JarToUML implements Runnable {
 		Assert.assertNotNull(classifier);
 		Field[] fields = javaClass.getFields();
 		for (int i = 0; i < fields.length; i++) {
-			if (isAPI(fields[i])) {
-				logger.fine(fields[i].getSignature());
-				Type type = (Type) typeToClassifier.doSwitch(fields[i].getType());
-				if (type == null) {
-					logger.warning("Type not found for " + 
-							javaClass.getClassName() + "#" + 
-							fields[i].getName() + " : " + 
-							fields[i].getType().getSignature());
+			if (getFilter() != null) {
+				if (!getFilter().filter(fields[i])) {
+					continue;
 				}
-				addClassifierProperty.setPropertyName(fields[i].getName());
-				addClassifierProperty.setPropertyType(type);
-				Property prop = (Property) addClassifierProperty.doSwitch(classifier);
-				prop.setVisibility(toUMLVisibility(fields[i]));
-				prop.setIsStatic(fields[i].isStatic());
-				prop.setIsReadOnly(fields[i].isFinal());
 			}
+			logger.fine(fields[i].getSignature());
+			addClassifierProperty.setPropertyName(fields[i].getName());
+			addClassifierProperty.setBCELPropertyType(fields[i].getType());
+			if (addClassifierProperty.getPropertyType() == null) {
+				logger.warning("Type not found for " + 
+						javaClass.getClassName() + "#" + 
+						fields[i].getName() + " : " + 
+						fields[i].getType().getSignature());
+			}
+			Property prop = (Property) addClassifierProperty.doSwitch(classifier);
+			prop.setVisibility(toUMLVisibility(fields[i]));
+			prop.setIsStatic(fields[i].isStatic());
+			prop.setIsReadOnly(fields[i].isFinal());
 		}
-		addClassifierProperty.setPropertyName(null);
-		addClassifierProperty.setPropertyType(null);
+		addClassifierProperty.reset();
 	}
 	
 	private void addOperations(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
-			if (isAPI(methods[i])) {
-				logger.fine(methods[i].getSignature());
-				org.apache.bcel.generic.Type[] types = methods[i].getArgumentTypes();
-				addClassifierOperation.setOperationName(methods[i].getName());
-				addClassifierOperation.setArgumentTypes(toUMLTypes(types));
-				Operation op = (Operation) addClassifierOperation.doSwitch(classifier);
-				Type type = (Type) typeToClassifier.doSwitch(methods[i].getReturnType());
-				if (type != null) {
-					op.setType(type);
+			if (getFilter() != null) {
+				if (!getFilter().filter(methods[i])) {
+					continue;
 				}
-				op.setVisibility(toUMLVisibility(methods[i]));
-				op.setIsAbstract(methods[i].isAbstract());
-				op.setIsStatic(methods[i].isStatic());
+			}
+			logger.fine(methods[i].getSignature());
+			org.apache.bcel.generic.Type[] types = methods[i].getArgumentTypes();
+			addClassifierOperation.setOperationName(methods[i].getName());
+			addClassifierOperation.setBCELArgumentTypes(types);
+			addClassifierOperation.setBCELReturnType(methods[i].getReturnType());
+			Operation op = (Operation) addClassifierOperation.doSwitch(classifier);
+			op.setVisibility(toUMLVisibility(methods[i]));
+			op.setIsAbstract(methods[i].isAbstract());
+			op.setIsStatic(methods[i].isStatic());
+			if (isIncludeInstructionReferences()) {
+				addOpCode(classifier, methods[i]);
 			}
 		}
-		addClassifierOperation.setOperationName(null);
-		addClassifierOperation.setArgumentTypes(null);
+		addClassifierOperation.reset();
 	}
 	
-	private EList toUMLTypes(org.apache.bcel.generic.Type[] types) {
-		EList umlTypes = new BasicEList();
-		for (int i = 0; i < types.length; i++) {
-			Type type = (Type) typeToClassifier.doSwitch(types[i]);
-			if (type == null) {
-				logger.warning("Type not found: " +	types[i].getSignature());
-			}
-			umlTypes.add(type);
+	private void addOpCode(Classifier instrContext, Method method) {
+		if (method.getCode() == null) {
+			return;
 		}
-		return umlTypes;
+		addInstructionDependencies.setInstrContext(instrContext);
+		addInstructionDependencies.setCp(method.getConstantPool());
+		InstructionList instrList = new InstructionList(method.getCode().getCode());
+		Instruction[] instr = instrList.getInstructions();
+		for (int i = 0; i < instr.length; i++) {
+			instr[i].accept(addInstructionDependencies);
+		}
+		addInstructionDependencies.reset();
+	}
+	
+	private void addOpCodeReferences(Classifier classifier, JavaClass javaClass) {
+		Assert.assertNotNull(classifier);
+		Method[] methods = javaClass.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			if (getFilter() != null) {
+				if (!getFilter().filter(methods[i])) {
+					continue;
+				}
+			}
+			logger.fine(methods[i].getSignature());
+			addOpCodeRefs(classifier, methods[i]);
+		}
+	}
+	
+	private void addOpCodeRefs(Classifier instrContext, Method method) {
+		if (method.getCode() == null) {
+			return;
+		}
+		addInstructionReferences.setInstrContext(instrContext);
+		addInstructionReferences.setCp(method.getConstantPool());
+		InstructionList instrList = new InstructionList(method.getCode().getCode());
+		Instruction[] instr = instrList.getInstructions();
+		for (int i = 0; i < instr.length; i++) {
+			instr[i].accept(addInstructionReferences);
+		}
+		addInstructionReferences.reset();
 	}
 	
 	public static String tail(String javaName, char delim) {
@@ -366,7 +485,7 @@ public class JarToUML implements Runnable {
 		}
 	}
 	
-	public static boolean isAPIClass(JavaClass javaClass) {
+	public static boolean isNamedClass(JavaClass javaClass) {
 		String leafName = tail(javaClass.getClassName(), '$');
 		try {
 			Integer.parseInt(leafName);
@@ -374,11 +493,7 @@ public class JarToUML implements Runnable {
 		} catch (NumberFormatException e) {
 			//everything allright, not an anonymous class
 		}
-		return isAPI(javaClass);
-	}
-	
-	public static boolean isAPI(AccessFlags flags) {
-		return (flags.isPublic() || flags.isProtected());
+		return true;
 	}
 	
 	public static VisibilityKind toUMLVisibility(AccessFlags flags) {
@@ -422,6 +537,7 @@ public class JarToUML implements Runnable {
 
 	public void setFilter(Filter filter) {
 		this.filter = filter;
+		//addConstantPoolEntries.setFilter(filter);
 	}
 
 	public String getOutputFile() {
@@ -438,6 +554,22 @@ public class JarToUML implements Runnable {
 
 	public void setOutputModelName(String outputModelName) {
 		this.outputModelName = outputModelName;
+	}
+
+	public IProgressMonitor getMonitor() {
+		return monitor;
+	}
+
+	public void setMonitor(IProgressMonitor monitor) {
+		this.monitor = monitor;
+	}
+
+	public boolean isIncludeInstructionReferences() {
+		return includeInstructionReferences;
+	}
+
+	public void setIncludeInstructionReferences(boolean includeInstructionReferences) {
+		this.includeInstructionReferences = includeInstructionReferences;
 	}
 
 }

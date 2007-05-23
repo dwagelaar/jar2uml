@@ -71,7 +71,9 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 			}
 		}
 		if (isCreate()) {
-			return parent.createNestedClassifier(localClassName, getMetaClass());
+			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
+			child.setIsAbstract(true);
+			return child;
 		}
 		return super.caseClass(parent);
 	}
@@ -86,7 +88,9 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 			}
 		}
 		if (isCreate()) {
-			return parent.createNestedClassifier(localClassName, getMetaClass());
+			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
+			child.setIsAbstract(true);
+			return child;
 		}
 		return super.caseInterface(parent);
 	}
@@ -104,7 +108,9 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 			}
 		}
 		if (isCreate()) {
-			return parent.createPackagedElement(localClassName, getMetaClass());
+			Classifier child = (Classifier) parent.createPackagedElement(localClassName, getMetaClass());
+			child.setIsAbstract(true);
+			return child;
 		}
 		return super.casePackage(parent);
 	}
@@ -114,8 +120,9 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
-			replaceByClassifierSwitch.setClassifier(null);
-			logger.warning("Classifier " + parent + " replaced by Class " + newParent + " to support nested Classifiers");
+			newParent.setIsAbstract(true);
+			replaceByClassifierSwitch.reset();
+			logger.info("Classifier " + parent + " replaced by Class " + newParent + " to support nested Classifiers");
 			return doSwitch(newParent);
 		}
 		return super.caseClassifier(parent);
