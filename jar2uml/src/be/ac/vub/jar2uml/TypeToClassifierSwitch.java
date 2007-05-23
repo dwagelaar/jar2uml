@@ -7,17 +7,13 @@ import org.apache.bcel.generic.BasicType;
 import org.apache.bcel.generic.ObjectType;
 import org.apache.bcel.verifier.structurals.UninitializedObjectType;
 import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.UMLPackage;
 
 public class TypeToClassifierSwitch extends TypeSwitch {
 	
-	private org.eclipse.uml2.uml.Package root;
+	private Package root = null;
 	
-	public TypeToClassifierSwitch(org.eclipse.uml2.uml.Package root) {
-		Assert.assertNotNull(root);
-		this.root = root;
-	}
-
 	public Object caseArrayType(ArrayType type) {
 		Classifier inner = (Classifier) doSwitch(type.getElementType());
 		Assert.assertNotNull(inner);
@@ -50,12 +46,25 @@ public class TypeToClassifierSwitch extends TypeSwitch {
 	}
 
 	public Object caseObjectType(ObjectType type) {
+		Assert.assertNotNull(root);
 		return JarToUML.findClassifier(root, type.getClassName(), UMLPackage.eINSTANCE.getDataType());
 	}
 
 	public Object caseUninitializedObjectType(UninitializedObjectType type) {
 		logger.warning("What is an UninitializedObjectType?! " + type);
 		return doSwitch(type.getInitialized());
+	}
+
+	public Package getRoot() {
+		return root;
+	}
+
+	public void setRoot(Package root) {
+		this.root = root;
+	}
+	
+	public void reset() {
+		setRoot(null);
 	}
 	
 }

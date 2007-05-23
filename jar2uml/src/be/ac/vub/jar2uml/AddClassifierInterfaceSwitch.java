@@ -29,5 +29,9 @@ public class AddClassifierInterfaceSwitch extends UMLSwitch {
 		Assert.assertNotNull(iface);
 		return umlIface.createGeneralization(iface);
 	}
+	
+	public void reset() {
+		setIface(null);
+	}
 
 }

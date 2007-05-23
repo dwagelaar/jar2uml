@@ -32,6 +32,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -40,6 +42,7 @@ import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
 import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.JavaAPIFilter;
+import be.ac.vub.jar2uml.PublicAPIFilter;
 
 
 public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
@@ -48,6 +51,8 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 	
 	protected FilesFieldEditor editor;
 	protected Button onlyJavaApiBtn;
+	protected Button allElementsBtn;
+	protected Button includeInstrRefsBtn;
 	protected JarToUML jarToUML = new JarToUML();
 
 	public JarToUMLImportWizardPage(String pageName, IStructuredSelection selection) {
@@ -87,6 +92,26 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 
 		onlyJavaApiBtn = new Button(parent, SWT.CHECK | SWT.LEFT);
 		onlyJavaApiBtn.setText("Only Java API packages");
+
+		allElementsBtn = new Button(parent, SWT.CHECK | SWT.LEFT);
+		allElementsBtn.setText("Include anonymous and private elements");
+
+		includeInstrRefsBtn = new Button(parent, SWT.CHECK | SWT.LEFT);
+		includeInstrRefsBtn.setText("Include elements referenced by bytecode instructions");
+
+		onlyJavaApiBtn.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				if (onlyJavaApiBtn.getSelection()) {
+					allElementsBtn.setSelection(false);
+					allElementsBtn.setEnabled(false);
+				} else {
+					allElementsBtn.setEnabled(true);
+				}
+			}
+		});
 	}
 	
 	 /* (non-Javadoc)
@@ -103,9 +128,12 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
         	jarToUML.clearJars();
         	if (onlyJavaApiBtn.getSelection()) {
     			jarToUML.setFilter(new JavaAPIFilter());
+        	} else if (allElementsBtn.getSelection()) {
+        		jarToUML.setFilter(null);
         	} else {
-    			jarToUML.setFilter(null);
+    			jarToUML.setFilter(new PublicAPIFilter());
         	}
+        	jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
 	    	StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";");
 	    	while (files.hasMoreTokens()) {
 				jarToUML.addJar(new JarFile(files.nextToken()));
@@ -131,6 +159,7 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
     	IPath path = fileHandle.getFullPath();
 		jarToUML.setOutputFile(path.toString());
 		jarToUML.setOutputModelName(path.removeFileExtension().lastSegment());
+		jarToUML.setMonitor(monitor);
 		jarToUML.run();
 
         if (monitor.isCanceled()) {
