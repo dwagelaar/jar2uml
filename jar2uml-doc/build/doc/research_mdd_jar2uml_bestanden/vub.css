@@ -1,0 +1,420 @@
+body
+{
+	margin: 0px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-style: normal;
+	background-color:#FFFFFF
+}
+
+a
+{
+	color: #333333;
+	text-decoration: none;
+}
+
+a:hover
+{
+	color: #333333;
+	text-decoration: underline;
+}
+
+a:active
+{
+	color: #333333;
+	text-decoration: underline;
+}
+
+.e
+{
+	padding-right: 10px;
+	background: transparent url(images/aoutside.gif) 100% 50% no-repeat;
+}
+
+.pdf
+{
+	padding-right: 10px;
+	background: transparent url(images/apdf.gif) 100% 50% no-repeat;
+}
+
+.doc
+{
+	padding-right: 10px;
+	background: transparent url(images/adoc.gif) 100% 50% no-repeat;
+}
+
+.email
+{
+	padding-right: 10px;
+	background: transparent url(images/aemail.gif) 100% 50% no-repeat;
+}
+
+#container { width: 760px; }
+
+#container table
+{
+	border: 0px solid #000000;
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+#container a.backtotop
+{
+	float: right;
+	background: transparent url(images/bulletup.gif) no-repeat center left;
+	text-indent: 10px;
+	font-size: 9px;
+	color: #766F53;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+#pageheader { }
+
+#pageheader h1
+{
+	clear: both;
+	background: transparent url(images/FULLb-vub.jpg) no-repeat left;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	height: 101px;
+}
+
+#pageheader h1 span { display: none; }
+
+#pageheader ul
+{
+	float: right;
+	height: 20px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	clear: right;
+}
+
+#pageheader li
+{
+	list-style-type: none;
+	display: block;
+	color: #766F53;
+	margin-top: 3px;
+	padding-left: 10px;
+	padding-right: 10px;
+	text-transform: uppercase;
+	float: left;
+}
+
+#pageheader li a
+{
+	color: #766F53;
+	text-decoration: none;
+}
+
+#pageheader li a:hover
+{
+	color: #000;
+	text-decoration: underline;
+	font-style: normal;
+}
+
+#pageheader li a:active
+{
+	color: #766F53;
+	text-decoration: none;
+	font-style: normal;
+}
+
+#pageheader li.selected
+{
+	color: #FFFFFF;
+	text-decoration: none;
+	font-style: normal;
+}
+
+#menu
+{
+	width: 150px;
+	/*border-right: 1px solid #766F53;*/
+}
+
+#menu h3
+{
+	padding-left: 30px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	margin-top: 30px;
+	font-size: 11px;
+	/*color: #FFF;*/
+	color: #333;
+	/*background-color: #766F53;*/
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+#menu ul
+{
+	list-style-image: url(images/bullet.gif);
+	list-style-position: outside;
+}
+
+#menu li.selected { font-weight: bold; }
+
+#menu a:link, #menu a:visited
+{
+	font-weight: normal;
+	color: #333;
+}
+
+#menu a:hover
+{
+	font-weight: normal;
+	color: #333;
+}
+
+#content
+{
+	width: 585px;
+	margin-left: 20px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+}
+
+#content a:link, #content a:visited
+{
+	text-decoration: none;
+	color: #333;
+}
+
+#content a:hover
+{
+	text-decoration: underline;
+	color: #333;
+}
+
+#content h2
+{
+	font-size: 18px;
+	color: #766F53;
+	font-weight: bold;
+}
+
+#content h3
+{
+	font-size: 15px;
+	color: #766F53;
+	text-indent: 15px;
+	border-bottom: 2px solid #766F53;
+	width: 522px;
+	font-weight: normal;
+	background-image: url(images/subtitlesquare.jpg);
+	background-repeat: no-repeat;
+	background-position: center left;
+}
+
+#content h4
+{
+	font-size: 11px;
+	color: #766F53;
+	font-weight: bold;
+}
+
+#content h5
+{
+	font-size: 11px;
+	color: #766F53;
+	font-style: italic;
+	font-weight: normal;
+}
+
+#content h6
+{
+	font-size: 11px;
+	color: #766F53;
+	font-weight: normal;
+}
+
+#content.menublock a:link, #content.menublock a:visited
+{
+	text-decoration: none;
+	color: #333;
+}
+
+#content.menublock a:hover
+{
+	text-decoration: underline;
+	color: #333;
+}
+
+#contenttitle
+{
+	clear: left;
+	margin-top: 25px;
+	margin-left: 28px;
+}
+
+#contentmenu ul
+{
+	margin: 0px 0px 20px;
+	padding: 0px 0px 15px 29px;
+}
+
+#contentmenu li
+{
+	list-style-type: none;
+	display: block;
+	border-left: 1px solid #766F53;
+	border-right: 1px solid #766F53;
+	float: left;
+	/* hack the world, zo krijg je 1 lijntje ipv 2 tussen elk item van contentmenu. grtz, Thomaz */
+	/* werkt zowel in safari als in internet explorer, heb nog niet in andere browsers getest */
+	margin-right: -1px;
+	margin-bottom: 15px;
+	color: #766F53;
+	line-height: 15px;
+}
+
+#contentmenu li a
+{
+	margin-right: 10px;
+	margin-left: 10px;
+	color: #766F53;
+}
+
+#contentmenu li a:hover
+{
+	text-decoration: underline;
+	color: #000;
+}
+
+#contentmenu li.selected { font-weight: bold; }
+
+#contenttext
+{
+	clear: left;
+	width: 522px;
+	margin-bottom: 20px;
+	margin-left: 28px;
+}
+
+#contenttext p { text-align: justify; }
+
+#contenttext img.leftimage
+{
+	float: left;
+	border: none;
+	margin: 10px 20px 10px 0px;
+}
+
+#contenttext img.rightimage
+{
+	float: right;
+	border: none;
+	margin: 10px 25px 10px 20px;
+}
+
+#contenttext ul
+{
+	list-style-image: url(images/bullet.gif);
+	list-style-position: outside;
+}
+
+#contenttext li.sub
+{
+	list-style-image: url(images/bullet.gif);
+	margin-left: 6px;
+}
+
+#contenttext div.menublock
+{
+	clear: both;
+	margin: 0px;
+}
+
+#contenttext div.menublock h3
+{
+	border: none;
+	background: none;
+	width: 230px;
+	border-bottom: 1px solid #766F53;
+}
+
+#contenttext div.menuleft
+{
+	width: 250px;
+	float: left;
+}
+
+#contenttext div.menuright
+{
+	width: 250px;
+	float: right;
+}
+
+#contenttext td { border: 1px solid #333; }
+#contenttext p.small { font-size: 9px; }
+#contenttext th { border: 1px solid #333; }
+#contenttext td.noborder { border: 0px solid #111; }
+
+#contenttext a:link, #contenttext a:visited
+{
+	text-decoration: none;
+	color: #999900;
+}
+
+#contenttext a:hover
+{
+	text-decoration: underline;
+	color: #999900;
+}
+
+#nieuwsspots a:link, #nieuwsspots a:visited
+{
+	text-decoration: none;
+	color: #999900;
+}
+
+#nieuwsspots a:hover
+{
+	text-decoration: underline;
+	color: #999900;
+}
+
+#nieuwsspots
+{
+	clear: left;
+	width: 522px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding-left: 28px;
+}
+
+#nieuwsspots h4
+{
+	font-size: 11px;
+	color: #766F53;
+	font-weight: bold;
+}
+
+#nieuwsspots p { text-align: justify; }
+
+#contact
+{
+	clear: left;
+	width: 750px;
+	height: 55px;
+	background: url(images/vublogo-1.gif) no-repeat center left;
+	background-position: 40px;
+	border-top: 1px solid #766F53;
+	font-size: 10px;
+	color: #766F53;
+	text-align: center;
+}
+
+#contact a { color: #766F53; }
+
+#contact p
+{
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-left: 90px;
+}
