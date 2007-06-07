@@ -304,6 +304,9 @@ public class JarToUML implements Runnable {
 
 	private void addGeneralizations(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
+		if (classifier instanceof Interface) {
+			return;
+		}
 		if (!classifier.getQualifiedName().endsWith("java::lang::Object")) {
 		//if (!"java.lang.Object".equals(javaClass.getSuperclassName())) {
 			Classifier superClass = findClassifier(getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
