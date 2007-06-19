@@ -591,8 +591,8 @@ public class JarToUML implements Runnable {
 	 * Whether or not to include classifier operations and attributes. Defaults to true.
 	 * @param includeFeatures the includeFeatures to set
 	 */
-	public void setIncludeFeatures(boolean includeProperties) {
-		this.includeFeatures = includeProperties;
+	public void setIncludeFeatures(boolean includeFeatures) {
+		this.includeFeatures = includeFeatures;
 	}
 
 }
