@@ -95,6 +95,7 @@ public class JarToUML implements Runnable {
 	private String outputModelName = "api";
 	private IProgressMonitor monitor = null;
 	private boolean includeInstructionReferences = false;
+	private boolean includeFeatures = true;
 
 	public JarToUML() {
 		logger.setLevel(Level.ALL);
@@ -257,8 +258,10 @@ public class JarToUML implements Runnable {
 			findClassifier(getModel(), className, null);
 		addInterfaceRealizations(classifier, javaClass);
 		addGeneralizations(classifier, javaClass);
-		addProperties(classifier, javaClass);
-		addOperations(classifier, javaClass);
+		if (isIncludeFeatures()) {
+			addProperties(classifier, javaClass);
+			addOperations(classifier, javaClass);
+		}
 	}
 	
 	private void addReferencedInterfaces(Classifier classifier, JavaClass javaClass) {
@@ -574,6 +577,22 @@ public class JarToUML implements Runnable {
 
 	public void setIncludeInstructionReferences(boolean includeInstructionReferences) {
 		this.includeInstructionReferences = includeInstructionReferences;
+	}
+
+	/**
+	 * Whether or not to include classifier operations and attributes. Defaults to true.
+	 * @return the includeFeatures
+	 */
+	public boolean isIncludeFeatures() {
+		return includeFeatures;
+	}
+
+	/**
+	 * Whether or not to include classifier operations and attributes. Defaults to true.
+	 * @param includeFeatures the includeFeatures to set
+	 */
+	public void setIncludeFeatures(boolean includeProperties) {
+		this.includeFeatures = includeProperties;
 	}
 
 }
