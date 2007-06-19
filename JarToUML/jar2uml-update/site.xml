@@ -21,5 +21,8 @@
    <feature url="features/be.ac.vub.jar2uml_1.0.6.jar" id="be.ac.vub.jar2uml" version="1.0.6">
       <category name="Jar2UML"/>
    </feature>
+   <feature url="features/be.ac.vub.jar2uml_1.0.7.jar" id="be.ac.vub.jar2uml" version="1.0.7">
+      <category name="Jar2UML"/>
+   </feature>
    <category-def name="Jar2UML" label="Jar2UML reverse engineering tool"/>
 </site>
