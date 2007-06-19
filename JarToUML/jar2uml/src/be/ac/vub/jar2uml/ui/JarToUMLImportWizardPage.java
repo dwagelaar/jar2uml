@@ -53,6 +53,7 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 	protected Button onlyJavaApiBtn;
 	protected Button allElementsBtn;
 	protected Button includeInstrRefsBtn;
+	protected Button includeFeaturesBtn;
 	protected JarToUML jarToUML = new JarToUML();
 
 	public JarToUMLImportWizardPage(String pageName, IStructuredSelection selection) {
@@ -90,6 +91,10 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 		
 		fileSelectionArea.moveAbove(null);
 
+		includeFeaturesBtn = new Button(parent, SWT.CHECK | SWT.LEFT);
+		includeFeaturesBtn.setText("Include operations and attributes");
+		includeFeaturesBtn.setSelection(true);
+
 		onlyJavaApiBtn = new Button(parent, SWT.CHECK | SWT.LEFT);
 		onlyJavaApiBtn.setText("Only Java API packages");
 
@@ -98,6 +103,23 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 
 		includeInstrRefsBtn = new Button(parent, SWT.CHECK | SWT.LEFT);
 		includeInstrRefsBtn.setText("Include elements referenced by bytecode instructions");
+
+		includeFeaturesBtn.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				if (!includeFeaturesBtn.getSelection()) {
+					allElementsBtn.setSelection(false);
+					allElementsBtn.setEnabled(false);
+					includeInstrRefsBtn.setSelection(false);
+					includeInstrRefsBtn.setEnabled(false);
+				} else {
+					allElementsBtn.setEnabled(true);
+					includeInstrRefsBtn.setEnabled(true);
+				}
+			}
+		});
 
 		onlyJavaApiBtn.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -126,6 +148,7 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 	protected InputStream getInitialContents() {
 		try {
         	jarToUML.clearJars();
+        	jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
         	if (onlyJavaApiBtn.getSelection()) {
     			jarToUML.setFilter(new JavaAPIFilter());
         	} else if (allElementsBtn.getSelection()) {
