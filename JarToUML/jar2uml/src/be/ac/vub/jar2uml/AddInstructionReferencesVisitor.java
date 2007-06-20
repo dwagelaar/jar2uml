@@ -9,7 +9,6 @@ import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.EmptyVisitor;
 import org.apache.bcel.generic.FieldOrMethod;
 import org.apache.bcel.generic.GETFIELD;
-import org.apache.bcel.generic.GETSTATIC;
 import org.apache.bcel.generic.INVOKEINTERFACE;
 import org.apache.bcel.generic.INVOKESPECIAL;
 import org.apache.bcel.generic.INVOKESTATIC;
@@ -18,7 +17,6 @@ import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.NEW;
 import org.apache.bcel.generic.ObjectType;
 import org.apache.bcel.generic.PUTFIELD;
-import org.apache.bcel.generic.PUTSTATIC;
 import org.apache.bcel.generic.ReferenceType;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
@@ -75,23 +73,9 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		Assert.assertTrue(owner instanceof Interface);
 	}
 
-	private void changeOwnerToContainer(Instruction obj) {
-		if (owner instanceof DataType) {
-			replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getInterface());
-			replaceByClassifier.setClassifier(owner);
-			owner = (Classifier) replaceByClassifier.doSwitch(owner.getOwner());
-		}
-		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface));
-	}
-	
 	public void visitGETFIELD(GETFIELD obj) {
 		//Only classes have instance fields
 		changeOwnerToClass(obj);
-	}
-
-	public void visitGETSTATIC(GETSTATIC obj) {
-		//Can be invoked on interfaces as well as classes (static final)
-		changeOwnerToContainer(obj);
 	}
 
 	public void visitINVOKEINTERFACE(INVOKEINTERFACE obj) {
@@ -117,11 +101,6 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	public void visitPUTFIELD(PUTFIELD obj) {
 		//Only classes have instance fields
 		changeOwnerToClass(obj);
-	}
-
-	public void visitPUTSTATIC(PUTSTATIC obj) {
-		//Can be invoked on interfaces as well as classes (static final)
-		changeOwnerToContainer(obj);
 	}
 
 	public void visitNEW(NEW obj) {

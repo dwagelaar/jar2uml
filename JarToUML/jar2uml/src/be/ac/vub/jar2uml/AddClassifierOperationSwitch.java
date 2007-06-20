@@ -7,6 +7,7 @@ import junit.framework.Assert;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.uml2.uml.Class;
+import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Parameter;
@@ -87,13 +88,27 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 			if (getReturnType() != null) {
 				Parameter par = op.createOwnedParameter("return", getReturnType());
 				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
-				//op.setType(getReturnType());
 			}
 		}
 		return op;
 	}
 
 	public Object caseInterface(Interface object) {
+		String name = getOperationName();
+		Assert.assertNotNull(name);
+		prepareArgs();
+		Operation op = object.getOwnedOperation(name, allArgNames, allArgTypes);
+		if (op == null) {
+			op = object.createOwnedOperation(name, argNames, getArgumentTypes());
+			if (getReturnType() != null) {
+				Parameter par = op.createOwnedParameter("return", getReturnType());
+				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
+			}
+		}
+		return op;
+	}
+
+	public Object caseDataType(DataType object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
 		prepareArgs();

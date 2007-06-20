@@ -3,6 +3,7 @@ package be.ac.vub.jar2uml;
 import junit.framework.Assert;
 
 import org.eclipse.uml2.uml.Class;
+import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Property;
 import org.eclipse.uml2.uml.Type;
@@ -58,6 +59,18 @@ public class AddClassifierPropertySwitch extends UMLSwitch {
 		Property ownedAtt = umlIface.getOwnedAttribute(name, type);
 		if (ownedAtt == null) {
 			return umlIface.createOwnedAttribute(name, type);
+		} else {
+			return ownedAtt;
+		}
+	}
+	
+	public Object caseDataType(DataType umlDataType) {
+		String name = getPropertyName();
+		Type type = getPropertyType();
+		Assert.assertNotNull(name);
+		Property ownedAtt = umlDataType.getOwnedAttribute(name, type);
+		if (ownedAtt == null) {
+			return umlDataType.createOwnedAttribute(name, type);
 		} else {
 			return ownedAtt;
 		}
