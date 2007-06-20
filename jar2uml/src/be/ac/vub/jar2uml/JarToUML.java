@@ -342,6 +342,7 @@ public class JarToUML implements Runnable {
 			prop.setVisibility(toUMLVisibility(fields[i]));
 			prop.setIsStatic(fields[i].isStatic());
 			prop.setIsReadOnly(fields[i].isFinal());
+			prop.setIsLeaf(fields[i].isFinal());
 		}
 		addClassifierProperty.reset();
 	}
@@ -364,6 +365,7 @@ public class JarToUML implements Runnable {
 			op.setVisibility(toUMLVisibility(methods[i]));
 			op.setIsAbstract(methods[i].isAbstract());
 			op.setIsStatic(methods[i].isStatic());
+			op.setIsLeaf(methods[i].isFinal());
 			if (isIncludeInstructionReferences()) {
 				addOpCode(classifier, methods[i]);
 			}

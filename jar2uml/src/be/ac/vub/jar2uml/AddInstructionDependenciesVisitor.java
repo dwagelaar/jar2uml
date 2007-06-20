@@ -75,6 +75,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		if (getInstrContext().conformsTo(owner)) {
 			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
 		}
+		att.setIsStatic(true);
 	}
 
 	public void visitInvokeInstruction(InvokeInstruction obj) {
