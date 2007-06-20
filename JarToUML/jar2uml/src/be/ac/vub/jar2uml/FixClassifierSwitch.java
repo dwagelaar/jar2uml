@@ -88,6 +88,7 @@ public class FixClassifierSwitch extends UMLSwitch {
 		Assert.assertNotNull(javaClass);
 		classifier.setIsAbstract(javaClass.isAbstract());
 		classifier.setVisibility(JarToUML.toUMLVisibility(javaClass));
+		classifier.setIsLeaf(javaClass.isFinal());
 		return classifier;
 	}
 	
