@@ -18,6 +18,7 @@ import org.apache.bcel.generic.PUTSTATIC;
 import org.apache.bcel.generic.ReferenceType;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Property;
@@ -66,8 +67,8 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	}
 
 	public void visitGETSTATIC(GETSTATIC obj) {
-		//Can be invoked on interfaces as well as classes (static final)
-		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface));
+		//Can be invoked on interfaces as well as classes (static final) -> allow DataType
+		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
 		Property att = (Property) addClassifierProperty.doSwitch(owner);
@@ -138,8 +139,8 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	}
 
 	public void visitPUTSTATIC(PUTSTATIC obj) {
-		//Can be invoked on interfaces as well as classes (static final)
-		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface));
+		//Can be invoked on interfaces as well as classes (static final) -> allow DataType
+		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
 		Property att = (Property) addClassifierProperty.doSwitch(owner);
