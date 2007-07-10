@@ -8,6 +8,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Package;
@@ -30,6 +31,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			atts = umlClass.getOwnedAttributes();
 			ops = umlClass.getOwnedOperations();
 			isAbstract = umlClass.isAbstract();
+			isLeaf = umlClass.isLeaf();
 			return umlClass;
 		}
 
@@ -38,7 +40,17 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			atts = umlIface.getOwnedAttributes();
 			ops = umlIface.getOwnedOperations();
 			isAbstract = umlIface.isAbstract();
+			isLeaf = umlIface.isLeaf();
 			return umlIface;
+		}
+
+		public Object caseDataType(DataType dataType) {
+			nested = null;
+			atts = dataType.getOwnedAttributes();
+			ops = dataType.getOwnedOperations();
+			isAbstract = dataType.isAbstract();
+			isLeaf = dataType.isLeaf();
+			return dataType;
 		}
 
 		public Object caseClassifier(Classifier classifier) {
@@ -46,6 +58,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			atts = null;
 			ops = null;
 			isAbstract = classifier.isAbstract();
+			isLeaf = classifier.isLeaf();
 			return classifier;
 		}
 	}
@@ -77,6 +90,16 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			return super.caseInterface(umlIface);
 		}
 
+		public Object caseDataType(DataType dataType) {
+			if (atts != null) {
+				dataType.getOwnedAttributes().addAll(atts);
+			}
+			if (ops != null) {
+				dataType.getOwnedOperations().addAll(ops);
+			}
+			return super.caseDataType(dataType);
+		}
+
 		public Object caseClassifier(Classifier classifier) {
 			classifier.setIsAbstract(isAbstract);
 			return classifier;
@@ -92,6 +115,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 	protected EList atts = null;
 	protected EList ops = null;
 	protected boolean isAbstract = false;
+	protected boolean isLeaf = false;
 	protected PreSwitch preSwitch = new PreSwitch();
 	protected PostSwitch postSwitch = new PostSwitch();
 	

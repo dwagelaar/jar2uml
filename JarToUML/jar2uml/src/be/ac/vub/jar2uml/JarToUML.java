@@ -274,6 +274,7 @@ public class JarToUML implements Runnable {
 				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getInterface());
 				iface = (Classifier) replaceByClassifier.doSwitch(iface.getOwner());
 			}
+            iface.setIsLeaf(false);
 		}
 		replaceByClassifier.reset();
 	}

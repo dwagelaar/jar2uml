@@ -89,6 +89,8 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 				Parameter par = op.createOwnedParameter("return", getReturnType());
 				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
 			}
+			op.setIsLeaf(true);		//final
+			op.setIsAbstract(true); //abstract
 		}
 		return op;
 	}
@@ -104,6 +106,8 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 				Parameter par = op.createOwnedParameter("return", getReturnType());
 				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
 			}
+			op.setIsLeaf(true);		//final
+			op.setIsAbstract(true); //abstract
 		}
 		return op;
 	}
@@ -119,6 +123,8 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 				Parameter par = op.createOwnedParameter("return", getReturnType());
 				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
 			}
+			op.setIsLeaf(true);		//final
+			op.setIsAbstract(true); //abstract
 		}
 		return op;
 	}

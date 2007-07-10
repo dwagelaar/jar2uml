@@ -1,5 +1,7 @@
 package be.ac.vub.jar2uml;
 
+import java.util.Iterator;
+
 import junit.framework.Assert;
 
 import org.apache.bcel.classfile.ConstantPool;
@@ -16,11 +18,14 @@ import org.apache.bcel.generic.InvokeInstruction;
 import org.apache.bcel.generic.PUTFIELD;
 import org.apache.bcel.generic.PUTSTATIC;
 import org.apache.bcel.generic.ReferenceType;
+import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Operation;
+import org.eclipse.uml2.uml.Parameter;
 import org.eclipse.uml2.uml.Property;
 import org.eclipse.uml2.uml.VisibilityKind;
 
@@ -63,7 +68,9 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Property att = (Property) addClassifierProperty.doSwitch(owner);
 		if (getInstrContext().conformsTo(owner)) {
 			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
 		}
+		att.setIsStatic(false);
 	}
 
 	public void visitGETSTATIC(GETSTATIC obj) {
@@ -74,6 +81,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Property att = (Property) addClassifierProperty.doSwitch(owner);
 		if (getInstrContext().conformsTo(owner)) {
 			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
 		}
 		att.setIsStatic(true);
 	}
@@ -91,8 +99,31 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(getInstrContext());
 		if (getInstrContext().conformsTo(owner)) {
 			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			EList params = newOp.getOwnedParameters();
+			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
+			if (childOp != null) {
+				newOp.setIsLeaf(false);
+			}
 		}
 		newOp.setIsAbstract(true);
+	}
+	
+	private EList getParameterNames(EList parameters) {
+		EList names = new BasicEList();
+		for (Iterator i = parameters.iterator(); i.hasNext();) {
+			Parameter par = (Parameter) i.next();
+			names.add(par.getName());
+		}
+		return names;
+	}
+
+	private EList getParameterTypes(EList parameters) {
+		EList types = new BasicEList();
+		for (Iterator i = parameters.iterator(); i.hasNext();) {
+			Parameter par = (Parameter) i.next();
+			types.add(par.getType());
+		}
+		return types;
 	}
 
 	public void visitINVOKESPECIAL(INVOKESPECIAL obj) {
@@ -102,7 +133,13 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(getInstrContext());
 		if (getInstrContext().conformsTo(owner)) {
 			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			EList params = newOp.getOwnedParameters();
+			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
+			if (childOp != null) {
+				newOp.setIsLeaf(false);
+			}
 		}
+		newOp.setIsAbstract(false); //these methods are never abstract
 	}
 
 	public void visitINVOKESTATIC(INVOKESTATIC obj) {
@@ -112,7 +149,13 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(getInstrContext());
 		if (getInstrContext().conformsTo(owner)) {
 			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			EList params = newOp.getOwnedParameters();
+			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
+			if (childOp != null) {
+				newOp.setIsLeaf(false);
+			}
 		}
+		newOp.setIsAbstract(false); //these methods are never abstract
 		newOp.setIsStatic(true);
 	}
 
@@ -136,7 +179,10 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(getInstrContext());
 		if (getInstrContext().conformsTo(owner)) {
 			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
+			//even 'final' (isReadOly) fields can be 'put' once
 		}
+		att.setIsStatic(false);
 	}
 
 	public void visitPUTSTATIC(PUTSTATIC obj) {
@@ -148,6 +194,8 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(getInstrContext());
 		if (getInstrContext().conformsTo(owner)) {
 			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
+			//even 'final' (isReadOly) fields can be 'put' once
 		}
 		att.setIsStatic(true);
 	}
