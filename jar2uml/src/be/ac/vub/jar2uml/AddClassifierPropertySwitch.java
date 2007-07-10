@@ -46,10 +46,11 @@ public class AddClassifierPropertySwitch extends UMLSwitch {
 		Assert.assertNotNull(name);
 		Property ownedAtt = umlClass.getOwnedAttribute(name, type);
 		if (ownedAtt == null) {
-			return umlClass.createOwnedAttribute(name, type);
-		} else {
-			return ownedAtt;
+			ownedAtt = umlClass.createOwnedAttribute(name, type);
+			ownedAtt.setIsLeaf(true);		//final
+			ownedAtt.setIsReadOnly(true);	//final
 		}
+		return ownedAtt;
 	}
 
 	public Object caseInterface(Interface umlIface) {
@@ -58,10 +59,11 @@ public class AddClassifierPropertySwitch extends UMLSwitch {
 		Assert.assertNotNull(name);
 		Property ownedAtt = umlIface.getOwnedAttribute(name, type);
 		if (ownedAtt == null) {
-			return umlIface.createOwnedAttribute(name, type);
-		} else {
-			return ownedAtt;
+			ownedAtt = umlIface.createOwnedAttribute(name, type);
+			ownedAtt.setIsLeaf(true);		//final
+			ownedAtt.setIsReadOnly(true);	//final
 		}
+		return ownedAtt;
 	}
 	
 	public Object caseDataType(DataType umlDataType) {
@@ -70,10 +72,11 @@ public class AddClassifierPropertySwitch extends UMLSwitch {
 		Assert.assertNotNull(name);
 		Property ownedAtt = umlDataType.getOwnedAttribute(name, type);
 		if (ownedAtt == null) {
-			return umlDataType.createOwnedAttribute(name, type);
-		} else {
-			return ownedAtt;
+			ownedAtt = umlDataType.createOwnedAttribute(name, type);
+			ownedAtt.setIsLeaf(true);		//final
+			ownedAtt.setIsReadOnly(true);	//final
 		}
+		return ownedAtt;
 	}
 	
 	public void reset() {

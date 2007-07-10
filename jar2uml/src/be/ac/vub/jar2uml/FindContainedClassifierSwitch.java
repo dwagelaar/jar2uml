@@ -73,6 +73,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		if (isCreate()) {
 			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
 			child.setIsAbstract(true);
+			child.setIsLeaf(true);
 			return child;
 		}
 		return super.caseClass(parent);
@@ -90,6 +91,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		if (isCreate()) {
 			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
 			child.setIsAbstract(true);
+			child.setIsLeaf(true);
 			return child;
 		}
 		return super.caseInterface(parent);
@@ -110,6 +112,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		if (isCreate()) {
 			Classifier child = (Classifier) parent.createPackagedElement(localClassName, getMetaClass());
 			child.setIsAbstract(true);
+			child.setIsLeaf(true);
 			return child;
 		}
 		return super.casePackage(parent);
@@ -120,7 +123,6 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
-			newParent.setIsAbstract(true);
 			replaceByClassifierSwitch.reset();
 			logger.info("Classifier " + parent + " replaced by Class " + newParent + " to support nested Classifiers");
 			return doSwitch(newParent);
