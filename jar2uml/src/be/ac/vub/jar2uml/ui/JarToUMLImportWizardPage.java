@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -28,6 +29,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -38,6 +42,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.dialogs.ContainerGenerator;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
 import be.ac.vub.jar2uml.JarToUML;
@@ -55,6 +61,9 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
 	protected Button includeInstrRefsBtn;
 	protected Button includeFeaturesBtn;
 	protected JarToUML jarToUML = new JarToUML();
+	
+	// cache of newly-created file
+	private IFile newFile;
 
 	public JarToUMLImportWizardPage(String pageName, IStructuredSelection selection) {
 		super(pageName, selection);
@@ -188,6 +197,68 @@ public class JarToUMLImportWizardPage extends WizardNewFileCreationPage {
         if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
+    }
+    
+    /**
+     * Creates a file resource and returns it. Overriding necessary for compatibility
+     * with Eclipse 3.3.
+     */
+    public IFile createNewFile() {
+		if (newFile != null) {
+			return newFile;
+		}
+
+		// create the new file and cache it if successful
+		final IPath containerPath = getContainerFullPath();
+		final IPath newFilePath = containerPath.append(getFileName());
+		final IFile newFileHandle = createFileHandle(newFilePath);
+		final InputStream initialContents = getInitialContents();
+
+        createLinkTarget();
+        WorkspaceModifyOperation op = new WorkspaceModifyOperation(createRule(newFileHandle)) {
+            protected void execute(IProgressMonitor monitor)
+                    throws CoreException {
+                try {
+                    monitor.beginTask("Creating", 2000);
+                    ContainerGenerator generator = new ContainerGenerator(
+                            containerPath);
+                    generator.generateContainer(new SubProgressMonitor(monitor,
+                            1000));
+                    createFile(newFileHandle, initialContents,
+                            new SubProgressMonitor(monitor, 1000));
+                } finally {
+                    monitor.done();
+                }
+            }
+        };
+
+        try {
+            getContainer().run(true, true, op);
+        } catch (InterruptedException e) {
+            return null;
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof CoreException) {
+                ErrorDialog
+                        .openError(
+                                getContainer().getShell(), // Was Utilities.getFocusShell()
+                                "Creation Problems",
+                                null, // no special message
+                                ((CoreException) e.getTargetException())
+                                        .getStatus());
+            } else {
+                // CoreExceptions are handled above, but unexpected runtime exceptions and errors may still occur.
+            	logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                MessageDialog
+                        .openError(
+                                getContainer().getShell(),
+                                "Creation problems", "Internal error: " + e.getTargetException().getMessage());
+            }
+            return null;
+        }
+
+		newFile = newFileHandle;
+
+		return newFile;
     }
 
     /* (non-Javadoc)
