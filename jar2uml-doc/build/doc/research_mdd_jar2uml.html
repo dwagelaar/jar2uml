@@ -89,148 +89,172 @@
 				<div id="tocinside">
 
 				<ul class="toc">
-					<li class="level1"><span class="li"><a href="#jar2uml"
-						class="toc">Jar2UML</a></span>
+					<li class="level1">
+					<div class="li"><span class="li"><a href="#jar2uml"
+						class="toc">Jar2UML</a></span></div>
 					<ul class="toc">
-						<li class="level2"><span class="li"><a href="#contact"
-							class="toc">Contact</a></span></li>
-						<li class="level2"><span class="li"><a
-							href="#download" class="toc">Download</a></span></li>
-						<li class="level2"><span class="li"><a
-							href="#documentation" class="toc">Documentation</a></span>
+
+						<li class="level2">
+						<div class="li"><span class="li"><a href="#contact"
+							class="toc">Contact</a></span></div>
+						</li>
+						<li class="level2">
+						<div class="li"><span class="li"><a href="#download"
+							class="toc">Download</a></span></div>
+						</li>
+						<li class="level2">
+						<div class="li"><span class="li"><a
+							href="#importing_jar_files" class="toc">Importing Jar files</a></span></div>
 						<ul class="toc">
-							<li class="level3"><span class="li"><a
+							<li class="level3">
+							<div class="li"><span class="li"><a
 								href="#fig.1jar2uml_import_wizard" class="toc">Fig.1:
-							Jar2UML Import Wizard</a></span></li>
+							Jar2UML Import Wizard</a></span></div>
+							</li>
+						</ul>
+						</li>
+						<li class="level2">
+						<div class="li"><span class="li"><a
+							href="#importing_jar_file_dependencies" class="toc">Importing
+						Jar file dependencies</a></span></div>
+						<ul class="toc">
+							<li class="level3">
+							<div class="li"><span class="li"><a
+								href="#fig.2jar2uml_dependencies_import_wizard" class="toc">Fig.2:
+							Jar2UML Dependencies Import Wizard</a></span></div>
+							</li>
 						</ul>
 						</li>
 					</ul>
+
 					</li>
 				</ul>
 				</div>
 				</div>
 
-				<a name="jar2uml"></a>
-				<h1>Jar2UML</h1>
+
+
+				<h1><a name="jar2uml" id="jar2uml">Jar2UML</a></h1>
 				<div class="level1">
 
 				<p><a href="http://www.eclipse.org/gmt/modisco/" class="media"
-					target="_blank" title="http://www.eclipse.org/gmt/modisco/"
-					onclick="return svchk()" onkeypress="return svchk()"><img
-					src="research_mdd_jar2uml_bestanden/fetch.jpeg" class="mediaright"
-					alt="" /></a></p>
+					title="http://www.eclipse.org/gmt/modisco/"><img
+					src="http://www.eclipse.org/gmt/modisco/resources/logoMoDiscoSmall.jpg"
+					class="mediaright"
+					title="www.eclipse.org_gmt_modisco_resources_logomodiscosmall.jpg"
+					alt="www.eclipse.org_gmt_modisco_resources_logomodiscosmall.jpg" /></a>
+				</p>
 
-				<p>Jar2<acronym title="Unified Modeling Language">UML</acronym>
-				imports Java jar files as a <acronym
-					title="Unified Modeling Language">UML</acronym> model into the
-				workspace. It is used to reverse engineer Java <acronym
+				<p>Jar2UML is an Eclipse plugin that imports Java jar files as a
+				<acronym title="Unified Modeling Language">UML</acronym> model into
+				the workspace. It is used to reverse engineer Java <acronym
 					title="Application Programming Interface">API</acronym> class
-				libraries for <a
-					href="http://ssel.vub.ac.be/ssel/research:mdd:platformkit"
-					class="wikilink1" title="research:mdd:platformkit"
-					onclick="return svchk()" onkeypress="return svchk()">PlatformKit</a>‘s
+				libraries for <a href="http://ssel.vub.ac.be/ssel/research:mdd:platformkit"
+					class="wikilink1" title="research:mdd:platformkit">PlatformKit</a>&lsquo;s
 				Java platform model. Jar2UML is included in the <a
 					href="http://www.eclipse.org/gmt/modisco/toolBox/"
-					class="urlextern" target="_blank"
-					title="http://www.eclipse.org/gmt/modisco/toolBox/"
-					onclick="return svchk()" onkeypress="return svchk()">Eclipse
+					class="urlextern"
+					title="http://www.eclipse.org/gmt/modisco/toolBox/">Eclipse
 				MoDisco Toolbox</a>.</p>
+
+				<p>Jar2UML has two import modes. The standard mode imports the
+				contents of the selected Jar file(s) and the references made by the
+				Jar file(s). The dependency mode imports only the references. The
+				dependency mode can be used when <a
+					href="http://ssel.vub.ac.be/ssel/research:mdd:platformkit:extractdeps" class="wikilink1"
+					title="research:mdd:platformkit:extractdeps">Extracting
+				Platform Dependencies of Third-party Components</a> using the <a
+					href="http://ssel.vub.ac.be/ssel/research:mdd:platformkit:eclipse" class="wikilink1"
+					title="research:mdd:platformkit:eclipse">PlatformKit Eclipse
+				Plugin</a>.</p>
 
 				</div>
 
-				<a name="contact"></a>
-				<h2>Contact</h2>
+				<h2><a name="contact" id="contact_">Contact</a></h2>
 				<div class="level2">
 				<ul>
+
 					<li class="level1">
 					<div class="li"><strong><a
 						href="http://ssel.vub.ac.be/ssel/about:members:denniswagelaar"
-						class="interwiki"
-						title="http://ssel.vub.ac.be/ssel/about:members:denniswagelaar"
-						style="background-image: url(/ssel/lib/images/interwiki/sselmember.png);"
-						onclick="return svchk()" onkeypress="return svchk()">Dennis
+						class="interwiki iw_sselmember"
+						title="http://ssel.vub.ac.be/ssel/about:members:denniswagelaar">Dennis
 					Wagelaar</a></strong></div>
 					</li>
 				</ul>
 
 				</div>
 
-				<a name="download"></a>
-				<h2>Download</h2>
+				<h2><a name="download" id="download">Download</a></h2>
 				<div class="level2">
 
-				<p>To download the PlatformKit Eclipse plugin, do the following
-				in your Eclipse:</p>
+				<p>To download the JarToUML Eclipse plugin, do the following in
+				your Eclipse:</p>
 				<ul>
+
 					<li class="level1">
-					<div class="li">Select “Help → Software Updates → Find and
-					Install...” from the main menu.</div>
+					<div class="li">Select &ldquo;Help &rarr; Software Updates
+					&rarr; Find and Install...&rdquo; from the main menu.</div>
 					</li>
 					<li class="level1">
-					<div class="li">Select “Search for new features to install”
-					and click “Next”.</div>
+					<div class="li">Select &ldquo;Search for new features to
+					install&rdquo; and click &ldquo;Next&rdquo;.</div>
+
 					</li>
 					<li class="level1">
-					<div class="li">Click “New Remote Site...”.</div>
+					<div class="li">Click &ldquo;New Remote Site...&rdquo;.</div>
 					</li>
 					<li class="level1">
 					<div class="li">Choose a name, fill in <a
 						href="http://ssel.vub.ac.be/tools/jar2uml/update"
-						class="urlextern" target="_blank"
-						title="http://ssel.vub.ac.be/tools/jar2uml/update"
-						onclick="return svchk()" onkeypress="return svchk()">http://ssel.vub.ac.be/tools/jar2uml/update</a>
+						class="urlextern"
+						title="http://ssel.vub.ac.be/tools/jar2uml/update">http://ssel.vub.ac.be/tools/jar2uml/update</a>
 					as <acronym title="Uniform Resource Locator">URL</acronym> and
-					click “OK”.</div>
+					click &ldquo;OK&rdquo;.</div>
+
 					</li>
 					<li class="level1">
-					<div class="li">Click “Finish”.</div>
+					<div class="li">Click &ldquo;Finish&rdquo;.</div>
 					</li>
 					<li class="level1">
 					<div class="li">Select the newly created update site and
-					click “Next”.</div>
+					click &ldquo;Next&rdquo;.</div>
 					</li>
 					<li class="level1">
 					<div class="li">Now proceed with the installation as you
 					normally would.</div>
 					</li>
+
 				</ul>
 
 				<p>Please report any bugs you find in the <a
 					href="https://ssel.vub.ac.be/bugzilla/query.cgi?product=Jar2UML"
-					class="urlextern" target="_blank"
-					title="https://ssel.vub.ac.be/bugzilla/query.cgi?product=Jar2UML"
-					onclick="return svchk()" onkeypress="return svchk()">Jar2UML
+					class="urlextern"
+					title="https://ssel.vub.ac.be/bugzilla/query.cgi?product=Jar2UML">Jar2UML
 				bugzilla</a>. The source code is available here: <a
 					href="http://ssel.vub.ac.be/viewcvs/viewcvs.py/JarToUML/"
-					class="urlextern" target="_blank"
-					title="http://ssel.vub.ac.be/viewcvs/viewcvs.py/JarToUML/"
-					onclick="return svchk()" onkeypress="return svchk()">http://ssel.vub.ac.be/viewcvs/viewcvs.py/JarToUML/</a>
+					class="urlextern"
+					title="http://ssel.vub.ac.be/viewcvs/viewcvs.py/JarToUML/">http://ssel.vub.ac.be/viewcvs/viewcvs.py/JarToUML/</a>
 				</p>
-
 				<ul>
 					<li class="level1">
 					<div class="li"><a
 						href="http://ssel.vub.ac.be/viewcvs/viewcvs.py/*checkout*/JarToUML/jar2uml-feature/release-notes.html"
-						class="urlextern" target="_blank"
-						title="http://ssel.vub.ac.be/viewcvs/viewcvs.py/*checkout*/JarToUML/jar2uml-feature/release-notes.html"
-						onclick="return svchk()" onkeypress="return svchk()">Release
+						class="urlextern"
+						title="http://ssel.vub.ac.be/viewcvs/viewcvs.py/*checkout*/JarToUML/jar2uml-feature/release-notes.html">Release
 					notes</a></div>
 					</li>
 				</ul>
 
 				</div>
 
-				<a name="documentation"></a>
-				<h2>Documentation</h2>
+				<h2><a name="importing_jar_files" id="importing_jar_files">Importing
+				Jar files</a></h2>
 				<div class="level2">
-
-				<p>Current Jar2UML documentation is limited to this webpage. For
-				now, a few usage hints will be given below:</p>
 				<ul>
 					<li class="level1">
 					<div class="li">Start by selecting &ldquo;File &rarr;
 					Import...&rdquo; in the Eclipse menu.</div>
-
 					</li>
 					<li class="level1">
 					<div class="li">Select &ldquo;Jar2UML Import &rarr; Import
@@ -239,11 +263,11 @@
 					Wizard dialog appears (see <a href="#fig.1jar2uml_import_wizard"
 						title="research:mdd:jar2uml &crarr;" class="wikilink1">Fig.1:
 					Jar2UML Import Wizard</a>).</div>
-					</li>
 
+					</li>
 					<li class="level1">
 					<div class="li">At &ldquo;Select File:&rdquo;, select the jar
-					files you want te reverse engineer to <acronym
+					files you want to reverse engineer to <acronym
 						title="Unified Modeling Language">UML</acronym>.</div>
 					</li>
 					<li class="level1">
@@ -251,8 +275,8 @@
 					folder&rdquo;, select the folder in the workspace where you want to
 					save your <acronym title="Unified Modeling Language">UML</acronym>
 					model.</div>
-					</li>
 
+					</li>
 					<li class="level1">
 					<div class="li">At &ldquo;New File Name:&rdquo;, choose a
 					file name for your <acronym title="Unified Modeling Language">UML</acronym>
@@ -262,8 +286,8 @@
 					<div class="li">If you don&rsquo;t want to import operations
 					and attributes, then uncheck the &ldquo;Include operations and
 					attributes&rdquo; option.</div>
-					</li>
 
+					</li>
 					<li class="level1">
 					<div class="li">If you only want to import packages starting
 					with &ldquo;java&rdquo;, &ldquo;org.omg&rdquo;,
@@ -279,39 +303,95 @@
 					&ldquo;Include anonymous and private elements&rdquo;.</div>
 					</li>
 					<li class="level1">
-					<div class="li">Jar2<acronym
-						title="Unified Modeling Language">UML</acronym> has to introduce
-					references to dependencies in the <acronym
-						title="Unified Modeling Language">UML</acronym> model to provide
-					an accurate model of the jar file. If you want Jar2UML to
-					exhaustively search for dependencies in the bytecode instructions
-					themselves, select &ldquo;Include elements referenced by bytecode
-					instructions&rdquo;.</div>
-
+					<div class="li">Jar2UML has to introduce references to
+					dependencies in the <acronym title="Unified Modeling Language">UML</acronym>
+					model to provide an accurate model of the jar file. If you want
+					Jar2UML to exhaustively search for dependencies in the bytecode
+					instructions themselves, select &ldquo;Include elements referenced
+					by bytecode instructions&rdquo;.</div>
 					</li>
 					<li class="level1">
 					<div class="li">Click &ldquo;Finish&rdquo; to create the <acronym
 						title="Unified Modeling Language">UML</acronym> model from the
 					selected jar files.</div>
+
 					</li>
 				</ul>
 
 				</div>
 
-				<a name="fig.1jar2uml_import_wizard"></a>
-				<h3>Fig.1: Jar2UML Import Wizard</h3>
+				<h3><a name="fig.1jar2uml_import_wizard"
+					id="fig.1jar2uml_import_wizard">Fig.1: Jar2UML Import Wizard</a></h3>
 				<div class="level3">
 
 				<p><a
-					href="http://ssel.vub.ac.be/ssel/lib/exe/fetch.php?cache=cache&amp;media=research%3Amdd%3Ajar2uml.png"
-					class="media" title="research:mdd:jar2uml.png"
-					onclick="return svchk()" onkeypress="return svchk()"><img
-					src="research_mdd_jar2uml_bestanden/jar2uml.png" class="media"
-					alt="" width="444" /></a></p>
+					href="research_mdd_jar2uml_bestanden/jar2uml.png"
+					class="media" title="research:mdd:jar2uml.png"><img
+					src="research_mdd_jar2uml_bestanden/jar2uml.png"
+					class="mediacenter" alt="" width="444" /></a></p>
 
 				</div>
 
-				<!-- cachefile /var/www/wikis/sselng/data/cache/0/0231473566c6a9e47270992f20251c27.xhtml used -->
+				<h2><a name="importing_jar_file_dependencies"
+					id="importing_jar_file_dependencies">Importing Jar file
+				dependencies</a></h2>
+
+				<div class="level2">
+				<ul>
+					<li class="level1">
+					<div class="li">Start by selecting &ldquo;File &rarr;
+					Import...&rdquo; in the Eclipse menu.</div>
+					</li>
+					<li class="level1">
+					<div class="li">Select &ldquo;Jar2UML Import &rarr; Import
+					Jar File Dependencies to <acronym title="Unified Modeling Language">UML</acronym>
+					Models&rdquo; and click &ldquo;Next&rdquo;. The Jar2UML Import
+					Wizard dialog appears (see <a
+						href="#fig.2jar2uml_dependencies_import_wizard"
+						title="research:mdd:jar2uml &crarr;" class="wikilink1">Fig.2:
+					Jar2UML Dependencies Import Wizard</a>).</div>
+
+					</li>
+					<li class="level1">
+					<div class="li">At &ldquo;Select File:&rdquo;, select the jar
+					files of you want to reverse engineer the dependencies to <acronym
+						title="Unified Modeling Language">UML</acronym>.</div>
+					</li>
+					<li class="level1">
+					<div class="li">At &ldquo;Enter or select the parent
+					folder&rdquo;, select the folder in the workspace where you want to
+					save your <acronym title="Unified Modeling Language">UML</acronym>
+					model.</div>
+
+					</li>
+					<li class="level1">
+					<div class="li">At &ldquo;New File Name:&rdquo;, choose a
+					file name for your <acronym title="Unified Modeling Language">UML</acronym>
+					model.</div>
+					</li>
+					<li class="level1">
+					<div class="li">Click &ldquo;Finish&rdquo; to create the <acronym
+						title="Unified Modeling Language">UML</acronym> model from the
+					selected jar files.</div>
+
+					</li>
+				</ul>
+
+				</div>
+
+				<h3><a name="fig.2jar2uml_dependencies_import_wizard"
+					id="fig.2jar2uml_dependencies_import_wizard">Fig.2: Jar2UML
+				Dependencies Import Wizard</a></h3>
+				<div class="level3">
+
+				<p><a
+					href="research_mdd_jar2uml_bestanden/importjardependencies.png"
+					class="media" title="research:mdd:importjardependencies.png"><img
+					src="research_mdd_jar2uml_bestanden/importjardependencies.png"
+					class="mediacenter" alt="" width="444" /></a></p>
+
+				</div>
+
 				<!-- wikipage stop --></div>
 
 				<div class="clearer">&nbsp;</div>
