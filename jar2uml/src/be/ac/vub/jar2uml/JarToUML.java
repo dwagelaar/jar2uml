@@ -31,6 +31,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.Operation;
@@ -76,6 +77,7 @@ public class JarToUML implements Runnable {
 
 	private Model model = null;
 	private List jars = new ArrayList();
+	private RemoveClassifierSwitch removeClassifier = new RemoveClassifierSwitch();
 	private ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
 	private TypeToClassifierSwitch typeToClassifier = new TypeToClassifierSwitch();
 	private FixClassifierSwitch fixClassifier = new FixClassifierSwitch();
@@ -96,6 +98,7 @@ public class JarToUML implements Runnable {
 	private IProgressMonitor monitor = null;
 	private boolean includeInstructionReferences = false;
 	private boolean includeFeatures = true;
+	private boolean dependenciesOnly = false;
 
 	public JarToUML() {
 		logger.setLevel(Level.ALL);
@@ -129,6 +132,18 @@ public class JarToUML implements Runnable {
 					}
 				}
 			}
+			if (dependenciesOnly) {
+				for (Iterator it = getJars(); it.hasNext();) {
+					JarFile jar = (JarFile) it.next();
+					removeAllClassifiers(jar);
+					if (monitor != null) {
+						if (monitor.isCanceled()) {
+							break;
+						}
+					}
+				}
+			}
+			removeEmptyPackages(getModel());
 			if (monitor != null) {
 				if (!monitor.isCanceled()) {
 					res.save(Collections.EMPTY_MAP);
@@ -199,10 +214,35 @@ public class JarToUML implements Runnable {
 		}
 	}
 	
+	private void removeAllClassifiers(JarFile jar) throws IOException {
+		Assert.assertNotNull(jar);
+		for (Enumeration entries = jar.entries(); entries.hasMoreElements();) {
+			JarEntry entry = (JarEntry) entries.nextElement();
+			if (entry.getName().endsWith(".class")) {
+				if (getFilter() != null) {
+					if (!getFilter().filter(entry.getName())) {
+						continue;
+					}
+				}
+				InputStream input = jar.getInputStream(entry);
+				ClassParser parser = new ClassParser(input, entry.getName());
+				JavaClass javaClass = parser.parse();
+				input.close();
+				removeClassifier(javaClass);
+			}
+			if (monitor != null) {
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
+		}
+		removeClassifier.reset();
+	}
+	
 	public static Package findPackage(Package root, String packageName, boolean create) {
 		Assert.assertNotNull(packageName);
 		Package parent = root;
-		String tail = tail(packageName, '.');
+		final String tail = tail(packageName, '.');
 		if (tail.length() < packageName.length()) {
 			String parentName = packageName.substring(0, packageName.length() - tail.length() - 1);
 			parent = findPackage(root, parentName, create);
@@ -225,7 +265,7 @@ public class JarToUML implements Runnable {
 	}
 	
 	private void addClassifier(JavaClass javaClass) {
-		String className = javaClass.getClassName();
+		final String className = javaClass.getClassName();
 		if (getFilter() != null) {
 			if (!getFilter().filter(javaClass)) {
 				logger.fine("Skipped non-API class: " + className);
@@ -233,7 +273,7 @@ public class JarToUML implements Runnable {
 			}
 		}
 		logger.fine(className);
-		Classifier classifier = 
+		final Classifier classifier = 
 			findClassifier(getModel(), className, UMLPackage.eINSTANCE.getClass_());
 		Assert.assertNotNull(classifier);
 		fixClassifier.setJavaClass(javaClass);
@@ -246,7 +286,7 @@ public class JarToUML implements Runnable {
 	}
 	
 	private void addClassifierProperties(JavaClass javaClass) {
-		String className = javaClass.getClassName();
+		final String className = javaClass.getClassName();
 		if (getFilter() != null) {
 			if (!getFilter().filter(javaClass)) {
 				logger.fine("Skipped non-API class: " + className);
@@ -254,7 +294,7 @@ public class JarToUML implements Runnable {
 			}
 		}
 		logger.fine(className);
-		Classifier classifier = 
+		final Classifier classifier = 
 			findClassifier(getModel(), className, null);
 		addInterfaceRealizations(classifier, javaClass);
 		addGeneralizations(classifier, javaClass);
@@ -263,7 +303,50 @@ public class JarToUML implements Runnable {
 			addOperations(classifier, javaClass);
 		}
 	}
+
+	private void removeClassifier(JavaClass javaClass) {
+		final String className = javaClass.getClassName();
+		if (getFilter() != null) {
+			if (!getFilter().filter(javaClass)) {
+				logger.fine("Skipped non-API class: " + className);
+				return;
+			}
+		}
+		logger.fine(className);
+		final Classifier classifier = 
+			findClassifier(getModel(), className, null);
+		if (classifier != null) {
+			final Element owner = classifier.getOwner();
+			Assert.assertNotNull(owner);
+			removeClassifier.setClassifier(classifier);
+			removeClassifier.doSwitch(owner);
+		}
+	}
 	
+	/**
+	 * Recursively removes empty packages from fromPackage.
+	 * @param fromPackage
+	 */
+	private void removeEmptyPackages(Package fromPackage) {
+		for (Iterator it = fromPackage.getPackagedElements().iterator(); it.hasNext();) {
+			if (monitor != null) {
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
+			Object o = it.next();
+			if (o instanceof Package) {
+				Package pack = (Package) o;
+				removeEmptyPackages(pack);
+				if (pack.getPackagedElements().isEmpty()) {
+					it.remove();
+					logger.fine("Removed " + pack.getQualifiedName() + " : " + 
+							pack.eClass().getName());
+				}
+			}
+		}
+	}
+
 	private void addReferencedInterfaces(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		String interfaces[] = javaClass.getInterfaceNames();
@@ -596,6 +679,22 @@ public class JarToUML implements Runnable {
 	 */
 	public void setIncludeFeatures(boolean includeFeatures) {
 		this.includeFeatures = includeFeatures;
+	}
+
+	/**
+	 * If true, includes only the dependencies instead of the contained elements.
+	 * @return the dependenciesOnly
+	 */
+	public boolean isDependenciesOnly() {
+		return dependenciesOnly;
+	}
+
+	/**
+	 * If true, includes only the dependencies instead of the contained elements.
+	 * @param dependenciesOnly the dependenciesOnly to set
+	 */
+	public void setDependenciesOnly(boolean dependenciesOnly) {
+		this.dependenciesOnly = dependenciesOnly;
 	}
 
 }
