@@ -16,6 +16,16 @@
             Import a file from the local file system into the workspace.
          </description>
       </wizard>
+      <wizard
+            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            class="be.ac.vub.jar2uml.ui.JarToUMLImportDependenciesWizard"
+            icon="icons/importjar_wiz.gif"
+            id="be.ac.vub.jar2uml.ui.JarToUMLImportDependenciesWizard"
+            name="Import Jar File Dependencies to UML Models">
+         <description>
+            Import a file from the local file system into the workspace.
+         </description>
+      </wizard>
    </extension>
 
 </plugin>
