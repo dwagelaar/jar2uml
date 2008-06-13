@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/2.1.0/UML" xmi:id="idModel" name="Jar2UMLArchitectureModel">
+  <packagedElement xmi:type="uml:Package" xmi:id="idPackage" name="Jar2UMLArchitecturePackage">
+    <packagedElement xmi:type="uml:Component" xmi:id="idComponent" name="Jar2UMLArchitectureComponent">
+      <nestedClassifier xmi:type="uml:Component" xmi:id="_3G5XkJESEdyknemQ1D_v0Q" name="Jar2UML"/>
+      <nestedClassifier xmi:type="uml:Component" xmi:id="_51IfcJESEdyknemQ1D_v0Q" name="EMF" clientDependency="_-uNuQ5ESEdyknemQ1D_v0Q">
+        <realization xmi:id="_-uNuQ5ESEdyknemQ1D_v0Q" name="ComponentRealization1" supplier="_3G5XkJESEdyknemQ1D_v0Q" client="_51IfcJESEdyknemQ1D_v0Q" realizingClassifier="_3G5XkJESEdyknemQ1D_v0Q"/>
+      </nestedClassifier>
+      <nestedClassifier xmi:type="uml:Component" xmi:id="_6XtBAJESEdyknemQ1D_v0Q" name="UML2" clientDependency="__FAdoJESEdyknemQ1D_v0Q">
+        <realization xmi:id="__FAdoJESEdyknemQ1D_v0Q" name="ComponentRealization1" supplier="_3G5XkJESEdyknemQ1D_v0Q" client="_6XtBAJESEdyknemQ1D_v0Q" realizingClassifier="_3G5XkJESEdyknemQ1D_v0Q"/>
+      </nestedClassifier>
+      <nestedClassifier xmi:type="uml:Component" xmi:id="_7mIjAJESEdyknemQ1D_v0Q" name="BCEL" clientDependency="__Pw8I5ESEdyknemQ1D_v0Q">
+        <realization xmi:id="__Pw8I5ESEdyknemQ1D_v0Q" name="ComponentRealization1" supplier="_3G5XkJESEdyknemQ1D_v0Q" client="_7mIjAJESEdyknemQ1D_v0Q" realizingClassifier="_3G5XkJESEdyknemQ1D_v0Q"/>
+      </nestedClassifier>
+    </packagedElement>
+  </packagedElement>
+</uml:Model>
