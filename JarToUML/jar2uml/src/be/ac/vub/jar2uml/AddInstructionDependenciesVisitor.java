@@ -1,7 +1,6 @@
 package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import junit.framework.Assert;
 
@@ -37,8 +36,6 @@ import org.eclipse.uml2.uml.VisibilityKind;
  */
 public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	
-	private static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-
 	private Classifier instrContext = null;
 	private ConstantPool cp = null;
 	private ConstantPoolGen cpg = null;
@@ -139,9 +136,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertTrue(owner instanceof Class);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
 		Assert.assertNotNull(getInstrContext());
-		if ("finalize".equals(newOp.getName())) {
-			logger.info("Method found: " + newOp);
-		}
 		if (getInstrContext().conformsTo(owner)) {
 			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
 			EList<Parameter> params = newOp.getOwnedParameters();
