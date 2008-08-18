@@ -10,20 +10,24 @@ import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.UMLPackage;
 
-public class TypeToClassifierSwitch extends TypeSwitch {
+/**
+ * Returns the corresponding UML type for a given BCEL type. 
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
+ */
+public class TypeToClassifierSwitch extends TypeSwitch<Classifier> {
 	
 	private Package root = null;
 	
-	public Object caseArrayType(ArrayType type) {
-		Classifier inner = (Classifier) doSwitch(type.getElementType());
+	public Classifier caseArrayType(ArrayType type) {
+		Classifier inner = doSwitch(type.getElementType());
 		Assert.assertNotNull(inner);
-		return JarToUML.findClassifier(
-				inner.getNearestPackage(), 
+		return JarToUML.findLocalClassifier(
+				inner.getOwner(), 
 				inner.getName() + "[]", 
 				UMLPackage.eINSTANCE.getDataType());
 	}
 
-	public Object caseBasicType(BasicType type) {
+	public Classifier caseBasicType(BasicType type) {
 		if (BasicType.BOOLEAN.equals(type)) {
 			return JarToUML.findPrimitiveType(root, "java.lang.boolean", true);
 		} else if (BasicType.BYTE.equals(type)) {
@@ -45,12 +49,12 @@ public class TypeToClassifierSwitch extends TypeSwitch {
 		}
 	}
 
-	public Object caseObjectType(ObjectType type) {
+	public Classifier caseObjectType(ObjectType type) {
 		Assert.assertNotNull(root);
 		return JarToUML.findClassifier(root, type.getClassName(), UMLPackage.eINSTANCE.getDataType());
 	}
 
-	public Object caseUninitializedObjectType(UninitializedObjectType type) {
+	public Classifier caseUninitializedObjectType(UninitializedObjectType type) {
 		logger.warning("What is an UninitializedObjectType?! " + type);
 		return doSwitch(type.getInitialized());
 	}

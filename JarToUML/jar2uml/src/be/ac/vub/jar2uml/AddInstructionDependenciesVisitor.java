@@ -1,6 +1,7 @@
 package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import junit.framework.Assert;
 
@@ -27,10 +28,17 @@ import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Parameter;
 import org.eclipse.uml2.uml.Property;
+import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.VisibilityKind;
 
+/**
+ * Adds classifier fields/methods referenced by the switched bytecode instruction to the model.
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
+ */
 public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	
+	private static Logger logger = Logger.getLogger(JarToUML.LOGGER);
+
 	private Classifier instrContext = null;
 	private ConstantPool cp = null;
 	private ConstantPoolGen cpg = null;
@@ -99,7 +107,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(getInstrContext());
 		if (getInstrContext().conformsTo(owner)) {
 			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			EList params = newOp.getOwnedParameters();
+			EList<Parameter> params = newOp.getOwnedParameters();
 			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
 			if (childOp != null) {
 				newOp.setIsLeaf(false);
@@ -108,19 +116,19 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		newOp.setIsAbstract(true);
 	}
 	
-	private EList getParameterNames(EList parameters) {
-		EList names = new BasicEList();
-		for (Iterator i = parameters.iterator(); i.hasNext();) {
-			Parameter par = (Parameter) i.next();
+	private EList<String> getParameterNames(EList<Parameter> parameters) {
+		EList<String> names = new BasicEList<String>();
+		for (Iterator<Parameter> i = parameters.iterator(); i.hasNext();) {
+			Parameter par = i.next();
 			names.add(par.getName());
 		}
 		return names;
 	}
 
-	private EList getParameterTypes(EList parameters) {
-		EList types = new BasicEList();
-		for (Iterator i = parameters.iterator(); i.hasNext();) {
-			Parameter par = (Parameter) i.next();
+	private EList<Type> getParameterTypes(EList<Parameter> parameters) {
+		EList<Type> types = new BasicEList<Type>();
+		for (Iterator<Parameter> i = parameters.iterator(); i.hasNext();) {
+			Parameter par = i.next();
 			types.add(par.getType());
 		}
 		return types;
@@ -131,9 +139,12 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertTrue(owner instanceof Class);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
 		Assert.assertNotNull(getInstrContext());
+		if ("finalize".equals(newOp.getName())) {
+			logger.info("Method found: " + newOp);
+		}
 		if (getInstrContext().conformsTo(owner)) {
 			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			EList params = newOp.getOwnedParameters();
+			EList<Parameter> params = newOp.getOwnedParameters();
 			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
 			if (childOp != null) {
 				newOp.setIsLeaf(false);
@@ -149,7 +160,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(getInstrContext());
 		if (getInstrContext().conformsTo(owner)) {
 			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			EList params = newOp.getOwnedParameters();
+			EList<Parameter> params = newOp.getOwnedParameters();
 			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
 			if (childOp != null) {
 				newOp.setIsLeaf(false);
@@ -195,7 +206,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		if (getInstrContext().conformsTo(owner)) {
 			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
 			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
-			//even 'final' (isReadOly) fields can be 'put' once
+			//even 'final' (isReadOnly) fields can be 'put' once
 		}
 		att.setIsStatic(true);
 	}

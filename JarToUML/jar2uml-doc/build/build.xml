@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project default="zip">
+<project default="javadoc">
 
 	<target name="clean">
 		<delete file="../doc.zip"/>
@@ -9,38 +9,7 @@
 		<javadoc 
 			access="protected" 
 			author="true"
-			classpath="
-				../../jar2uml/bin:
-				../../jar2uml-bcel/bin:
-				${eclipse.home}/plugins/org.eclipse.emf.common_2.2.1.v200702131851.jar:
-				${eclipse.home}/plugins/org.eclipse.emf.ecore_2.2.2.v200702131851.jar:
-				${eclipse.home}/plugins/org.eclipse.osgi_3.2.2.R32x_v20070118.jar:
-			
-				${eclipse.home}/plugins/org.eclipse.equinox.preferences_3.2.1.R32x_v20060717.jar:
-				${eclipse.home}/plugins/org.eclipse.core.jobs_3.2.0.v20060603.jar:
-				${eclipse.home}/plugins/org.eclipse.equinox.common_3.2.0.v20060603.jar:
-				${eclipse.home}/plugins/org.eclipse.emf.common.ui_2.2.1.v200609210005.jar:
-				${eclipse.home}/plugins/org.eclipse.core.runtime_3.2.0.v20060603.jar:
-				${eclipse.home}/plugins/org.eclipse.equinox.registry_3.2.1.R32x_v20060814.jar:
-				${eclipse.home}/plugins/org.eclipse.ui.views_3.2.1.M20060906-0800.jar:
-				${eclipse.home}/plugins/org.eclipse.core.runtime.compatibility.registry_3.2.1.R32x_v20060907/runtime_registry_compatibility.jar:
-				${eclipse.home}/plugins/org.eclipse.core.commands_3.2.0.I20060605-1400.jar:
-				${eclipse.home}/plugins/org.eclipse.emf.edit_2.2.1.v200609210005.jar:
-				${eclipse.home}/plugins/org.eclipse.ui.ide_3.2.1.M20060915-1030.jar:
-				${eclipse.home}/plugins/org.eclipse.swt_3.2.2.v3235h.jar:
-				${eclipse.home}/plugins/org.eclipse.emf.edit.ui_2.2.0.v200609210005.jar:
-				${eclipse.home}/plugins/org.eclipse.core.contenttype_3.2.0.v20060603.jar:
-				${eclipse.home}/plugins/org.eclipse.emf.ecore.change_2.2.0.v200609210005.jar:
-				${eclipse.home}/plugins/org.eclipse.swt.carbon.macosx_3.2.1.v3235.jar:
-				${eclipse.home}/plugins/org.eclipse.ui.workbench_3.2.1.M20060906-0800.jar:
-				${eclipse.home}/plugins/org.eclipse.ui_3.2.1.M20060913-0800.jar:
-				${eclipse.home}/plugins/org.eclipse.core.resources_3.2.1.R32x_v20060914.jar:
-				${eclipse.home}/plugins/org.eclipse.ui.console_3.1.100.v20060605.jar:
-				${eclipse.home}/plugins/org.eclipse.emf.ecore.xmi_2.2.1.v200609210005.jar:
-				${eclipse.home}/plugins/org.eclipse.jface_3.2.1.M20060908-1000.jar:
-				${eclipse.home}/plugins/org.eclipse.uml2.uml_2.0.3.v200702141227.jar:
-				${eclipse.home}/plugins/org.junit_3.8.1/junit.jar"
-			destdir="doc/javadoc" 
+			destdir="../doc/javadoc" 
 			nodeprecated="false" 
 			nodeprecatedlist="false" 
 			noindex="false" 
@@ -61,15 +30,15 @@
 			<link href="../../../org.eclipse.uml2.doc/references/javadoc"/>
 			<link href="../../../org.eclipse.emf.doc/references/javadoc"/>
 			<link href="../../../org.eclipse.platform.doc.isv/reference/api"/>
+			<classpath>
+				<pathelement path="../../jar2uml/bin"/>
+				<pathelement path="../../jar2uml-bcel/bin"/>
+				<fileset dir="${eclipse.home}/plugins">
+					<include name="**/org.eclipse.*.jar"/>
+					<include name="**/org.junit*/*.jar"/>
+				</fileset>
+			</classpath>
 		</javadoc>
-	</target>
-	
-	<target name="zip" depends="javadoc">
-		<zip destfile="../doc.zip">
-			<fileset dir=".">
-				<include name="doc/**"/>
-			</fileset>
-		</zip>
 	</target>
 	
 </project>

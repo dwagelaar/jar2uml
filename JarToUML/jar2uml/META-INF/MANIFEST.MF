@@ -5,7 +5,7 @@ Bundle-SymbolicName: be.ac.vub.jar2uml;singleton:=true
 Bundle-Version: 1.0.11
 Bundle-Vendor: Vrije Universiteit Brussel
 Bundle-Localization: plugin
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.junit,
  org.eclipse.uml2.uml,
  org.eclipse.ui.ide,
@@ -17,3 +17,4 @@ Require-Bundle: org.junit,
  org.eclipse.ui.console
 Export-Package: be.ac.vub.jar2uml
 Bundle-Activator: be.ac.vub.jar2uml.ui.JarToUMLPlugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -15,29 +15,33 @@ import org.eclipse.uml2.uml.ParameterDirectionKind;
 import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.util.UMLSwitch;
 
-public class AddClassifierOperationSwitch extends UMLSwitch {
+/**
+ * Adds an operation to the switched element (class, interface or datatype).
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
+ */
+public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private String operationName = null;
-	private EList argumentTypes = null;
+	private EList<Type> argumentTypes = null;
 	private Type returnType = null;
 	private TypeToClassifierSwitch typeToClassifier = null;
 	
-	protected EList argNames = null;
-	protected EList allArgNames = null;
-	protected EList allArgTypes = null;
+	protected EList<String> argNames = null;
+	protected EList<String> allArgNames = null;
+	protected EList<Type> allArgTypes = null;
 	
 	public AddClassifierOperationSwitch(TypeToClassifierSwitch typeToClassifier) {
 		Assert.assertNotNull(typeToClassifier);
 		this.typeToClassifier = typeToClassifier;
 	}
 
-	public EList getArgumentTypes() {
+	public EList<Type> getArgumentTypes() {
 		return argumentTypes;
 	}
 
-	public void setArgumentTypes(EList argumentTypes) {
+	public void setArgumentTypes(EList<Type> argumentTypes) {
 		this.argumentTypes = argumentTypes;
 	}
 
@@ -45,10 +49,10 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 		setArgumentTypes(toUMLTypes(argumentTypes));
 	}
 
-	private EList toUMLTypes(org.apache.bcel.generic.Type[] types) {
-		EList umlTypes = new BasicEList();
+	private EList<Type> toUMLTypes(org.apache.bcel.generic.Type[] types) {
+		EList<Type> umlTypes = new BasicEList<Type>();
 		for (int i = 0; i < types.length; i++) {
-			Type type = (Type) typeToClassifier.doSwitch(types[i]);
+			Type type = typeToClassifier.doSwitch(types[i]);
 			if (type == null) {
 				logger.warning("Type not found: " +	types[i].getSignature());
 			}
@@ -66,18 +70,18 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 	}
 
 	protected void prepareArgs() {
-		EList args = getArgumentTypes();
+		EList<Type> args = getArgumentTypes();
 		Assert.assertNotNull(args);
 		argNames = toUMLArgNames(args);
-		allArgNames = new BasicEList(argNames);
-		allArgTypes = new BasicEList(args);
+		allArgNames = new BasicEList<String>(argNames);
+		allArgTypes = new BasicEList<Type>(args);
 		if (getReturnType() != null) {
 			allArgNames.add("return");
 			allArgTypes.add(getReturnType());
 		}
 	}
 	
-	public Object caseClass(Class object) {
+	public Operation caseClass(Class object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
 		prepareArgs();
@@ -95,7 +99,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 		return op;
 	}
 
-	public Object caseInterface(Interface object) {
+	public Operation caseInterface(Interface object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
 		prepareArgs();
@@ -112,7 +116,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 		return op;
 	}
 
-	public Object caseDataType(DataType object) {
+	public Operation caseDataType(DataType object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
 		prepareArgs();
@@ -129,8 +133,8 @@ public class AddClassifierOperationSwitch extends UMLSwitch {
 		return op;
 	}
 
-	private static EList toUMLArgNames(EList args) {
-		EList umlArgNames = new BasicEList();
+	private static EList<String> toUMLArgNames(EList<?> args) {
+		EList<String> umlArgNames = new BasicEList<String>();
 		for (int i = 0; i < args.size(); i++) {
 			umlArgNames.add("arg" + i);
 		}
