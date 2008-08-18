@@ -312,8 +312,8 @@ public class JarToUML implements Runnable {
 		Assert.assertNotNull(classifier);
 		fixClassifier.setJavaClass(javaClass);
 		fixClassifier.doSwitch(classifier);
-		addReferencedInterfaces(classifier, javaClass);
-		addReferencedGenerals(classifier, javaClass);
+		addReferencedInterfaces(javaClass);
+		addReferencedGenerals(javaClass);
 		// add realizations/generalizations in 1st pass, since inheritance hierarchy is needed in 2nd pass
 		addInterfaceRealizations(classifier, javaClass);
 		addGeneralizations(classifier, javaClass);
@@ -363,6 +363,11 @@ public class JarToUML implements Runnable {
 		}
 	}
 	
+	/**
+	 * Remove classifier from the UML model. Also removes derived and contained
+	 * classifiers.
+	 * @param classifier
+	 */
 	private void removeClassifier(Classifier classifier) {
 		Assert.assertNotNull(classifier);
 		final List<Classifier> derived = findDerivedClassifiers(classifier);
@@ -400,8 +405,11 @@ public class JarToUML implements Runnable {
 		}
 	}
 
-	private void addReferencedInterfaces(Classifier classifier, JavaClass javaClass) {
-		Assert.assertNotNull(classifier);
+	/**
+	 * Adds interfaces implemented by javaClass to the UML model. Used in 1st pass.
+	 * @param javaClass The Java class file to convert.
+	 */
+	private void addReferencedInterfaces(JavaClass javaClass) {
 		String interfaces[] = javaClass.getInterfaceNames();
 		for (int i = 0; i < interfaces.length; i++) {
 			Classifier iface = findClassifier(getModel(), interfaces[i], UMLPackage.eINSTANCE.getInterface());
@@ -415,6 +423,12 @@ public class JarToUML implements Runnable {
 		replaceByClassifier.reset();
 	}
 	
+	/**
+	 * Adds interface realizations to classifier for each interface implemented
+	 * by javaClass. Used in 2nd pass.
+	 * @param classifier The classifier representation of javaClass.
+	 * @param javaClass The Java class file to convert.
+	 */
 	private void addInterfaceRealizations(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		String interfaces[] = javaClass.getInterfaceNames();
@@ -427,8 +441,11 @@ public class JarToUML implements Runnable {
 		addClassifierInterface.reset();
 	}
 	
-	private void addReferencedGenerals(Classifier classifier, JavaClass javaClass) {
-		Assert.assertNotNull(classifier);
+	/**
+	 * Adds superclasses of javaClass to the UML model. Used in 1st pass.
+	 * @param javaClass The Java class file to convert.
+	 */
+	private void addReferencedGenerals(JavaClass javaClass) {
 		if (!"java.lang.Object".equals(javaClass.getSuperclassName())) {
 			Classifier superClass = findClassifier(getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
 			if (superClass != null) {
@@ -442,6 +459,12 @@ public class JarToUML implements Runnable {
 		replaceByClassifier.reset();
 	}
 
+	/**
+	 * Adds generalizations to classifier for each superclass
+	 * of javaClass. Used in 2nd pass.
+	 * @param classifier The classifier representation of javaClass.
+	 * @param javaClass The Java class file to convert.
+	 */
 	private void addGeneralizations(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		if (classifier instanceof Interface) {
@@ -457,6 +480,11 @@ public class JarToUML implements Runnable {
 		}
 	}
 	
+	/**
+	 * Adds a property to classifier for each javaClass field.
+	 * @param classifier The classifier representation of javaClass.
+	 * @param javaClass The Java class file to convert.
+	 */
 	private void addProperties(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		Field[] fields = javaClass.getFields();
@@ -484,6 +512,11 @@ public class JarToUML implements Runnable {
 		addClassifierProperty.reset();
 	}
 	
+	/**
+	 * Adds an operation to classifier for each javaClass method.
+	 * @param classifier The classifier representation of javaClass.
+	 * @param javaClass The Java class file to convert.
+	 */
 	private void addOperations(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		Method[] methods = javaClass.getMethods();
@@ -510,6 +543,12 @@ public class JarToUML implements Runnable {
 		addClassifierOperation.reset();
 	}
 	
+	/**
+	 * Adds fields/methods referenced by the bytecode instructions of method
+	 * to the UML model. Used in 2nd pass.
+	 * @param instrContext The classifier on which the method is defined.
+	 * @param method The method for which to convert the references.
+	 */
 	private void addOpCode(Classifier instrContext, Method method) {
 		if (method.getCode() == null) {
 			return;
@@ -524,6 +563,12 @@ public class JarToUML implements Runnable {
 		addInstructionDependencies.reset();
 	}
 	
+	/**
+	 * Adds the classifiers referenced by the bytecode instructions of javaClass
+	 * to the UML model. Used in 1st pass.
+	 * @param classifier The classifier representation of javaClass.
+	 * @param javaClass The Java class file to convert.
+	 */
 	private void addOpCodeReferences(Classifier classifier, JavaClass javaClass) {
 		Assert.assertNotNull(classifier);
 		Method[] methods = javaClass.getMethods();
@@ -538,6 +583,12 @@ public class JarToUML implements Runnable {
 		}
 	}
 	
+	/**
+	 * Adds the classifiers referenced by the bytecode instructions of method
+	 * to the UML model. Used in 1st pass.
+	 * @param instrContext The classifier on which the method is defined.
+	 * @param method The method for which to convert the references.
+	 */
 	private void addOpCodeRefs(Classifier instrContext, Method method) {
 		if (method.getCode() == null) {
 			return;
@@ -551,6 +602,11 @@ public class JarToUML implements Runnable {
 		addInstructionReferences.reset();
 	}
 	
+	/**
+	 * @param javaName The string to split.
+	 * @param delim The delimiter used to split javaName in parts.
+	 * @return The last section of the javaName string separated by delim.
+	 */
 	public static String tail(String javaName, char delim) {
 		int dotIndex = javaName.lastIndexOf(delim);
 		if (dotIndex > -1) {
@@ -560,6 +616,15 @@ public class JarToUML implements Runnable {
 		}
 	}
 	
+	/**
+	 * Finds the primitive type with name typeName in the UML model.
+	 * @param root The model root to start searching at.
+	 * @param typeName The fully qualified type name (e.g. "java.lang.int").
+	 * @param create If true, create a new primitive type if not found.
+	 * @return the {@link PrimitiveType} with name typeName. If create is true and
+	 * the primitive type is not found, a new instance of {@link PrimitiveType} is
+	 * created and returned.
+	 */
 	public static PrimitiveType findPrimitiveType(Package root, String typeName, boolean create) {
 		Assert.assertNotNull(typeName);
 		String localTypeName = typeName;
