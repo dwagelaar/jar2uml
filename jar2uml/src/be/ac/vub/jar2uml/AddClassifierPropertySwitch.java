@@ -9,7 +9,11 @@ import org.eclipse.uml2.uml.Property;
 import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.util.UMLSwitch;
 
-public class AddClassifierPropertySwitch extends UMLSwitch {
+/**
+ * Adds a property to the switched element (class, interface or datatype). 
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
+ */
+public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 
 	private String propertyName = null;
 	private Type propertyType = null;
@@ -40,7 +44,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch {
 		setPropertyType((Type) typeToClassifier.doSwitch(propertyType));
 	}
 
-	public Object caseClass(Class umlClass) {
+	public Property caseClass(Class umlClass) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
 		Assert.assertNotNull(name);
@@ -53,7 +57,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch {
 		return ownedAtt;
 	}
 
-	public Object caseInterface(Interface umlIface) {
+	public Property caseInterface(Interface umlIface) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
 		Assert.assertNotNull(name);
@@ -66,7 +70,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch {
 		return ownedAtt;
 	}
 	
-	public Object caseDataType(DataType umlDataType) {
+	public Property caseDataType(DataType umlDataType) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
 		Assert.assertNotNull(name);

@@ -5,8 +5,7 @@ import org.apache.bcel.classfile.JavaClass;
 
 /**
  * Filter for Java elements that should be included in the generated UML model.
- * @author dennis
- *
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public interface Filter {
 	

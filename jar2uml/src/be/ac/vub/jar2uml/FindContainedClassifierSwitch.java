@@ -11,6 +11,7 @@ import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Package;
+import org.eclipse.uml2.uml.PackageableElement;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.util.UMLSwitch;
 
@@ -23,10 +24,9 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * If the switched object is a {@link Classifier} that cannot contain nested instances of
  * {@link Classifier} and {@link #isCreate()} is true, the switched object will be turned
  * into an instance of {@link Class}. This will generate a warning in the log.
- * @author dennis
- *
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class FindContainedClassifierSwitch extends UMLSwitch {
+public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 	
@@ -61,11 +61,11 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		this.classifierName = classifierName;
 	}
 
-	public Object caseClass(Class parent) {
+	public Classifier caseClass(Class parent) {
 		String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
-		for (Iterator it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
-			Classifier cl = (Classifier) it.next();
+		for (Iterator<Classifier> it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
+			Classifier cl = it.next();
 			if (localClassName.equals(cl.getName())) {
 				return cl;
 			}
@@ -79,10 +79,10 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		return super.caseClass(parent);
 	}
 
-	public Object caseInterface(Interface parent) {
+	public Classifier caseInterface(Interface parent) {
 		String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
-		for (Iterator it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
+		for (Iterator<Classifier> it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
 			Classifier cl = (Classifier) it.next();
 			if (localClassName.equals(cl.getName())) {
 				return cl;
@@ -97,11 +97,11 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		return super.caseInterface(parent);
 	}
 
-	public Object casePackage(Package parent) {
+	public Classifier casePackage(Package parent) {
 		String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
-		for (Iterator it = parent.getPackagedElements().iterator(); it.hasNext();) {
-			Object element = it.next();
+		for (Iterator<PackageableElement> it = parent.getPackagedElements().iterator(); it.hasNext();) {
+			PackageableElement element = it.next();
 			if (element instanceof Classifier) {
 				Classifier cl = (Classifier) element;
 				if (localClassName.equals(cl.getName())) {
@@ -118,7 +118,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch {
 		return super.casePackage(parent);
 	}
 
-	public Object caseClassifier(Classifier parent) {
+	public Classifier caseClassifier(Classifier parent) {
 		if (isCreate()) {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());

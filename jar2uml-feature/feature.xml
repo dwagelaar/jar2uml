@@ -29,8 +29,19 @@ the terms and conditions of the Eclipse Public License Version
    </license>
 
    <url>
-      <update label="Jar2UML update site" url="http://ssel.vub.ac.be/tools/jar2uml/update"/>
+      <update label="SSEL update site" url="http://ssel.vub.ac.be/eclipse/update"/>
    </url>
+
+   <requires>
+      <import plugin="org.junit"/>
+      <import plugin="org.eclipse.uml2.uml"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.jface"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.console"/>
+   </requires>
 
    <plugin
          id="be.ac.vub.jar2uml"

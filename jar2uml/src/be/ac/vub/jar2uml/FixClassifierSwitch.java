@@ -1,6 +1,3 @@
-/**
- * 
- */
 package be.ac.vub.jar2uml;
 
 import java.util.logging.Logger;
@@ -19,10 +16,9 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * {@link #doSwitch(org.eclipse.emf.ecore.EObject)} fixes the switched {@link Classifier}
  * to be of the right class, given {@link #getJavaClass()}.
  * Also initialises the new {@link Classifier} attributes.
- * @author dennis
- *
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class FixClassifierSwitch extends UMLSwitch {
+public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 	
@@ -37,7 +33,7 @@ public class FixClassifierSwitch extends UMLSwitch {
 		this.javaClass = javaClass;
 	}
 
-	public Object caseClass(Class umlClass) {
+	public Classifier caseClass(Class umlClass) {
 		Assert.assertNotNull(umlClass);
 		JavaClass javaClass = getJavaClass();
 		Assert.assertNotNull(javaClass);
@@ -51,7 +47,7 @@ public class FixClassifierSwitch extends UMLSwitch {
 		return super.caseClass(umlClass);
 	}
 
-	public Object caseInterface(Interface umlIface) {
+	public Classifier caseInterface(Interface umlIface) {
 		Assert.assertNotNull(umlIface);
 		JavaClass javaClass = getJavaClass();
 		Assert.assertNotNull(javaClass);
@@ -65,7 +61,7 @@ public class FixClassifierSwitch extends UMLSwitch {
 		return super.caseInterface(umlIface);
 	}
 	
-	public Object caseDataType(DataType datatype) {
+	public Classifier caseDataType(DataType datatype) {
 		Assert.assertNotNull(datatype);
 		JavaClass javaClass = getJavaClass();
 		Assert.assertNotNull(javaClass);
@@ -82,7 +78,7 @@ public class FixClassifierSwitch extends UMLSwitch {
 		}
 	}
 
-	public Object caseClassifier(Classifier classifier) {
+	public Classifier caseClassifier(Classifier classifier) {
 		Assert.assertNotNull(classifier);
 		JavaClass javaClass = getJavaClass();
 		Assert.assertNotNull(javaClass);

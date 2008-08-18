@@ -11,7 +11,9 @@ import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.Interface;
+import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Package;
+import org.eclipse.uml2.uml.Property;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.util.UMLSwitch;
 
@@ -23,10 +25,13 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * @author dennis
  *
  */
-public class ReplaceByClassifierSwitch extends UMLSwitch {
+public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	
-	public class PreSwitch extends UMLSwitch {
-		public Object caseClass(Class umlClass) {
+	/**
+	 * Retrieves and stores all nested elements from the switched classifier. 
+	 */
+	public class PreSwitch extends UMLSwitch<Classifier> {
+		public Classifier caseClass(Class umlClass) {
 			nested = umlClass.getNestedClassifiers();
 			atts = umlClass.getOwnedAttributes();
 			ops = umlClass.getOwnedOperations();
@@ -35,7 +40,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			return umlClass;
 		}
 
-		public Object caseInterface(Interface umlIface) {
+		public Classifier caseInterface(Interface umlIface) {
 			nested = umlIface.getNestedClassifiers();
 			atts = umlIface.getOwnedAttributes();
 			ops = umlIface.getOwnedOperations();
@@ -44,7 +49,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			return umlIface;
 		}
 
-		public Object caseDataType(DataType dataType) {
+		public Classifier caseDataType(DataType dataType) {
 			nested = null;
 			atts = dataType.getOwnedAttributes();
 			ops = dataType.getOwnedOperations();
@@ -53,7 +58,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			return dataType;
 		}
 
-		public Object caseClassifier(Classifier classifier) {
+		public Classifier caseClassifier(Classifier classifier) {
 			nested = null;
 			atts = null;
 			ops = null;
@@ -63,8 +68,11 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 		}
 	}
 
-	public class PostSwitch extends UMLSwitch {
-		public Object caseClass(Class umlClass) {
+	/**
+	 * Adds all prepared nested elements to the switched classifier. 
+	 */
+	public class PostSwitch extends UMLSwitch<Classifier> {
+		public Classifier caseClass(Class umlClass) {
 			if (nested != null) {
 				umlClass.getNestedClassifiers().addAll(nested);
 			}
@@ -77,7 +85,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			return super.caseClass(umlClass);
 		}
 
-		public Object caseInterface(Interface umlIface) {
+		public Classifier caseInterface(Interface umlIface) {
 			if (nested != null) {
 				umlIface.getNestedClassifiers().addAll(nested);
 			}
@@ -90,7 +98,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			return super.caseInterface(umlIface);
 		}
 
-		public Object caseDataType(DataType dataType) {
+		public Classifier caseDataType(DataType dataType) {
 			if (atts != null) {
 				dataType.getOwnedAttributes().addAll(atts);
 			}
@@ -100,7 +108,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 			return super.caseDataType(dataType);
 		}
 
-		public Object caseClassifier(Classifier classifier) {
+		public Classifier caseClassifier(Classifier classifier) {
 			classifier.setIsAbstract(isAbstract);
 			return classifier;
 		}
@@ -111,39 +119,39 @@ public class ReplaceByClassifierSwitch extends UMLSwitch {
 	private Classifier classifier = null;
 	private EClass metaClass = UMLPackage.eINSTANCE.getDataType();
 
-	protected EList nested = null;
-	protected EList atts = null;
-	protected EList ops = null;
+	protected EList<Classifier> nested = null;
+	protected EList<Property> atts = null;
+	protected EList<Operation> ops = null;
 	protected boolean isAbstract = false;
 	protected boolean isLeaf = false;
 	protected PreSwitch preSwitch = new PreSwitch();
 	protected PostSwitch postSwitch = new PostSwitch();
 	
-	public Object caseClass(Class umlClass) {
-		Classifier classifier = (Classifier) preSwitch.doSwitch(getClassifier());
+	public Classifier caseClass(Class umlClass) {
+		Classifier classifier = preSwitch.doSwitch(getClassifier());
 		umlClass.getNestedClassifiers().remove(classifier);
 		logger.fine("Replacing " + classifier.getQualifiedName() + " : " + 
 				classifier.eClass().getName() + " by instance of " + getMetaClass().getName());
 		classifier = umlClass.createNestedClassifier(classifier.getName(), getMetaClass());
-		return (Classifier) postSwitch.doSwitch(classifier);
+		return postSwitch.doSwitch(classifier);
 	}
 
-	public Object caseInterface(Interface umlIface) {
-		Classifier classifier = (Classifier) preSwitch.doSwitch(getClassifier());
+	public Classifier caseInterface(Interface umlIface) {
+		Classifier classifier = preSwitch.doSwitch(getClassifier());
 		umlIface.getNestedClassifiers().remove(classifier);
 		logger.fine("Replacing " + classifier.getQualifiedName() + " : " + 
 				classifier.eClass().getName() + " by instance of " + getMetaClass().getName());
 		classifier = umlIface.createNestedClassifier(classifier.getName(), getMetaClass());
-		return (Classifier) postSwitch.doSwitch(classifier);
+		return postSwitch.doSwitch(classifier);
 	}
 
-	public Object casePackage(Package pack) {
-		Classifier classifier = (Classifier) preSwitch.doSwitch(getClassifier());
+	public Classifier casePackage(Package pack) {
+		Classifier classifier = preSwitch.doSwitch(getClassifier());
 		pack.getPackagedElements().remove(classifier);
 		logger.fine("Replacing " + classifier.getQualifiedName() + " : " + 
 				classifier.eClass().getName() + " by instance of " + getMetaClass().getName());
 		classifier = (Classifier) pack.createPackagedElement(classifier.getName(), getMetaClass());
-		return (Classifier) postSwitch.doSwitch(classifier);
+		return postSwitch.doSwitch(classifier);
 	}
 
 	public void setClassifier(Classifier classifier) {

@@ -157,7 +157,7 @@ public class JarToUMLImportDependenciesWizardPage extends WizardNewFileCreationP
 		final InputStream initialContents = getInitialContents();
 
         createLinkTarget();
-        WorkspaceModifyOperation op = new WorkspaceModifyOperation(createRule(newFileHandle)) {
+        WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
             protected void execute(IProgressMonitor monitor)
                     throws CoreException {
                 try {

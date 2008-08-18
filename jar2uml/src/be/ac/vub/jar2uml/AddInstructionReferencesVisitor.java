@@ -24,11 +24,15 @@ import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.UMLPackage;
 
+/**
+ * Adds any classifiers referenced by the switched bytecode instruction and
+ * changes it to the right classifier subclass depending on the specific instruction.
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
+ */
 public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 	
-	private Classifier instrContext = null;
 	private ConstantPool cp = null;
 	private ConstantPoolGen cpg = null;
 
@@ -133,17 +137,8 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 
 	public void reset() {
 		owner = null;
-		setInstrContext(null);
 		setCp(null);
 		replaceByClassifier.reset();
-	}
-
-	public Classifier getInstrContext() {
-		return instrContext;
-	}
-
-	public void setInstrContext(Classifier instrContext) {
-		this.instrContext = instrContext;
 	}
 
 }
