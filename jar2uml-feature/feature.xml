@@ -29,7 +29,7 @@ the terms and conditions of the Eclipse Public License Version
    </license>
 
    <url>
-      <update label="SSEL update site" url="http://ssel.vub.ac.be/eclipse/update"/>
+      <update label="SOFT update site" url="http://soft.vub.ac.be/eclipse/update-3.5"/>
    </url>
 
    <requires>
