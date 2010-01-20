@@ -13,7 +13,7 @@
             id="be.ac.vub.jar2uml.ui.JarToUMLImportWizard"
             name="Import Jar Files to UML Models">
          <description>
-            Import a file from the local file system into the workspace.
+            Import Jar files from the local file system into a UML model in the workspace.
          </description>
       </wizard>
       <wizard
@@ -23,7 +23,27 @@
             id="be.ac.vub.jar2uml.ui.JarToUMLImportDependenciesWizard"
             name="Import Jar File Dependencies to UML Models">
          <description>
-            Import a file from the local file system into the workspace.
+            Import dependencies of Jar files from the local file system into a UML model in the workspace.
+         </description>
+      </wizard>
+      <wizard
+            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            class="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportWizard"
+            icon="icons/importjar_wiz.gif"
+            id="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportWizard"
+            name="Import Java projects to UML Models">
+         <description>
+            Import a Java project into a UML model in the workspace.
+         </description>
+      </wizard>
+      <wizard
+            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            class="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportDependenciesWizard"
+            icon="icons/importjar_wiz.gif"
+            id="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportDependenciesWizard"
+            name="Import Java project dependencies to UML Models">
+         <description>
+            Import dependencies of a Java project into a UML model in the workspace.
          </description>
       </wizard>
    </extension>
