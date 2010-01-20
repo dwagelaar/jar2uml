@@ -17,14 +17,19 @@ import java.util.logging.Logger;
 import junit.framework.Assert;
 
 import org.apache.bcel.classfile.AccessFlags;
+import org.apache.bcel.classfile.Attribute;
 import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.Code;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
+import org.apache.bcel.classfile.StackMap;
 import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.InstructionList;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -104,6 +109,9 @@ public class JarToUML implements Runnable {
 	private boolean includeInstructionReferences = false;
 	private boolean includeFeatures = true;
 	private boolean dependenciesOnly = false;
+	private int majorFormatVersion;
+	private int minorFormatVersion;
+	private boolean preverified;
 
 	public JarToUML() {
 		logger.setLevel(Level.ALL);
@@ -152,6 +160,11 @@ public class JarToUML implements Runnable {
 				}
 			}
 			removeEmptyPackages(getModel());
+			EAnnotation ann = getModel().createEAnnotation("Jar2UML");
+			EMap<String,String> details = ann.getDetails();
+			details.put("majorBytecodeFormatVersion", String.valueOf(getMajorFormatVersion()));
+			details.put("minorBytecodeFormatVersion", String.valueOf(getMinorFormatVersion()));
+			details.put("preverified", String.valueOf(isPreverified()));
 			if (monitor != null) {
 				if (!monitor.isCanceled()) {
 					res.save(Collections.EMPTY_MAP);
@@ -191,6 +204,8 @@ public class JarToUML implements Runnable {
 				InputStream input = jar.getInputStream(entry);
 				ClassParser parser = new ClassParser(input, entry.getName());
 				JavaClass javaClass = parser.parse();
+				setMajorFormatVersion(javaClass.getMajor());
+				setMinorFormatVersion(javaClass.getMinor());
 				input.close();
 				addClassifier(javaClass);
 			}
@@ -539,6 +554,9 @@ public class JarToUML implements Runnable {
 			if (isIncludeInstructionReferences()) {
 				addOpCode(classifier, methods[i]);
 			}
+			if (isPreverified(methods[i].getCode())) {
+				setPreverified(true);
+			}
 		}
 		addClassifierOperation.reset();
 	}
@@ -754,6 +772,22 @@ public class JarToUML implements Runnable {
 		}
 		return true;
 	}
+
+	/**
+	 * @param code
+	 * @return True if the code has been preverified for CLDC execution, i.e. it has a StackMap attribute
+	 */
+	public static boolean isPreverified(Code code) {
+		if (code == null) {
+			return false;
+		}
+		for (Attribute att : code.getAttributes()) {
+			if (att instanceof StackMap) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	/**
 	 * @param flags
@@ -922,6 +956,53 @@ public class JarToUML implements Runnable {
 	 */
 	public void setDependenciesOnly(boolean dependenciesOnly) {
 		this.dependenciesOnly = dependenciesOnly;
+	}
+
+	/**
+	 * The class file format major version. 
+	 * @return the majorFormatVersion
+	 * {@link http://en.wikipedia.org/wiki/Class_%28file_format%29}
+	 */
+	public int getMajorFormatVersion() {
+		return majorFormatVersion;
+	}
+
+	/**
+	 * The class file format minor version. 
+	 * @param majorFormatVersion the majorFormatVersion to set
+	 * {@link http://en.wikipedia.org/wiki/Class_%28file_format%29}
+	 */
+	protected void setMajorFormatVersion(int majorFormatVersion) {
+		this.majorFormatVersion = Math.max(this.majorFormatVersion, majorFormatVersion);
+	}
+
+	/**
+	 * @return the minorFormatVersion
+	 */
+	public int getMinorFormatVersion() {
+		return minorFormatVersion;
+	}
+
+	/**
+	 * @param minorFormatVersion the minorFormatVersion to set
+	 */
+	protected void setMinorFormatVersion(int minorFormatVersion) {
+		this.minorFormatVersion = Math.max(this.minorFormatVersion, minorFormatVersion);
+	}
+
+	/**
+	 * Whether or not the bytecode has been preverified for execution on J2ME CLDC.
+	 * @return the preverified
+	 */
+	public boolean isPreverified() {
+		return preverified;
+	}
+
+	/**
+	 * @param preverified the preverified to set
+	 */
+	protected void setPreverified(boolean preverified) {
+		this.preverified = preverified;
 	}
 
 }
