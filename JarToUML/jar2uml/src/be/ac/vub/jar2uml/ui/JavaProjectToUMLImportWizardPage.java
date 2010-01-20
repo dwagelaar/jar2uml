@@ -11,39 +11,35 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.ui;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.StringTokenizer;
-import java.util.jar.JarFile;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 
-import be.ac.vub.jar2uml.JavaAPIFilter;
 import be.ac.vub.jar2uml.PublicAPIFilter;
 
 /**
- * Import wizard to import a Jar file from the local file system into a UML model in the workspace 
+ * Import wizard to import dependencies of a Java project into a UML model in the workspace
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
+public class JavaProjectToUMLImportWizardPage extends AbstractJavaProjectToUMLImportWizardPage {
 
-	protected FilesFieldEditor editor;
-	protected Button onlyJavaApiBtn;
 	protected Button allElementsBtn;
 	protected Button includeInstrRefsBtn;
 	protected Button includeFeaturesBtn;
 
 	/**
-	 * Creates a new JarToUMLImportWizardPage
+	 * Creates a new JavaProjectToUMLImportDependenciesWizardPage
 	 * @param pageName
 	 * @param description
 	 * @param selection
 	 */
-	public JarToUMLImportWizardPage(String pageName, String description, 
+	public JavaProjectToUMLImportWizardPage(String pageName, String description,
 			IStructuredSelection selection) {
 		super(pageName, description, selection);
 	}
@@ -51,13 +47,11 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
 	 */	
-	@Override
 	protected void createAdvancedControls(Composite parent) {
-		editor = createFilesFieldEditor(parent, ".uml");
+		includeReferencedProjectsBtn = 
+			createCheckbox(parent, "Include referenced projects and jar files in workspace", true); 
 		includeFeaturesBtn = 
 			createCheckbox(parent, "Include operations and attributes", true); 
-		onlyJavaApiBtn = 
-			createCheckbox(parent, "Only Java API packages", false);
 		allElementsBtn = 
 			createCheckbox(parent, "Include anonymous and private elements", false);
 		includeInstrRefsBtn = 
@@ -76,42 +70,32 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 				}
 			}
 		});
-
-		onlyJavaApiBtn.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				if (onlyJavaApiBtn.getSelection()) {
-					allElementsBtn.setSelection(false);
-					allElementsBtn.setEnabled(false);
-				} else {
-					allElementsBtn.setEnabled(true);
-				}
-			}
-		});
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
-	@Override
 	protected InputStream getInitialContents() {
-		try {
-        	jarToUML.clearJars();
-        	jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
-        	if (onlyJavaApiBtn.getSelection()) {
-    			jarToUML.setFilter(new JavaAPIFilter());
-        	} else if (allElementsBtn.getSelection()) {
-        		jarToUML.setFilter(null);
-        	} else {
-    			jarToUML.setFilter(new PublicAPIFilter());
-        	}
-        	jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
-	    	StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";");
-	    	while (files.hasMoreTokens()) {
-				jarToUML.addJar(new JarFile(files.nextToken()));
-	    	}
-			return super.getInitialContents();
-		} catch (IOException e) {
-			return null;
+		jarToUML.clearPaths();
+    	jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
+    	if (allElementsBtn.getSelection()) {
+    		jarToUML.setFilter(null);
+    	} else {
+			jarToUML.setFilter(new PublicAPIFilter());
+    	}
+    	jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
+		addAllJavaProjects(includeReferencedProjectsBtn.getSelection());
+		return super.getInitialContents();
+	}
+
+	/**
+	 * Handles the selection of a new resource container
+	 * @param event
+	 */
+	protected void handleSelectionEvent(Event event) {
+		IPath path = getContainerFullPath();
+		if (path != null) {
+			this.setFileName(path.lastSegment() + ".uml"); //NON-NLS-1
 		}
 	}
 }

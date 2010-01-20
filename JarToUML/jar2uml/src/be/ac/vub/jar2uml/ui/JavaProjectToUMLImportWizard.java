@@ -18,14 +18,14 @@ import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 
 /**
- * Import wizard to import dependencies of a Jar file from the local file system into a UML model in the workspace 
+ * Import wizard to import a Java project into a UML model in the workspace
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class JarToUMLImportDependenciesWizard extends Wizard implements IImportWizard {
+public class JavaProjectToUMLImportWizard extends Wizard implements IImportWizard {
 	
-	JarToUMLImportDependenciesWizardPage mainPage;
+	AbstractImportWizardPage mainPage;
 
-	public JarToUMLImportDependenciesWizard() {
+	public JavaProjectToUMLImportWizard() {
 		super();
 	}
 
@@ -43,11 +43,11 @@ public class JarToUMLImportDependenciesWizard extends Wizard implements IImportW
 	 * @see org.eclipse.ui.IWorkbenchWizard#init(org.eclipse.ui.IWorkbench, org.eclipse.jface.viewers.IStructuredSelection)
 	 */
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		setWindowTitle("Jar File Import Wizard"); //NON-NLS-1
+		setWindowTitle("Java Project Import Wizard"); //NON-NLS-1
 		setNeedsProgressMonitor(true);
-		mainPage = new JarToUMLImportDependenciesWizardPage(
-				"Import Jar File Dependencies to UML Models",
-				"Import dependencies of a Jar file from the local file system into a UML model in the workspace",
+		mainPage = new JavaProjectToUMLImportWizardPage(
+				"Import Java Project to UML Models",
+				"Import a Java project into a UML model in the workspace",
 				selection); //NON-NLS-1 //NON-NLS-2
 	}
 	

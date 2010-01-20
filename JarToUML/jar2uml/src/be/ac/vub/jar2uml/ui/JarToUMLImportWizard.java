@@ -17,9 +17,13 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 
+/**
+ * Import wizard to import a Jar file from the local file system into a UML model in the workspace
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
+ */
 public class JarToUMLImportWizard extends Wizard implements IImportWizard {
 	
-	JarToUMLImportWizardPage mainPage;
+	AbstractImportWizardPage mainPage;
 
 	public JarToUMLImportWizard() {
 		super();
@@ -41,7 +45,10 @@ public class JarToUMLImportWizard extends Wizard implements IImportWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle("Jar File Import Wizard"); //NON-NLS-1
 		setNeedsProgressMonitor(true);
-		mainPage = new JarToUMLImportWizardPage("Import Jar Files to UML Models",selection); //NON-NLS-1
+		mainPage = new JarToUMLImportWizardPage(
+				"Import Jar Files to UML Models",
+				"Import a Jar file from the local file system into a UML model in the workspace",
+				selection); //NON-NLS-1 //NON-NLS-2
 	}
 	
 	/* (non-Javadoc)

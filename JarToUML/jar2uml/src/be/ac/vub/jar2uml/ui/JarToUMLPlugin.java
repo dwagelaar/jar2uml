@@ -3,8 +3,12 @@ package be.ac.vub.jar2uml.ui;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
@@ -51,6 +55,38 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
             initConsole();
         }
 	}
+	
+    /**
+     * @return The active shell.
+     */
+    public Shell getShell() {
+        return PlatformUI.getWorkbench().getDisplay().getActiveShell();
+    }
+
+    /**
+     * Reports an exception/error in the log and on the screen.
+     * @param e the exception to report.
+     */
+    public void report(Throwable e) {
+        PlatformUI.getWorkbench().getDisplay().syncExec(new ErrorDialogRunnable(e));
+    }
+
+    /**
+     * Logs a message.
+     * @param message the log message.
+     * @param level the log level (OK, INFO, WARNING, ERROR)
+     * @param exception the related exception, if any.
+     */
+    public IStatus log(String message, int level, Throwable exception) {
+        IStatus st = new Status(
+                level, 
+                getBundle().getSymbolicName(), 
+                IStatus.OK, 
+                message, 
+                exception);
+        getLog().log(st);
+        return st;
+    }
 
 	private void initConsole () {
         console = findConsole(JAR2UML_CONSOLE);

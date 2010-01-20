@@ -26,6 +26,11 @@ import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.StackMap;
 import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.InstructionList;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.common.util.URI;
@@ -87,6 +92,7 @@ public class JarToUML implements Runnable {
 
 	private Model model = null;
 	private List<JarFile> jars = new ArrayList<JarFile>();
+	private List<IContainer> paths = new ArrayList<IContainer>();
 	private RemoveClassifierSwitch removeClassifier = new RemoveClassifierSwitch();
 	private ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
 	private TypeToClassifierSwitch typeToClassifier = new TypeToClassifierSwitch();
@@ -130,8 +136,7 @@ public class JarToUML implements Runnable {
 			res.getContents().add(getModel());
 			getModel().setName(getOutputModelName());
 			typeToClassifier.setRoot(getModel());
-			for (Iterator<JarFile> it = getJars(); it.hasNext();) {
-				JarFile jar = it.next();
+			for (JarFile jar : getJars()) {
 				addAllClassifiers(jar);
 				if (monitor != null) {
 					if (monitor.isCanceled()) {
@@ -139,8 +144,15 @@ public class JarToUML implements Runnable {
 					}
 				}
 			}
-			for (Iterator<JarFile> it = getJars(); it.hasNext();) {
-				JarFile jar = it.next();
+			for (IContainer path : getPaths()) {
+				addAllClassifiers(path);
+				if (monitor != null) {
+					if (monitor.isCanceled()) {
+						break;
+					}
+				}
+			}
+			for (JarFile jar : getJars()) {
 				addAllProperties(jar);
 				if (monitor != null) {
 					if (monitor.isCanceled()) {
@@ -148,10 +160,25 @@ public class JarToUML implements Runnable {
 					}
 				}
 			}
+			for (IContainer paths : getPaths()) {
+				addAllProperties(paths);
+				if (monitor != null) {
+					if (monitor.isCanceled()) {
+						break;
+					}
+				}
+			}
 			if (dependenciesOnly) {
-				for (Iterator<JarFile> it = getJars(); it.hasNext();) {
-					JarFile jar = it.next();
+				for (JarFile jar : getJars()) {
 					removeAllClassifiers(jar);
+					if (monitor != null) {
+						if (monitor.isCanceled()) {
+							break;
+						}
+					}
+				}
+				for (IContainer path : getPaths()) {
+					removeAllClassifiers(path);
 					if (monitor != null) {
 						if (monitor.isCanceled()) {
 							break;
@@ -219,8 +246,66 @@ public class JarToUML implements Runnable {
 	}
 	
 	/**
+	 * Finds all .class files within parent
+	 * @param parent
+	 * @param cfs the list of found class files
+	 * @throws CoreException
+	 */
+	public static void findClassFilesIn(IContainer parent, List<IFile> cfs)
+			throws CoreException {
+		for (IResource r : parent.members()) {
+			switch (r.getType()) {
+			case IResource.FILE:
+				IFile file = (IFile) r;
+				if (file.getFileExtension().equals("class")) {
+					cfs.add(file);
+				}
+				break;
+			case IResource.FOLDER:
+			case IResource.PROJECT:
+				findClassFilesIn((IContainer)r, cfs);
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * Adds all classifiers under container to the UML model. Does not add classifier properties.
+	 * @param container The root path containing the files to convert
+	 * @throws IOException
+	 * @throws CoreException 
+	 */
+	private void addAllClassifiers(IContainer container) throws IOException, CoreException {
+		Assert.assertNotNull(container);
+		List<IFile> classFiles = new ArrayList<IFile>();
+		findClassFilesIn(container, classFiles);
+		for (IFile classFile : classFiles) {
+			IPath filePath = classFile.getLocation();
+			String filename = filePath.toString().substring(container.getLocation().toString().length());
+			if (getFilter() != null) {
+				if (!getFilter().filter(filename)) {
+					continue;
+				}
+			}
+			InputStream input = classFile.getContents();
+			ClassParser parser = new ClassParser(input, filename);
+			JavaClass javaClass = parser.parse();
+			setMajorFormatVersion(javaClass.getMajor());
+			setMinorFormatVersion(javaClass.getMinor());
+			input.close();
+			addClassifier(javaClass);
+			if (monitor != null) {
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
+		}
+		fixClassifier.reset();
+	}
+	
+	/**
 	 * Adds the properties of all classifiers in jar to the classifiers in the UML model.
-	 * @param jar The jar file to convert
+	 * @param jar
 	 * @throws IOException
 	 */
 	private void addAllProperties(JarFile jar) throws IOException {
@@ -247,6 +332,38 @@ public class JarToUML implements Runnable {
 		}
 	}
 	
+	/**
+	 * Adds the properties of all classifiers under container to the classifiers in the UML model.
+	 * @param container The root path containing the files to convert
+	 * @throws IOException
+	 * @throws CoreException 
+	 * @throws JavaModelException 
+	 */
+	private void addAllProperties(IContainer container) throws IOException, CoreException {
+		Assert.assertNotNull(container);
+		List<IFile> classFiles = new ArrayList<IFile>();
+		findClassFilesIn(container, classFiles);
+		for (IFile classFile : classFiles) {
+			IPath filePath = classFile.getLocation();
+			String filename = filePath.toString().substring(container.getLocation().toString().length());
+			if (getFilter() != null) {
+				if (!getFilter().filter(filename)) {
+					continue;
+				}
+			}
+			InputStream input = classFile.getContents();
+			ClassParser parser = new ClassParser(input, filename);
+			JavaClass javaClass = parser.parse();
+			input.close();
+			addClassifierProperties(javaClass);
+			if (monitor != null) {
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
+		}
+	}
+
 	/**
 	 * Removes all classifiers in jar from the UML model.
 	 * @param jar The jar file to convert
@@ -277,6 +394,39 @@ public class JarToUML implements Runnable {
 		removeClassifier.reset();
 	}
 	
+	/**
+	 * Removes all classifiers under container from the UML model.
+	 * @param container The root path containing the files to convert
+	 * @throws IOException
+	 * @throws CoreException 
+	 * @throws JavaModelException 
+	 */
+	private void removeAllClassifiers(IContainer container) throws IOException, CoreException {
+		Assert.assertNotNull(container);
+		List<IFile> classFiles = new ArrayList<IFile>();
+		findClassFilesIn(container, classFiles);
+		for (IFile classFile : classFiles) {
+			IPath filePath = classFile.getLocation();
+			String filename = filePath.toString().substring(container.getLocation().toString().length());
+			if (getFilter() != null) {
+				if (!getFilter().filter(filename)) {
+					continue;
+				}
+			}
+			InputStream input = classFile.getContents();
+			ClassParser parser = new ClassParser(input, filename);
+			JavaClass javaClass = parser.parse();
+			input.close();
+			removeClassifier(javaClass);
+			if (monitor != null) {
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
+		}
+		removeClassifier.reset();
+	}
+
 	/**
 	 * Finds a package in the UML model, starting from root.
 	 * @param root The root node in the UML model to search under.
@@ -829,8 +979,8 @@ public class JarToUML implements Runnable {
 	/**
 	 * @return The collection of jars to process.
 	 */
-	public Iterator<JarFile> getJars() {
-		return jars.iterator();
+	public List<JarFile> getJars() {
+		return jars;
 	}
 
 	/**
@@ -1003,6 +1153,34 @@ public class JarToUML implements Runnable {
 	 */
 	protected void setPreverified(boolean preverified) {
 		this.preverified = preverified;
+	}
+
+	/**
+	 * @return the paths
+	 */
+	public List<IContainer> getPaths() {
+		return paths;
+	}
+
+	/**
+	 * Empties the list of paths
+	 */
+	public void clearPaths() {
+		this.paths.clear();
+	}
+
+	/**
+	 * @param path the path to add
+	 */
+	public void addPath(IContainer path) {
+		this.paths.add(path);
+	}
+
+	/**
+	 * @param path the path to remove
+	 */
+	public void removePath(IContainer path) {
+		this.paths.remove(path);
 	}
 
 }
