@@ -11,9 +11,11 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.ui;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -43,20 +45,28 @@ public class JavaProjectToUMLImportDependenciesWizardPage extends AbstractJavaPr
 	 */	
 	protected void createAdvancedControls(Composite parent) {
 		includeReferencedProjectsBtn = 
-			createCheckbox(parent, "Include referenced projects and jar files in workspace", true); 
+			createCheckbox(parent, "Include referenced projects and jar files in workspace", true);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
 	protected InputStream getInitialContents() {
-		jarToUML.clearPaths();
+		InputStream in = super.getInitialContents();
 		jarToUML.setIncludeFeatures(true);
 		jarToUML.setIncludeInstructionReferences(true);
 		jarToUML.setFilter(null);
 		jarToUML.setDependenciesOnly(true);
-		addAllJavaProjects(includeReferencedProjectsBtn.getSelection());
-		return super.getInitialContents();
+		try {
+			addAllJavaProjects(includeReferencedProjectsBtn.getSelection());
+			return in;
+		} catch (JavaModelException e) {
+			JarToUMLPlugin.getPlugin().report(e);
+			return null;
+		} catch (IOException e) {
+			JarToUMLPlugin.getPlugin().report(e);
+			return null;
+		}
 	}
 
 	/**
