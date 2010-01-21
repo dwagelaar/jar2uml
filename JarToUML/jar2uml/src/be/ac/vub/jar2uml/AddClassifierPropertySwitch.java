@@ -83,9 +83,4 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 		return ownedAtt;
 	}
 	
-	public void reset() {
-		setPropertyName(null);
-		setPropertyType(null);
-	}
-
 }

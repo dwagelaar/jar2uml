@@ -141,12 +141,6 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		return umlArgNames;
 	}
 	
-	public void reset() {
-		setOperationName(null);
-		setArgumentTypes(null);
-		setReturnType(null);
-	}
-
 	public Type getReturnType() {
 		return returnType;
 	}
