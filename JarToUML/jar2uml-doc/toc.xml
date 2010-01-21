@@ -2,7 +2,7 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="Jar2UML Documentation">
-	<topic label="Introduction page" href="doc/research_mdd_jar2uml.html"/> 
+	<topic label="Introduction page" href="http://soft.vub.ac.be/soft/research/mdd/jar2uml"/> 
 	<topic label="API documentation" href="doc/javadoc/index.html"/> 
 	<topic label="BCEL documentation" href="doc/bcel-docs/index.html"/> 
 	<topic label="BCEL API documentation" href="doc/bcel-docs/apidocs/index.html"/> 
