@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: BCEL Plug-in
 Bundle-SymbolicName: org.apache.bcel
-Bundle-Version: 5.2.0.1
+Bundle-Version: 5.2.0.2
 Bundle-Vendor: The Apache Jakarta Project
 Bundle-Localization: plugin
 Export-Package: org.apache.bcel.verifier.structurals,

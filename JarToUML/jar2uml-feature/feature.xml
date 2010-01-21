@@ -2,7 +2,7 @@
 <feature
       id="be.ac.vub.jar2uml"
       label="Jar2UML"
-      version="1.0.12"
+      version="1.1.0"
       provider-name="Vrije Universiteit Brussel"
       plugin="be.ac.vub.jar2uml"
       image="VUB_logo_compact.gif">
@@ -41,12 +41,13 @@ the terms and conditions of the Eclipse Public License Version
       <import plugin="org.eclipse.jface"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.jdt.core"/>
    </requires>
 
    <plugin
          id="be.ac.vub.jar2uml"
-         download-size="100"
-         install-size="100"
+         download-size="120"
+         install-size="120"
          version="0.0.0"
          unpack="false"/>
 
@@ -59,8 +60,8 @@ the terms and conditions of the Eclipse Public License Version
 
    <plugin
          id="be.ac.vub.jar2uml.doc"
-         download-size="4028"
-         install-size="4028"
+         download-size="3880"
+         install-size="3880"
          version="0.0.0"
          unpack="false"/>
 
