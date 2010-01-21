@@ -283,7 +283,7 @@ public class JarToUML implements Runnable {
 	 */
 	private boolean filter(final String expr) {
 		final Filter filter = getFilter();
-		return (filter != null) && (!filter.filter(expr));
+		return (filter == null) || (filter.filter(expr));
 	}
 	
 	/**
@@ -292,7 +292,7 @@ public class JarToUML implements Runnable {
 	 */
 	private boolean filter(final JavaClass javaClass) {
 		final Filter filter = getFilter();
-		return (filter != null) && (!filter.filter(javaClass));
+		return (filter == null) || (filter.filter(javaClass));
 	}
 	
 	/**
@@ -301,7 +301,7 @@ public class JarToUML implements Runnable {
 	 */
 	private boolean filter(final AccessFlags flags) {
 		final Filter filter = getFilter();
-		return (filter != null) && (!filter.filter(flags));
+		return (filter == null) || (filter.filter(flags));
 	}
 	
 	/**
