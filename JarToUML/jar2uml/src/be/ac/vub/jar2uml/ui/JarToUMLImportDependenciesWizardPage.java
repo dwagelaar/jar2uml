@@ -11,8 +11,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.ui;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.StringTokenizer;
@@ -45,8 +43,8 @@ public class JarToUMLImportDependenciesWizardPage extends AbstractImportWizardPa
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
 	protected InputStream getInitialContents() {
+		InputStream in = super.getInitialContents();
 		try {
-        	jarToUML.clearJars();
         	jarToUML.setIncludeFeatures(true);
         	jarToUML.setIncludeInstructionReferences(true);
        		jarToUML.setFilter(null);
@@ -55,7 +53,7 @@ public class JarToUMLImportDependenciesWizardPage extends AbstractImportWizardPa
 	    	while (files.hasMoreTokens()) {
 				jarToUML.addJar(new JarFile(files.nextToken()));
 	    	}
-			return new FileInputStream(new File(editor.getStringValue()));
+			return in;
 		} catch (IOException e) {
 			return null;
 		}

@@ -94,8 +94,8 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 	 */
 	@Override
 	protected InputStream getInitialContents() {
+		InputStream in = super.getInitialContents();
 		try {
-        	jarToUML.clearJars();
         	jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
         	if (onlyJavaApiBtn.getSelection()) {
     			jarToUML.setFilter(new JavaAPIFilter());
@@ -109,7 +109,7 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 	    	while (files.hasMoreTokens()) {
 				jarToUML.addJar(new JarFile(files.nextToken()));
 	    	}
-			return super.getInitialContents();
+			return in;
 		} catch (IOException e) {
 			return null;
 		}

@@ -15,17 +15,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.jar.JarFile;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,10 +28,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -62,7 +53,7 @@ import be.ac.vub.jar2uml.JarToUML;
 public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage {
 
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-	protected JarToUML jarToUML = new JarToUML();
+	protected JarToUML jarToUML;
 
 	// cache of newly-created file
 	private IFile newFile;
@@ -95,6 +86,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected InputStream getInitialContents() {
+		jarToUML = new JarToUML();
 		return new ByteArrayInputStream(new byte[0]); // dummy input stream
 	}
 
@@ -196,6 +188,14 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		jarToUML.setOutputModelName(path.removeFileExtension().lastSegment());
 		jarToUML.setMonitor(monitor);
 		jarToUML.run();
+		if (jarToUML.isRunComplete()) {
+			try {
+				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
+			} catch (IOException e) {
+				JarToUMLPlugin.getPlugin().report(e);
+			}
+		}
+		jarToUML = null;
 
 	    if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
@@ -251,90 +251,13 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	/**
 	 * Adds all relevant Java projects based on {@link #getContainerFullPath()}
 	 * @param includeWorkspaceReferences Include referenced projects and jar files in workspace
+	 * @throws IOException 
+	 * @throws JavaModelException 
 	 */
-	protected void addAllJavaProjects(boolean includeWorkspaceReferences) {
+	protected void addAllJavaProjects(boolean includeWorkspaceReferences) throws JavaModelException, IOException {
 		IPath path = getContainerFullPath();
-		IJavaProject javaProject = getJavaProject(path);
-		addPaths(javaProject, includeWorkspaceReferences);
-		if (includeWorkspaceReferences) {
-			Set<IJavaProject> refs = new HashSet<IJavaProject>();
-			findJavaProjectReferences(javaProject, refs);
-			for (IJavaProject ref : refs) {
-				addPaths(ref, includeWorkspaceReferences);
-			}
-		}
-	}
-
-	/**
-	 * @param path
-	 * @return The Java project for the given path, or null
-	 */
-	protected IJavaProject getJavaProject(IPath path) {
-		IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
-		IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
-		IProject project = resource.getProject();
-		return model.getJavaProject(project.getName());
-	}
-
-	/**
-	 * Retrieves the transitive closure of project references for javaProject and stores them in refs
-	 * @param javaProject
-	 * @param refs the transitive closure of project references for javaProject
-	 */
-	protected void findJavaProjectReferences(IJavaProject javaProject, Set<IJavaProject> refs) {
-		try {
-			for (IClasspathEntry cpe : javaProject.getResolvedClasspath(true)) {
-				IPath cpePath;
-			   	switch (cpe.getEntryKind()) {
-			   	case IClasspathEntry.CPE_PROJECT:
-			   		cpePath = cpe.getPath();
-			   		IJavaProject ref = getJavaProject(cpePath);
-			   		refs.add(ref);
-			   		findJavaProjectReferences(ref, refs);
-			   		break;
-			   	}
-			}
-		} catch (JavaModelException e) {
-			JarToUMLPlugin.getPlugin().report(e);
-		}
-	}
-
-	/**
-	 * Adds all relevant class file paths for javaProject
-	 * @param javaProject
-	 * @param includeWorkspaceJars Whether or not to include jar files outside the project, but inside the workspace
-	 */
-	protected void addPaths(IJavaProject javaProject, boolean includeWorkspaceJars) {
-		try {
-			for (IClasspathEntry cpe : javaProject.getResolvedClasspath(true)) {
-				IPath cpePath;
-			   	switch (cpe.getEntryKind()) {
-			   	case IClasspathEntry.CPE_SOURCE:
-			   		cpePath = cpe.getOutputLocation();
-			   		if (cpePath == null) {
-			   			cpePath = javaProject.getOutputLocation();
-			   		}
-			   		IContainer container = (IContainer) 
-			   			ResourcesPlugin.getWorkspace().getRoot().findMember(cpePath);
-			   		jarToUML.addPath(container);
-			   		break;
-			   	case IClasspathEntry.CPE_LIBRARY:
-			   		cpePath = cpe.getPath();
-			   		IResource resource = 
-			   			ResourcesPlugin.getWorkspace().getRoot().findMember(cpePath);
-					if ((resource != null) && 
-						(includeWorkspaceJars 
-							|| javaProject.getProject().equals(resource.getProject()))) {
-						jarToUML.addJar(new JarFile(resource.getLocation().toFile()));
-					}
-			   		break;
-			   	}
-			}
-		} catch (JavaModelException e) {
-			JarToUMLPlugin.getPlugin().report(e);
-		} catch (IOException e) {
-			JarToUMLPlugin.getPlugin().report(e);
-		}
+		IJavaProject javaProject = JarToUML.getJavaProject(path);
+		jarToUML.addPaths(javaProject, includeWorkspaceReferences);
 	}
 
 }
