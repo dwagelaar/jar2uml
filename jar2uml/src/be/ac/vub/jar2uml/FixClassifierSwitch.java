@@ -88,9 +88,4 @@ public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 		return classifier;
 	}
 	
-	public void reset() {
-		replaceByClassifierSwitch.reset();
-		setJavaClass(null);
-	}
-
 }

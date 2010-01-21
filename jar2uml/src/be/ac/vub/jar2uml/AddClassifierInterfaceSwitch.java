@@ -41,11 +41,4 @@ public class AddClassifierInterfaceSwitch extends UMLSwitch<DirectedRelationship
 		return umlIface.createGeneralization(iface);
 	}
 	
-	/**
-	 * Sets all local fields to null (allows models to be garbage-collected).
-	 */
-	public void reset() {
-		setIface(null);
-	}
-
 }

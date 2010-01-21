@@ -172,9 +172,4 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 		this.metaClass = metaClass;
 	}
 	
-	public void reset() {
-		setClassifier(null);
-		setMetaClass(UMLPackage.eINSTANCE.getDataType());
-	}
-
 }

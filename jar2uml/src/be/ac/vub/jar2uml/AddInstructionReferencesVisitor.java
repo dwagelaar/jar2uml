@@ -135,10 +135,4 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		return cpg;
 	}
 
-	public void reset() {
-		owner = null;
-		setCp(null);
-		replaceByClassifier.reset();
-	}
-
 }

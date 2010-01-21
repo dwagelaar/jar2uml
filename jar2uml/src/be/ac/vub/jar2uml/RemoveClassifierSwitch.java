@@ -86,8 +86,4 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 		return classifier;
 	}
 
-	public void reset() {
-		setClassifier(null);
-	}
-	
 }

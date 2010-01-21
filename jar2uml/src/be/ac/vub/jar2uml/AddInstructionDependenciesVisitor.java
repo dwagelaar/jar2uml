@@ -222,15 +222,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		return cpg;
 	}
 
-	public void reset() {
-		owner = null;
-		setInstrContext(null);
-		setCp(null);
-		addClassifierProperty.reset();
-		addClassifierOperation.reset();
-		replaceByClassifier.reset();
-	}
-
 	public Classifier getInstrContext() {
 		return instrContext;
 	}
