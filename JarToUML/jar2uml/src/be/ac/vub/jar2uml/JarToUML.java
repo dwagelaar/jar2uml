@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -73,7 +74,7 @@ public class JarToUML implements Runnable {
 		
 	public static final String LOGGER = "be.ac.vub.jar2uml";
 	
-	private static Logger logger = Logger.getLogger(LOGGER);
+	protected static Logger logger = Logger.getLogger(LOGGER);
 
 	/**
 	 * @param args
@@ -95,25 +96,27 @@ public class JarToUML implements Runnable {
 		}
 	}
 
-	private Model model = null;
-	private List<JarFile> jars = new ArrayList<JarFile>();
-	private List<IContainer> paths = new ArrayList<IContainer>();
-	private FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
-	private RemoveClassifierSwitch removeClassifier = new RemoveClassifierSwitch();
-	private ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
-	private TypeToClassifierSwitch typeToClassifier = new TypeToClassifierSwitch();
-	private FixClassifierSwitch fixClassifier = new FixClassifierSwitch();
-	private AddClassifierInterfaceSwitch addClassifierInterface = new AddClassifierInterfaceSwitch();
-	private AddClassifierPropertySwitch addClassifierProperty = new AddClassifierPropertySwitch(typeToClassifier);
-	private AddClassifierOperationSwitch addClassifierOperation = new AddClassifierOperationSwitch(typeToClassifier);
-	private AddInstructionReferencesVisitor addInstructionReferences = 
+	protected FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
+	protected RemoveClassifierSwitch removeClassifier = new RemoveClassifierSwitch();
+	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
+	protected TypeToClassifierSwitch typeToClassifier = new TypeToClassifierSwitch();
+	protected FixClassifierSwitch fixClassifier = new FixClassifierSwitch();
+	protected AddClassifierInterfaceSwitch addClassifierInterface = new AddClassifierInterfaceSwitch();
+	protected AddClassifierPropertySwitch addClassifierProperty = new AddClassifierPropertySwitch(typeToClassifier);
+	protected AddClassifierOperationSwitch addClassifierOperation = new AddClassifierOperationSwitch(typeToClassifier);
+	protected AddInstructionReferencesVisitor addInstructionReferences = 
 		new AddInstructionReferencesVisitor(
 				typeToClassifier);
-	private AddInstructionDependenciesVisitor addInstructionDependencies = 
+	protected AddInstructionDependenciesVisitor addInstructionDependencies = 
 		new AddInstructionDependenciesVisitor(
 				typeToClassifier,
 				addClassifierProperty,
 				addClassifierOperation);
+	protected AddInferredTagSwitch addInferredTagSwitch = new AddInferredTagSwitch();
+
+	private Model model = null;
+	private List<JarFile> jars = new ArrayList<JarFile>();
+	private List<IContainer> paths = new ArrayList<IContainer>();
 	private Filter filter = null;
 	private String outputFile = "api.uml";
 	private String outputModelName = "api";
@@ -135,6 +138,7 @@ public class JarToUML implements Runnable {
 	 */
 	public void run() {
 		setRunComplete(false);
+		List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
 		Assert.assertNotNull(getOutputFile());
 		logger.info("Starting JarToUML for " + getOutputFile());
 		ResourceSet resourceSet = createResourceSet();
@@ -146,30 +150,19 @@ public class JarToUML implements Runnable {
 			getModel().setName(getOutputModelName());
 			typeToClassifier.setRoot(getModel());
 			for (JarFile jar : getJars()) {
-				addAllClassifiers(jar);
+				parseClasses(jar, parsedClasses);
 				checkMonitor(monitor);
 			}
 			for (IContainer path : getPaths()) {
-				addAllClassifiers(path);
+				parseClasses(path, parsedClasses);
 				checkMonitor(monitor);
 			}
-			for (JarFile jar : getJars()) {
-				addAllProperties(jar);
-				checkMonitor(monitor);
-			}
-			for (IContainer paths : getPaths()) {
-				addAllProperties(paths);
-				checkMonitor(monitor);
-			}
+			addAllClassifiers(parsedClasses);
+			addAllProperties(parsedClasses);
 			if (dependenciesOnly) {
-				for (JarFile jar : getJars()) {
-					removeAllClassifiers(jar);
-					checkMonitor(monitor);
-				}
-				for (IContainer path : getPaths()) {
-					removeAllClassifiers(path);
-					checkMonitor(monitor);
-				}
+				removeAllClassifiers(parsedClasses);
+			} else {
+				addAllInferredTags(parsedClasses);
 			}
 			removeEmptyPackages(getModel());
 			Comment comment = getModel().createOwnedComment();
@@ -191,6 +184,60 @@ public class JarToUML implements Runnable {
 			report(e);
 		}
 		logger.info("Finished JarToUML");
+	}
+	
+	/**
+	 * Parses all classes in jar and adds them to parsedClasses.
+	 * @param jar
+	 * @param parsedClasses
+	 * @throws IOException
+	 */
+	private void parseClasses(JarFile jar, Collection<JavaClass> parsedClasses) throws IOException {
+		Assert.assertNotNull(jar);
+		for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
+			JarEntry entry = entries.nextElement();
+			if (entry.getName().endsWith(".class")) {
+				if (!filter(entry.getName())) {
+					continue;
+				}
+				InputStream input = jar.getInputStream(entry);
+				ClassParser parser = new ClassParser(input, entry.getName());
+				JavaClass javaClass = parser.parse();
+				setMajorFormatVersion(javaClass.getMajor());
+				setMinorFormatVersion(javaClass.getMinor());
+				input.close();
+				parsedClasses.add(javaClass);
+			}
+			checkMonitor(monitor);
+		}
+	}
+
+	/**
+	 * Parses all classes in container and adds them to parsedClasses.
+	 * @param container
+	 * @param parsedClasses
+	 * @throws IOException
+	 * @throws CoreException
+	 */
+	private void parseClasses(IContainer container, Collection<JavaClass> parsedClasses) throws IOException, CoreException {
+		Assert.assertNotNull(container);
+		List<IFile> classFiles = new ArrayList<IFile>();
+		findClassFilesIn(container, classFiles);
+		for (IFile classFile : classFiles) {
+			IPath filePath = classFile.getLocation();
+			String filename = filePath.toString().substring(container.getLocation().toString().length());
+			if (!filter(filename)) {
+				continue;
+			}
+			InputStream input = classFile.getContents();
+			ClassParser parser = new ClassParser(input, filename);
+			JavaClass javaClass = parser.parse();
+			setMajorFormatVersion(javaClass.getMajor());
+			setMinorFormatVersion(javaClass.getMinor());
+			input.close();
+			parsedClasses.add(javaClass);
+			checkMonitor(monitor);
+		}
 	}
 	
 	/**
@@ -251,28 +298,15 @@ public class JarToUML implements Runnable {
 		}
 		return b.toString();
 	}
-	
+
 	/**
-	 * Adds all classifiers in jar to the UML model. Does not add classifier properties.
-	 * @param jar The jar file to convert
+	 * Adds all classifiers in parsedClasses to the UML model. Does not add classifier properties.
+	 * @param parsedClasses
 	 * @throws IOException
 	 */
-	private void addAllClassifiers(JarFile jar) throws IOException {
-		Assert.assertNotNull(jar);
-		for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
-			JarEntry entry = entries.nextElement();
-			if (entry.getName().endsWith(".class")) {
-				if (!filter(entry.getName())) {
-					continue;
-				}
-				InputStream input = jar.getInputStream(entry);
-				ClassParser parser = new ClassParser(input, entry.getName());
-				JavaClass javaClass = parser.parse();
-				setMajorFormatVersion(javaClass.getMajor());
-				setMinorFormatVersion(javaClass.getMinor());
-				input.close();
-				addClassifier(javaClass);
-			}
+	private void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException {
+		for (JavaClass javaClass : parsedClasses) {
+			addClassifier(javaClass);
 			checkMonitor(monitor);
 		}
 	}
@@ -327,127 +361,26 @@ public class JarToUML implements Runnable {
 			}
 		}
 	}
-	
+
 	/**
-	 * Adds all classifiers under container to the UML model. Does not add classifier properties.
-	 * @param container The root path containing the files to convert
-	 * @throws IOException
-	 * @throws CoreException 
-	 */
-	private void addAllClassifiers(IContainer container) throws IOException, CoreException {
-		Assert.assertNotNull(container);
-		List<IFile> classFiles = new ArrayList<IFile>();
-		findClassFilesIn(container, classFiles);
-		for (IFile classFile : classFiles) {
-			IPath filePath = classFile.getLocation();
-			String filename = filePath.toString().substring(container.getLocation().toString().length());
-			if (!filter(filename)) {
-				continue;
-			}
-			InputStream input = classFile.getContents();
-			ClassParser parser = new ClassParser(input, filename);
-			JavaClass javaClass = parser.parse();
-			setMajorFormatVersion(javaClass.getMajor());
-			setMinorFormatVersion(javaClass.getMinor());
-			input.close();
-			addClassifier(javaClass);
-			checkMonitor(monitor);
-		}
-	}
-	
-	/**
-	 * Adds the properties of all classifiers in jar to the classifiers in the UML model.
-	 * @param jar
+	 * Adds the properties of all classifiers in parsedClasses to the classifiers in the UML model.
+	 * @param parsedClasses
 	 * @throws IOException
 	 */
-	private void addAllProperties(JarFile jar) throws IOException {
-		Assert.assertNotNull(jar);
-		for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
-			JarEntry entry = entries.nextElement();
-			if (entry.getName().endsWith(".class")) {
-				if (!filter(entry.getName())) {
-					continue;
-				}
-				InputStream input = jar.getInputStream(entry);
-				ClassParser parser = new ClassParser(input, entry.getName());
-				JavaClass javaClass = parser.parse();
-				input.close();
-				addClassifierProperties(javaClass);
-			}
-			checkMonitor(monitor);
-		}
-	}
-	
-	/**
-	 * Adds the properties of all classifiers under container to the classifiers in the UML model.
-	 * @param container The root path containing the files to convert
-	 * @throws IOException
-	 * @throws CoreException 
-	 * @throws JavaModelException 
-	 */
-	private void addAllProperties(IContainer container) throws IOException, CoreException {
-		Assert.assertNotNull(container);
-		List<IFile> classFiles = new ArrayList<IFile>();
-		findClassFilesIn(container, classFiles);
-		for (IFile classFile : classFiles) {
-			IPath filePath = classFile.getLocation();
-			String filename = filePath.toString().substring(container.getLocation().toString().length());
-			if (!filter(filename)) {
-				continue;
-			}
-			InputStream input = classFile.getContents();
-			ClassParser parser = new ClassParser(input, filename);
-			JavaClass javaClass = parser.parse();
-			input.close();
+	private void addAllProperties(Collection<JavaClass> parsedClasses) throws IOException {
+		for (JavaClass javaClass : parsedClasses) {
 			addClassifierProperties(javaClass);
 			checkMonitor(monitor);
 		}
 	}
 
 	/**
-	 * Removes all classifiers in jar from the UML model.
-	 * @param jar The jar file to convert
+	 * Removes all classifiers in parsedClasses from the UML model.
+	 * @param parsedClasses
 	 * @throws IOException
 	 */
-	private void removeAllClassifiers(JarFile jar) throws IOException {
-		Assert.assertNotNull(jar);
-		for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
-			JarEntry entry = entries.nextElement();
-			if (entry.getName().endsWith(".class")) {
-				if (!filter(entry.getName())) {
-					continue;
-				}
-				InputStream input = jar.getInputStream(entry);
-				ClassParser parser = new ClassParser(input, entry.getName());
-				JavaClass javaClass = parser.parse();
-				input.close();
-				removeClassifier(javaClass);
-			}
-			checkMonitor(monitor);
-		}
-	}
-	
-	/**
-	 * Removes all classifiers under container from the UML model.
-	 * @param container The root path containing the files to convert
-	 * @throws IOException
-	 * @throws CoreException 
-	 * @throws JavaModelException 
-	 */
-	private void removeAllClassifiers(IContainer container) throws IOException, CoreException {
-		Assert.assertNotNull(container);
-		List<IFile> classFiles = new ArrayList<IFile>();
-		findClassFilesIn(container, classFiles);
-		for (IFile classFile : classFiles) {
-			IPath filePath = classFile.getLocation();
-			String filename = filePath.toString().substring(container.getLocation().toString().length());
-			if (!filter(filename)) {
-				continue;
-			}
-			InputStream input = classFile.getContents();
-			ClassParser parser = new ClassParser(input, filename);
-			JavaClass javaClass = parser.parse();
-			input.close();
+	private void removeAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException {
+		for (JavaClass javaClass : parsedClasses) {
 			removeClassifier(javaClass);
 			checkMonitor(monitor);
 		}
@@ -745,6 +678,49 @@ public class JarToUML implements Runnable {
 		Instruction[] instr = instrList.getInstructions();
 		for (int i = 0; i < instr.length; i++) {
 			instr[i].accept(addInstructionReferences);
+		}
+	}
+
+	/**
+	 * Adds inferred tags to all elements not contained in parsedClasses.
+	 * @param parsedClasses
+	 */
+	private void addAllInferredTags(Collection<JavaClass> parsedClasses) {
+		final Set<Classifier> containedClassifiers = new HashSet<Classifier>();
+		for (JavaClass javaClass : parsedClasses) {
+			containedClassifiers.add(findContainedClassifier. 
+				findClassifier(getModel(), javaClass.getClassName(), null));
+		}
+		addInferredTagSwitch.setContainedClassifiers(containedClassifiers);
+		addInferredTagSwitch.doSwitch(getModel());
+	}
+
+	/**
+	 * Adds a tag to indicate it has been inferred
+	 * from class file references.
+	 * @param element The element to add the tag to.
+	 */
+	protected void addInferredTag(Element element) {
+		final EAnnotation ann = element.createEAnnotation("Jar2UML");
+		final EMap<String, String> details = ann.getDetails();
+		details.put("inferred", "true");
+	}
+	
+	/**
+	 * Removes the tag to indicate it has been inferred
+	 * from class file references.
+	 * @param element The element to remove the tag from.
+	 */
+	protected void removeInferredTag(Element element) {
+		final EAnnotation ann = element.getEAnnotation("Jar2UML");
+		if (ann != null) {
+			final EMap<String, String> details = ann.getDetails();
+			if (details.containsKey("inferred")) {
+				details.removeKey("inferred");
+			}
+			if (details.isEmpty()) {
+				element.getEAnnotations().remove(ann);
+			}
 		}
 	}
 	
