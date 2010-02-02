@@ -62,11 +62,11 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	private IFile newFile;
 
 	/**
-	 * Creates a new AbstractImportWizardPage
+	 * Creates a new {@link AbstractImportWizardPage}.
 	 * @param pageName
 	 * @param description
 	 * @param selection
-	 * @see {@link WizardNewFileCreationPage#WizardNewFileCreationPage(String, IStructuredSelection)}
+	 * @see WizardNewFileCreationPage#WizardNewFileCreationPage(String, IStructuredSelection)
 	 */
 	public AbstractImportWizardPage(String pageName, String description,
 			IStructuredSelection selection) {

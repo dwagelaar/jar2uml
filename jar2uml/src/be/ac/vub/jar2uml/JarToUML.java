@@ -1131,7 +1131,7 @@ public class JarToUML implements Runnable {
 	/**
 	 * The class file format major version. 
 	 * @return the majorFormatVersion
-	 * {@link http://en.wikipedia.org/wiki/Class_%28file_format%29}
+	 * @see <a href="http://en.wikipedia.org/wiki/Class_(file_format)">Class_(file_format)</a>
 	 */
 	public int getMajorFormatVersion() {
 		return majorFormatVersion;
@@ -1140,7 +1140,7 @@ public class JarToUML implements Runnable {
 	/**
 	 * The class file format minor version. 
 	 * @param majorFormatVersion the majorFormatVersion to set
-	 * {@link http://en.wikipedia.org/wiki/Class_%28file_format%29}
+	 * @see <a href="http://en.wikipedia.org/wiki/Class_(file_format)">Class_(file_format)</a>
 	 */
 	protected void setMajorFormatVersion(int majorFormatVersion) {
 		this.majorFormatVersion = Math.max(this.majorFormatVersion, majorFormatVersion);
