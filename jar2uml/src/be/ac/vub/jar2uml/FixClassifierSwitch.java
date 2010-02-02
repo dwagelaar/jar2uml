@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.logging.Logger;
@@ -21,7 +31,7 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
 public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-	
+
 	private JavaClass javaClass = null;
 	private ReplaceByClassifierSwitch replaceByClassifierSwitch = new ReplaceByClassifierSwitch();
 
@@ -60,7 +70,7 @@ public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 		}
 		return super.caseInterface(umlIface);
 	}
-	
+
 	public Classifier caseDataType(DataType datatype) {
 		Assert.assertNotNull(datatype);
 		JavaClass javaClass = getJavaClass();
@@ -87,5 +97,5 @@ public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 		classifier.setIsLeaf(javaClass.isFinal());
 		return classifier;
 	}
-	
+
 }

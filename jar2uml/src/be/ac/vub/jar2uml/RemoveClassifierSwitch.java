@@ -13,7 +13,7 @@ import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.util.UMLSwitch;
 
 /**
- * Removes {@link #setClassifier(Classifier)} from its parent.
+ * Removes {@link #getClassifier()} from its parent.
  * Switches on {@link Element#getOwner()} of {@link #getClassifier()}
  * and returns itself. Also removes derived datatypes (arrays), nested
  * classifiers and container packages if they become empty.
@@ -21,9 +21,13 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  *
  */
 public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
-	
+
+	/**
+	 * Removes nested classifiers of {@link #doSwitch(org.eclipse.emf.ecore.EObject)}.
+	 * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
+	 */
 	public class RemoveNestedClassifierSwitch extends UMLSwitch<Classifier> {
-		
+
 		public Classifier caseClass(Class umlClass) {
 			for (Iterator<Classifier> it = umlClass.getNestedClassifiers().iterator(); it.hasNext();) {
 				Classifier c = it.next();
@@ -42,46 +46,77 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 			return umlIface;
 		}
 	}
-	
+
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-	
+
 	private Classifier classifier = null;
+
 	protected RemoveNestedClassifierSwitch removeNested = new RemoveNestedClassifierSwitch();
 
+	/**
+	 * Logs the removal of classifier
+	 * @param classifier
+	 */
+	private void logRemoved(Classifier classifier) {
+		logger.fine(String.format(
+				JarToUML.getString("RemoveClassifierSwitch.removed"), 
+				classifier.getQualifiedName(),
+				classifier.eClass().getName())); //$NON-NLS-1$
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseClass(org.eclipse.uml2.uml.Class)
+	 */
+	@Override
 	public Classifier caseClass(Class umlClass) {
 		final Classifier classifier = getClassifier();
 		Assert.assertNotNull(classifier);
 		removeNested.doSwitch(classifier);
 		umlClass.getNestedClassifiers().remove(classifier);
-		logger.fine("Removed " + classifier.getQualifiedName() + " : " + 
-				classifier.eClass().getName());
+		logRemoved(classifier);
 		return classifier;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseInterface(org.eclipse.uml2.uml.Interface)
+	 */
+	@Override
 	public Classifier caseInterface(Interface umlIface) {
 		final Classifier classifier = getClassifier();
 		Assert.assertNotNull(classifier);
 		removeNested.doSwitch(classifier);
 		umlIface.getNestedClassifiers().remove(classifier);
-		logger.fine("Removed " + classifier.getQualifiedName() + " : " + 
-				classifier.eClass().getName());
+		logRemoved(classifier);
 		return classifier;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#casePackage(org.eclipse.uml2.uml.Package)
+	 */
+	@Override
 	public Classifier casePackage(Package pack) {
 		final Classifier classifier = getClassifier();
 		Assert.assertNotNull(classifier);
 		removeNested.doSwitch(classifier);
 		pack.getPackagedElements().remove(classifier);
-		logger.fine("Removed " + classifier.getQualifiedName() + " : " + 
-				classifier.eClass().getName());
+		logRemoved(classifier);
 		return classifier;
 	}
 
+	/**
+	 * Sets the classifier
+	 * @param classifier
+	 */
 	public void setClassifier(Classifier classifier) {
 		this.classifier = classifier;
 	}
 
+	/**
+	 * @return the classifier
+	 */
 	public Classifier getClassifier() {
 		return classifier;
 	}

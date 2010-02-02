@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +53,8 @@ import be.ac.vub.jar2uml.JarToUML;
  */
 public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage {
 
+	public static final String WIZ_IMAGE = "icons/full/wizban/Jar2UMLWizard.png"; //$NON-NLS-1$
+
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 	protected JarToUML jarToUML;
 
@@ -99,58 +102,63 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		if (newFile != null) {
 			return newFile;
 		}
-	
+
 		// create the new file and cache it if successful
 		final IPath containerPath = getContainerFullPath();
 		final IPath newFilePath = containerPath.append(getFileName());
 		final IFile newFileHandle = createFileHandle(newFilePath);
 		final InputStream initialContents = getInitialContents();
-	
-	    createLinkTarget();
-	    WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
+
+		createLinkTarget();
+		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 			@Override
-	        protected void execute(IProgressMonitor monitor)
-	                throws CoreException {
-	            try {
-	                monitor.beginTask("Creating", 2000);
-	                ContainerGenerator generator = new ContainerGenerator(
-	                        containerPath);
-	                generator.generateContainer(new SubProgressMonitor(monitor,
-	                        1000));
-	                createFile(newFileHandle, initialContents,
-	                        new SubProgressMonitor(monitor, 1000));
-	            } finally {
-	                monitor.done();
-	            }
-	        }
-	    };
-	
-	    try {
-	        getContainer().run(true, true, op);
-	    } catch (InterruptedException e) {
-	        return null;
-	    } catch (InvocationTargetException e) {
-	        if (e.getTargetException() instanceof CoreException) {
-	            ErrorDialog
-	                    .openError(
-	                            getContainer().getShell(), // Was Utilities.getFocusShell()
-	                            "Creation Problems",
-	                            null, // no special message
-	                            ((CoreException) e.getTargetException())
-	                                    .getStatus());
-	        } else {
-	            // CoreExceptions are handled above, but unexpected runtime exceptions and errors may still occur.
-	        	logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-	            MessageDialog
-	                    .openError(
-	                            getContainer().getShell(),
-	                            "Creation problems", "Internal error: " + e.getTargetException().getMessage());
-	        }
-	        return null;
-	    }
-	
+			protected void execute(IProgressMonitor monitor)
+			throws CoreException {
+				try {
+					monitor.beginTask(JarToUML.getString("AbstractImportWizardPage.taskName"), 1100); //$NON-NLS-1$
+					ContainerGenerator generator = new ContainerGenerator(
+							containerPath);
+					generator.generateContainer(new SubProgressMonitor(monitor,
+							100));
+					createFile(newFileHandle, initialContents,
+							new SubProgressMonitor(monitor, 1000));
+				} finally {
+					monitor.done();
+				}
+			}
+		};
+
+		try {
+			getContainer().run(true, true, op);
+		} catch (InterruptedException e) {
+			return null;
+		} catch (InvocationTargetException e) {
+			if (e.getTargetException() instanceof CoreException) {
+				ErrorDialog
+				.openError(
+						getContainer().getShell(), // Was Utilities.getFocusShell()
+						JarToUML.getString("AbstractImportWizardPage.creationProblems"), //$NON-NLS-1$
+						null, // no special message
+						((CoreException) e.getTargetException())
+						.getStatus());
+			} else {
+				// CoreExceptions are handled above, but unexpected runtime exceptions and errors may still occur.
+				logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+				StringBuffer body = new StringBuffer();
+				body.append(JarToUML.getString("AbstractImportWizardPage.internalError")); //$NON-NLS-1$
+				body.append(' ');
+				body.append(e.getTargetException().getMessage());
+				MessageDialog
+				.openError(
+						getContainer().getShell(),
+						JarToUML.getString("AbstractImportWizardPage.creationProblems"),
+						body.toString()); //$NON-NLS-1$
+			}
+			return null;
+		}
+
 		newFile = newFileHandle;
-	
+
 		return newFile;
 	}
 
@@ -159,7 +167,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected String getNewFileLabel() {
-		return "New File Name:"; //NON-NLS-1
+		return JarToUML.getString("AbstractImportWizardPage.newFileLabel"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -167,7 +175,12 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected IStatus validateLinkedResource() {
-		return new Status(IStatus.OK, "be.ac.vub.jar2uml", IStatus.OK, "", null); //NON-NLS-1 //NON-NLS-2
+		return new Status(
+				IStatus.OK, 
+				JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
+				IStatus.OK, 
+				"", 
+				null); //$NON-NLS-1$
 	}
 
 	/**
@@ -182,7 +195,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected void createFile(IFile fileHandle, InputStream contents, IProgressMonitor monitor)
-			throws CoreException {
+	throws CoreException {
 		IPath path = fileHandle.getFullPath();
 		jarToUML.setOutputFile(path.toString());
 		jarToUML.setOutputModelName(path.removeFileExtension().lastSegment());
@@ -197,7 +210,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		}
 		jarToUML = null;
 
-	    if (monitor.isCanceled()) {
+		if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 	}
@@ -212,29 +225,32 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		GridData fileSelectionData = new GridData(GridData.GRAB_HORIZONTAL
 				| GridData.FILL_HORIZONTAL);
 		fileSelectionArea.setLayoutData(fileSelectionData);
-	
+
 		GridLayout fileSelectionLayout = new GridLayout();
 		fileSelectionLayout.numColumns = 3;
 		fileSelectionLayout.makeColumnsEqualWidth = false;
 		fileSelectionLayout.marginWidth = 0;
 		fileSelectionLayout.marginHeight = 0;
 		fileSelectionArea.setLayout(fileSelectionLayout);
-		
-		final FilesFieldEditor editor = new FilesFieldEditor("fileSelect","Select File: ",fileSelectionArea); //NON-NLS-1 //NON-NLS-2
+
+		final FilesFieldEditor editor = new FilesFieldEditor(
+				"fileSelect",
+				JarToUML.getString("AbstractImportWizardPage.selectFile"),
+				fileSelectionArea); //$NON-NLS-1$ //$NON-NLS-2$
 		editor.getTextControl(fileSelectionArea).addModifyListener(new ModifyListener(){
 			public void modifyText(ModifyEvent e) {
 				IPath path = new Path(editor.getStringValue());
 				setFileName(path.removeFileExtension().lastSegment() + fileExtension);
 			}
 		});
-		String[] extensions = new String[] { "*.zip;*.jar" }; //NON-NLS-1
+		String[] extensions = new String[] { "*.zip;*.jar" }; //$NON-NLS-1$
 		editor.setFileExtensions(extensions);
-		
+
 		fileSelectionArea.moveAbove(null);
-		
+
 		return editor;
 	}
-	
+
 	/**
 	 * @param parent
 	 * @param text

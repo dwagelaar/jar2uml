@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,12 +23,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 
+import be.ac.vub.jar2uml.JarToUML;
+
 /**
  * Shared functionality for Jar2UML import from Java project wizard pages
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public abstract class AbstractJavaProjectToUMLImportWizardPage extends
-		AbstractImportWizardPage {
+public abstract class AbstractJavaProjectToUMLImportWizardPage extends AbstractImportWizardPage {
 
 	protected Button includeReferencedProjectsBtn;
 
@@ -47,7 +49,7 @@ public abstract class AbstractJavaProjectToUMLImportWizardPage extends
 		}
 		super.handleEvent(event);
 	}
-	
+
 	/**
 	 * Handles the selection of a new resource container
 	 * @param event
@@ -65,19 +67,21 @@ public abstract class AbstractJavaProjectToUMLImportWizardPage extends
 			IPath path = getContainerFullPath();
 			IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
 			IProject project = resource.getProject();
-	        if (!project.isAccessible()) {
-	        	setErrorMessage("Project " + project.getName() + " not accessible");
-	        	valid = false;
-	        } else {
+			if (!project.isAccessible()) {
+				setErrorMessage(String.format(
+						JarToUML.getString("AbstractJavaProjectToUMLImportWizardPage.projectNotAccessible"), 
+						project.getName())); //$NON-NLS-1$
+				valid = false;
+			} else {
 				try {
 					if (project.getNature(JavaCore.NATURE_ID) == null) {
-						setErrorMessage("Can only work on Java projects");
+						setErrorMessage(JarToUML.getString("AbstractJavaProjectToUMLImportWizardPage.onlyJavaProjects")); //$NON-NLS-1$
 						valid = false;
 					}
 				} catch (CoreException e) {
 					JarToUMLPlugin.getPlugin().report(e);
 				}
-	        }
+			}
 		}
 		return valid;
 	}

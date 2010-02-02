@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.logging.Logger;
@@ -14,9 +24,9 @@ import org.apache.bcel.verifier.structurals.UninitializedObjectType;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class TypeSwitch<T> {
-	
+
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-	
+
 	public T doSwitch(Type type) {
 		if (type instanceof BasicType) {
 			T result = caseBasicType((BasicType) type);
@@ -40,27 +50,27 @@ public class TypeSwitch<T> {
 		}
 		return defaultCase(type);
 	}
-	
+
 	public T caseBasicType(BasicType type) {
 		return null;
 	}
-	
+
 	public T caseArrayType(ArrayType type) {
 		return null;
 	}
-	
+
 	public T caseObjectType(ObjectType type) {
 		return null;
 	}
-	
+
 	public T caseUninitializedObjectType(UninitializedObjectType type) {
 		return null;
 	}
-	
+
 	public T caseReferenceType(ReferenceType type) {
 		return null;
 	}
-	
+
 	public T defaultCase(Type type) {
 		return null;
 	}

@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,23 +37,23 @@ public class JarToUMLImportDependenciesWizardPage extends AbstractImportWizardPa
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
 	 */	
 	protected void createAdvancedControls(Composite parent) {
-		editor = createFilesFieldEditor(parent, ".deps.uml");
+		editor = createFilesFieldEditor(parent, ".deps.uml"); //$NON-NLS-1$
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
 	protected InputStream getInitialContents() {
 		InputStream in = super.getInitialContents();
 		try {
-        	jarToUML.setIncludeFeatures(true);
-        	jarToUML.setIncludeInstructionReferences(true);
-       		jarToUML.setFilter(null);
-       		jarToUML.setDependenciesOnly(true);
-	    	StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";");
-	    	while (files.hasMoreTokens()) {
+			jarToUML.setIncludeFeatures(true);
+			jarToUML.setIncludeInstructionReferences(true);
+			jarToUML.setFilter(null);
+			jarToUML.setDependenciesOnly(true);
+			StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";"); //$NON-NLS-1$
+			while (files.hasMoreTokens()) {
 				jarToUML.addJar(new JarFile(files.nextToken()));
-	    	}
+			}
 			return in;
 		} catch (IOException e) {
 			return null;

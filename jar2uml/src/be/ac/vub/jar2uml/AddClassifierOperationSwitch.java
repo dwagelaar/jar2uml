@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.logging.Logger;
@@ -20,18 +30,18 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
-	
+
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private String operationName = null;
 	private EList<Type> argumentTypes = null;
 	private Type returnType = null;
 	private TypeToClassifierSwitch typeToClassifier = null;
-	
+
 	protected EList<String> argNames = null;
 	protected EList<String> allArgNames = null;
 	protected EList<Type> allArgTypes = null;
-	
+
 	public AddClassifierOperationSwitch(TypeToClassifierSwitch typeToClassifier) {
 		Assert.assertNotNull(typeToClassifier);
 		this.typeToClassifier = typeToClassifier;
@@ -54,13 +64,15 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		for (int i = 0; i < types.length; i++) {
 			Type type = typeToClassifier.doSwitch(types[i]);
 			if (type == null) {
-				logger.warning("Type not found: " +	types[i].getSignature());
+				logger.warning(String.format(
+						JarToUML.getString("AddClassifierOperationSwitch.typeNotFound"), 
+						types[i].getSignature())); //$NON-NLS-1$
 			}
 			umlTypes.add(type);
 		}
 		return umlTypes;
 	}
-	
+
 	public String getOperationName() {
 		return operationName;
 	}
@@ -80,7 +92,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 			allArgTypes.add(getReturnType());
 		}
 	}
-	
+
 	public Operation caseClass(Class object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
@@ -90,7 +102,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		if (op == null) {
 			op = object.createOwnedOperation(name, argNames, getArgumentTypes());
 			if (getReturnType() != null) {
-				Parameter par = op.createOwnedParameter("return", getReturnType());
+				Parameter par = op.createOwnedParameter("return", getReturnType()); //$NON-NLS-1$
 				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
 			}
 			op.setIsLeaf(true);		//final
@@ -107,7 +119,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		if (op == null) {
 			op = object.createOwnedOperation(name, argNames, getArgumentTypes());
 			if (getReturnType() != null) {
-				Parameter par = op.createOwnedParameter("return", getReturnType());
+				Parameter par = op.createOwnedParameter("return", getReturnType()); //$NON-NLS-1$
 				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
 			}
 			op.setIsLeaf(true);		//final
@@ -124,7 +136,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		if (op == null) {
 			op = object.createOwnedOperation(name, argNames, getArgumentTypes());
 			if (getReturnType() != null) {
-				Parameter par = op.createOwnedParameter("return", getReturnType());
+				Parameter par = op.createOwnedParameter("return", getReturnType()); //$NON-NLS-1$
 				par.setDirection(ParameterDirectionKind.RETURN_LITERAL);
 			}
 			op.setIsLeaf(true);		//final
@@ -140,7 +152,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		}
 		return umlArgNames;
 	}
-	
+
 	public Type getReturnType() {
 		return returnType;
 	}
@@ -148,9 +160,9 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	public void setReturnType(Type returnType) {
 		this.returnType = returnType;
 	}
-	
+
 	public void setBCELReturnType(org.apache.bcel.generic.Type returnType) {
 		setReturnType((Type) typeToClassifier.doSwitch(returnType));
 	}
-	
+
 }

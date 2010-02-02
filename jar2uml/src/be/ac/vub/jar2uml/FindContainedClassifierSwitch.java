@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
@@ -31,7 +41,7 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
 public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-	
+
 	private boolean create = false;
 	private EClass metaClass = UMLPackage.eINSTANCE.getDataType();
 	private String classifierName = null;
@@ -125,12 +135,15 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
-			logger.info("Classifier " + parent + " replaced by Class " + newParent + " to support nested Classifiers");
+			logger.info(String.format(
+					JarToUML.getString("FindContainedClassifierSwitch.replacedByClass"), 
+					parent,
+					newParent)); //$NON-NLS-1$
 			return doSwitch(newParent);
 		}
 		return super.caseClassifier(parent);
 	}
-	
+
 	/**
 	 * @param parent The parent element to search at, e.g. "java.lang.Class".
 	 * @param localClassName The local classifier name (e.g. "Inner")
@@ -186,7 +199,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 			return findLocalClassifier(parent, localClassName, createAs);
 		}
 	}
-	
+
 	/**
 	 * Finds a package in the UML model, starting from root.
 	 * @param root The root node in the UML model to search under.
@@ -255,5 +268,5 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		}
 		return null;
 	}
-	
+
 }

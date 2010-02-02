@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +23,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
+import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.JavaAPIFilter;
 import be.ac.vub.jar2uml.PublicAPIFilter;
 
@@ -55,13 +57,13 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 	protected void createAdvancedControls(Composite parent) {
 		editor = createFilesFieldEditor(parent, ".uml");
 		includeFeaturesBtn = 
-			createCheckbox(parent, "Include operations and attributes", true); 
+			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeFeatures"), true); //$NON-NLS-1$ 
 		onlyJavaApiBtn = 
-			createCheckbox(parent, "Only Java API packages", false);
+			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.onlyJavaApi"), false); //$NON-NLS-1$
 		allElementsBtn = 
-			createCheckbox(parent, "Include anonymous and private elements", false);
+			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.allElements"), false); //$NON-NLS-1$
 		includeInstrRefsBtn = 
-			createCheckbox(parent, "Include elements referenced by bytecode instructions", false);
+			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeInstrRefs"), false); //$NON-NLS-1$
 
 		includeFeaturesBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -88,7 +90,7 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 			}
 		});
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
@@ -96,19 +98,19 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 	protected InputStream getInitialContents() {
 		InputStream in = super.getInitialContents();
 		try {
-        	jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
-        	if (onlyJavaApiBtn.getSelection()) {
-    			jarToUML.setFilter(new JavaAPIFilter());
-        	} else if (allElementsBtn.getSelection()) {
-        		jarToUML.setFilter(null);
-        	} else {
-    			jarToUML.setFilter(new PublicAPIFilter());
-        	}
-        	jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
-	    	StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";");
-	    	while (files.hasMoreTokens()) {
+			jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
+			if (onlyJavaApiBtn.getSelection()) {
+				jarToUML.setFilter(new JavaAPIFilter());
+			} else if (allElementsBtn.getSelection()) {
+				jarToUML.setFilter(null);
+			} else {
+				jarToUML.setFilter(new PublicAPIFilter());
+			}
+			jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
+			StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";"); //$NON-NLS-1$
+			while (files.hasMoreTokens()) {
 				jarToUML.addJar(new JarFile(files.nextToken()));
-	    	}
+			}
 			return in;
 		} catch (IOException e) {
 			return null;
