@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.logging.Logger;
@@ -30,16 +40,16 @@ import org.eclipse.uml2.uml.UMLPackage;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class AddInstructionReferencesVisitor extends EmptyVisitor {
-	
+
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-	
+
 	private ConstantPool cp = null;
 	private ConstantPoolGen cpg = null;
 
 	protected TypeToClassifierSwitch typeToClassifier = null;
 	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
 	protected Classifier owner = null;
-	
+
 	public AddInstructionReferencesVisitor(
 			TypeToClassifierSwitch typeToClassifierSwitch) {
 		Assert.assertNotNull(typeToClassifierSwitch);
@@ -52,11 +62,14 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		ReferenceType fieldOwner = obj.getReferenceType(cpg);
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
 	}
-	
+
 	private void changeOwnerToClass(Instruction obj) {
 		if (!(owner instanceof Class)) {
 			if (!(owner instanceof DataType)) {
-				logger.warning(obj + " : Changing owner object " + owner.getQualifiedName() + " to a Class (" + owner + ")");
+				logger.warning(String.format(
+						JarToUML.getString("AddInstructionReferencesVisitor.changingOwnerToClass"), 
+						owner.getQualifiedName(),
+						owner)); //$NON-NLS-1$
 			}
 			replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			replaceByClassifier.setClassifier(owner);
@@ -64,11 +77,14 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		}
 		Assert.assertTrue(owner instanceof Class);
 	}
-	
+
 	private void changeOwnerToInterface(Instruction obj) {
 		if (!(owner instanceof Interface)) {
 			if (!(owner instanceof DataType)) {
-				logger.warning(obj + " : Changing owner object " + owner.getQualifiedName() + " to an Interface (" + owner + ")");
+				logger.warning(String.format(
+						JarToUML.getString("AddInstructionReferencesVisitor.changingOwnerToInterface"), 
+						owner.getQualifiedName(),
+						owner)); //$NON-NLS-1$
 			}
 			replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getInterface());
 			replaceByClassifier.setClassifier(owner);
@@ -112,7 +128,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		Assert.assertNotNull(typeToClassifier);
 		ObjectType fieldOwner = obj.getLoadClassType(cpg);;
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
-		
+
 		changeOwnerToClass(obj);
 
 		owner.setIsAbstract(false);

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
@@ -35,7 +45,7 @@ import org.eclipse.uml2.uml.VisibilityKind;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class AddInstructionDependenciesVisitor extends EmptyVisitor {
-	
+
 	private Classifier instrContext = null;
 	private ConstantPool cp = null;
 	private ConstantPoolGen cpg = null;
@@ -45,7 +55,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	protected AddClassifierOperationSwitch addClassifierOperation = null;
 	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
 	protected Classifier owner = null;
-	
+
 	public AddInstructionDependenciesVisitor(
 			TypeToClassifierSwitch typeToClassifierSwitch,
 			AddClassifierPropertySwitch addClassifierPropertySwitch,
@@ -112,7 +122,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		}
 		newOp.setIsAbstract(true);
 	}
-	
+
 	private EList<String> getParameterNames(EList<Parameter> parameters) {
 		EList<String> names = new BasicEList<String>();
 		for (Iterator<Parameter> i = parameters.iterator(); i.hasNext();) {

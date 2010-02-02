@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.Set;
@@ -21,7 +31,7 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
 public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 
 	private Set<Classifier> containedClassifiers;
-	
+
 	/**
 	 * @return the containedClassifiers
 	 */
@@ -42,9 +52,30 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 * @param element The element to add the tag to.
 	 */
 	protected void addInferredTag(Element element) {
-		final EAnnotation ann = element.createEAnnotation("Jar2UML");
+		EAnnotation ann = element.getEAnnotation("Jar2UML"); //$NON-NLS-1$
+		if (ann == null) {
+			ann = element.createEAnnotation("Jar2UML"); //$NON-NLS-1$
+		}
 		final EMap<String, String> details = ann.getDetails();
-		details.put("inferred", "true");
+		details.put("inferred", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * Removes the tag to indicate it has been inferred
+	 * from class file references.
+	 * @param element The element to remove the tag from.
+	 */
+	protected void removeInferredTag(Element element) {
+		final EAnnotation ann = element.getEAnnotation("Jar2UML"); //$NON-NLS-1$
+		if (ann != null) {
+			final EMap<String, String> details = ann.getDetails();
+			if (details.containsKey("inferred")) { //$NON-NLS-1$
+				details.removeKey("inferred"); //$NON-NLS-1$
+			}
+			if (details.isEmpty()) {
+				element.getEAnnotations().remove(ann);
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -58,6 +89,10 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 		}
 		if (!isContained) {
 			addInferredTag(object);
+			// remove unnecessary tags
+			for (PackageableElement element : object.getPackagedElements()) {
+				removeInferredTag(element);
+			}
 		}
 		return isContained;
 	}
@@ -82,6 +117,10 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 		isContained |= caseClassifier(object);
 		if (!isContained) {
 			addInferredTag(object);
+			// remove unnecessary tags
+			for (Classifier nested : object.getNestedClassifiers()) {
+				removeInferredTag(nested);
+			}
 		}
 		return isContained;
 	}
@@ -110,8 +149,12 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 		isContained |= caseClassifier(object);
 		if (!isContained) {
 			addInferredTag(object);
+			// remove unnecessary tags
+			for (Classifier nested : object.getNestedClassifiers()) {
+				removeInferredTag(nested);
+			}
 		}
 		return isContained;
 	}
-	
+
 }

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import junit.framework.Assert;
@@ -18,7 +28,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	private String propertyName = null;
 	private Type propertyType = null;
 	private TypeToClassifierSwitch typeToClassifier = null;
-	
+
 	public AddClassifierPropertySwitch(TypeToClassifierSwitch typeToClassifier) {
 		Assert.assertNotNull(typeToClassifier);
 		this.typeToClassifier = typeToClassifier;
@@ -39,7 +49,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	public void setPropertyType(Type propertyType) {
 		this.propertyType = propertyType;
 	}
-	
+
 	public void setBCELPropertyType(org.apache.bcel.generic.Type propertyType) {
 		setPropertyType((Type) typeToClassifier.doSwitch(propertyType));
 	}
@@ -69,7 +79,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 		}
 		return ownedAtt;
 	}
-	
+
 	public Property caseDataType(DataType umlDataType) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
@@ -82,5 +92,5 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 		}
 		return ownedAtt;
 	}
-	
+
 }

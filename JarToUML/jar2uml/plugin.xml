@@ -4,46 +4,46 @@
    <extension
          point="org.eclipse.ui.importWizards">
       <category
-            id="be.ac.vub.jar2uml.ui.sampleCategory"
-            name="Jar2UML Import"/>
+            id="be.ac.vub.jar2uml.ui.category"
+            name="%category.name"/>
       <wizard
-            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            category="be.ac.vub.jar2uml.ui.category"
             class="be.ac.vub.jar2uml.ui.JarToUMLImportWizard"
-            icon="icons/importjar_wiz.gif"
+            icon="icons/full/obj16/importjar_wiz.gif"
             id="be.ac.vub.jar2uml.ui.JarToUMLImportWizard"
-            name="Import Jar Files to UML Models">
+            name="%wizard.jar2uml.name">
          <description>
-            Import Jar files from the local file system into a UML model in the workspace.
+            %wizard.jar2uml.description
          </description>
       </wizard>
       <wizard
-            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            category="be.ac.vub.jar2uml.ui.category"
             class="be.ac.vub.jar2uml.ui.JarToUMLImportDependenciesWizard"
-            icon="icons/importjar_wiz.gif"
+            icon="icons/full/obj16/importjar_wiz.gif"
             id="be.ac.vub.jar2uml.ui.JarToUMLImportDependenciesWizard"
-            name="Import Jar File Dependencies to UML Models">
+            name="%wizard.jardeps2uml.name">
          <description>
-            Import dependencies of Jar files from the local file system into a UML model in the workspace.
+            %wizard.jardeps2uml.description
          </description>
       </wizard>
       <wizard
-            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            category="be.ac.vub.jar2uml.ui.category"
             class="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportWizard"
-            icon="icons/importjar_wiz.gif"
+            icon="icons/full/obj16/importjar_wiz.gif"
             id="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportWizard"
-            name="Import Java projects to UML Models">
+            name="%wizard.javap2uml.name">
          <description>
-            Import a Java project into a UML model in the workspace.
+            %wizard.javap2uml.description
          </description>
       </wizard>
       <wizard
-            category="be.ac.vub.jar2uml.ui.sampleCategory"
+            category="be.ac.vub.jar2uml.ui.category"
             class="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportDependenciesWizard"
-            icon="icons/importjar_wiz.gif"
+            icon="icons/full/obj16/importjar_wiz.gif"
             id="be.ac.vub.jar2uml.ui.JavaProjectToUMLImportDependenciesWizard"
-            name="Import Java project dependencies to UML Models">
+            name="%wizard.javapdeps2uml.name">
          <description>
-            Import dependencies of a Java project into a UML model in the workspace.
+            %wizard.javapdeps2uml.description
          </description>
       </wizard>
    </extension>

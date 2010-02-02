@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 
+import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.PublicAPIFilter;
 
 /**
@@ -51,13 +53,13 @@ public class JavaProjectToUMLImportWizardPage extends AbstractJavaProjectToUMLIm
 	 */	
 	protected void createAdvancedControls(Composite parent) {
 		includeReferencedProjectsBtn = 
-			createCheckbox(parent, "Include referenced projects and jar files in workspace", true); 
+			createCheckbox(parent, JarToUML.getString("JavaProjectToUMLImportDependenciesWizardPage.includeReferencedProjects"), true); //$NON-NLS-1$ 
 		includeFeaturesBtn = 
-			createCheckbox(parent, "Include operations and attributes", true); 
+			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeFeatures"), true); //$NON-NLS-1$ 
 		allElementsBtn = 
-			createCheckbox(parent, "Include anonymous and private elements", false);
+			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.allElements"), false); //$NON-NLS-1$
 		includeInstrRefsBtn = 
-			createCheckbox(parent, "Include elements referenced by bytecode instructions", false);
+			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeInstrRefs"), false); //$NON-NLS-1$
 
 		includeFeaturesBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -73,19 +75,19 @@ public class JavaProjectToUMLImportWizardPage extends AbstractJavaProjectToUMLIm
 			}
 		});
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
 	protected InputStream getInitialContents() {
 		InputStream in = super.getInitialContents();
-    	jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
-    	if (allElementsBtn.getSelection()) {
-    		jarToUML.setFilter(null);
-    	} else {
+		jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
+		if (allElementsBtn.getSelection()) {
+			jarToUML.setFilter(null);
+		} else {
 			jarToUML.setFilter(new PublicAPIFilter());
-    	}
-    	jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
+		}
+		jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
 		try {
 			addAllJavaProjects(includeReferencedProjectsBtn.getSelection());
 			return in;
@@ -105,7 +107,7 @@ public class JavaProjectToUMLImportWizardPage extends AbstractJavaProjectToUMLIm
 	protected void handleSelectionEvent(Event event) {
 		IPath path = getContainerFullPath();
 		if (path != null) {
-			setFileName(path.lastSegment() + ".uml"); //NON-NLS-1
+			setFileName(path.lastSegment() + ".uml"); //$NON-NLS-1$
 		}
 	}
 }

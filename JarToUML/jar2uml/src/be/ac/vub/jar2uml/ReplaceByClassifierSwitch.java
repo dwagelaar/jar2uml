@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2010 Dennis Wagelaar, Vrije Universiteit Brussel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Dennis Wagelaar, Vrije Universiteit Brussel
+ *******************************************************************************/
 package be.ac.vub.jar2uml;
 
 import java.util.logging.Logger;
@@ -26,7 +36,7 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  *
  */
 public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
-	
+
 	/**
 	 * Retrieves and stores all nested elements from the switched classifier. 
 	 */
@@ -115,7 +125,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	}
 
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-	
+
 	private Classifier classifier = null;
 	private EClass metaClass = UMLPackage.eINSTANCE.getDataType();
 
@@ -126,50 +136,88 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	protected boolean isLeaf = false;
 	protected PreSwitch preSwitch = new PreSwitch();
 	protected PostSwitch postSwitch = new PostSwitch();
-	
+
+	/**
+	 * Logs the replacement of classifier.
+	 * @param classifier
+	 */
+	private void logReplace(Classifier classifier) {
+		logger.fine(String.format(
+				JarToUML.getString("ReplaceByClassifierSwitch.replacing"), 
+				classifier.getQualifiedName(),
+				classifier.eClass().getName(),
+				getMetaClass().getName())); //$NON-NLS-1$
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseClass(org.eclipse.uml2.uml.Class)
+	 */
+	@Override
 	public Classifier caseClass(Class umlClass) {
 		Classifier classifier = preSwitch.doSwitch(getClassifier());
 		umlClass.getNestedClassifiers().remove(classifier);
-		logger.fine("Replacing " + classifier.getQualifiedName() + " : " + 
-				classifier.eClass().getName() + " by instance of " + getMetaClass().getName());
+		logReplace(classifier);
 		classifier = umlClass.createNestedClassifier(classifier.getName(), getMetaClass());
 		return postSwitch.doSwitch(classifier);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseInterface(org.eclipse.uml2.uml.Interface)
+	 */
+	@Override
 	public Classifier caseInterface(Interface umlIface) {
 		Classifier classifier = preSwitch.doSwitch(getClassifier());
 		umlIface.getNestedClassifiers().remove(classifier);
-		logger.fine("Replacing " + classifier.getQualifiedName() + " : " + 
-				classifier.eClass().getName() + " by instance of " + getMetaClass().getName());
+		logReplace(classifier);
 		classifier = umlIface.createNestedClassifier(classifier.getName(), getMetaClass());
 		return postSwitch.doSwitch(classifier);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#casePackage(org.eclipse.uml2.uml.Package)
+	 */
+	@Override
 	public Classifier casePackage(Package pack) {
 		Classifier classifier = preSwitch.doSwitch(getClassifier());
 		pack.getPackagedElements().remove(classifier);
-		logger.fine("Replacing " + classifier.getQualifiedName() + " : " + 
-				classifier.eClass().getName() + " by instance of " + getMetaClass().getName());
+		logReplace(classifier);
 		classifier = (Classifier) pack.createPackagedElement(classifier.getName(), getMetaClass());
 		return postSwitch.doSwitch(classifier);
 	}
 
+	/**
+	 * Sets the classifier.
+	 * @param classifier
+	 */
 	public void setClassifier(Classifier classifier) {
 		this.classifier = classifier;
 	}
 
+	/**
+	 * @return The classifier.
+	 */
 	public Classifier getClassifier() {
 		return classifier;
 	}
 
+	/**
+	 * @return The meta-class.
+	 */
 	public EClass getMetaClass() {
 		return metaClass;
 	}
 
+	/**
+	 * Sets the meta-class.
+	 * @param metaClass
+	 */
 	public void setMetaClass(EClass metaClass) {
 		Assert.assertNotNull(metaClass);
 		Assert.assertEquals(true, UMLPackage.eINSTANCE.getClassifier().isSuperTypeOf(metaClass));
 		this.metaClass = metaClass;
 	}
-	
+
 }
