@@ -1,11 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="javadoc">
 
+	<macrodef name="copyRef">
+		<attribute name="dir" default="com.hp.hpl.jena.doc"/>
+		<sequential>
+			<delete dir="../../@{dir}"/>
+			<copy todir="../../">
+				<fileset dir="../">
+					<include name="@{dir}/**"/>
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+
 	<target name="clean">
 		<delete file="../doc.zip"/>
 	</target>
 	
-	<target name="javadoc" depends="clean">
+	<target name="copyRefs">
+		<copyRef dir="org.eclipse.emf.doc"/>
+		<copyRef dir="org.eclipse.platform.doc.isv"/>
+		<copyRef dir="org.eclipse.uml2.doc"/>
+	</target>
+	
+	<target name="javadoc" depends="clean, copyRefs">
 		<javadoc 
 			access="protected" 
 			author="true"
@@ -32,7 +50,7 @@
 			<link href="../../../org.eclipse.platform.doc.isv/reference/api"/>
 			<classpath>
 				<pathelement path="../../jar2uml/bin"/>
-				<pathelement path="../../jar2uml-bcel/bin"/>
+				<pathelement path="../../org.apache.bcel"/>
 				<fileset dir="${eclipse.home}/plugins">
 					<include name="**/org.eclipse.*.jar"/>
 					<include name="**/org.junit*/*.jar"/>
