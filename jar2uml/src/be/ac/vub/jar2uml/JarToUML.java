@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import junit.framework.Assert;
@@ -309,10 +308,6 @@ public class JarToUML implements Runnable {
 	private boolean preverified;
 	private boolean runComplete = false;
 	private long jobStartTime;
-
-	public JarToUML() {
-		logger.setLevel(Level.ALL);
-	}
 
 	/**
 	 * Performs the actual jar to UML conversion.

@@ -47,5 +47,16 @@
          </description>
       </wizard>
    </extension>
+  <extension
+        point="org.eclipse.ui.preferencePages">
+     <page
+           class="be.ac.vub.jar2uml.ui.preferences.JarToUMLPreferencePage"
+           id="be.ac.vub.jar2uml.ui.preferences.JarToUMLPreferencePage"
+           name="%page.name"/>
+  </extension>
+  <extension
+        point="org.eclipse.core.runtime.preferences">
+     <initializer class="be.ac.vub.jar2uml.ui.preferences.PreferenceInitializer"/>
+  </extension>    
 
 </plugin>
