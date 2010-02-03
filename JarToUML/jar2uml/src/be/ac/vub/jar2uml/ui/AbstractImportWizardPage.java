@@ -74,7 +74,6 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		setTitle(pageName);
 		setDescription(description);
 		setAllowExistingResources(true);
-		logger.setLevel(Level.INFO);
 	}
 
 	/* (non-Javadoc)

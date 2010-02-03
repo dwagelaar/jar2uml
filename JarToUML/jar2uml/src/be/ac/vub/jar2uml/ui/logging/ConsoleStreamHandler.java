@@ -12,7 +12,6 @@ package be.ac.vub.jar2uml.ui.logging;
 
 import java.io.OutputStream;
 import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
 /**
@@ -26,7 +25,7 @@ public class ConsoleStreamHandler extends StreamHandler {
 	 * @param out
 	 */
 	public ConsoleStreamHandler(OutputStream out) {
-		super(out, new SimpleFormatter());
+		super(out, JarToUMLLogFormatter.INSTANCE);
 	}
 
 	/**

@@ -11,10 +11,12 @@
 package be.ac.vub.jar2uml.ui;
 
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
@@ -28,15 +30,19 @@ import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
 
 import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.ui.logging.ConsoleStreamHandler;
+import be.ac.vub.jar2uml.ui.preferences.PreferenceConstants;
 
 /**
  * Jar2UML plug-in class.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class JarToUMLPlugin extends AbstractUIPlugin {
+
+	private static final String JAR2UML_CONSOLE = "be.ac.vub.jar2uml.ui.console"; //$NON-NLS-1$
 
 	/**
 	 * Keep track of the singleton.
@@ -46,10 +52,12 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
 	 */
 	private static JarToUMLPlugin plugin;
 
-	private static MessageConsole console = null;
-	private static MessageConsoleStream consoleStream = null;
-	private static IConsoleManager consoleMgr = null; 
-	private static final String JAR2UML_CONSOLE = "be.ac.vub.jar2uml.ui.console"; //$NON-NLS-1$
+	private static MessageConsole console;
+	private static MessageConsoleStream consoleStream;
+	private static IConsoleManager consoleMgr; 
+	private static Handler handler;
+
+	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	/**
 	 * Returns the singleton instance of the Eclipse plugin.
@@ -112,8 +120,9 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
 		consoleStream = console.newMessageStream();
 		activateConsole();
 		consoleStream.println(JarToUML.getString("JarToUMLPlugin.consoleInit")); //$NON-NLS-1$
-		Handler handler = new ConsoleStreamHandler(consoleStream);
-		Logger.getLogger(JarToUML.LOGGER).addHandler(handler);
+		handler = new ConsoleStreamHandler(consoleStream);
+		handler.setLevel(Level.ALL);
+		logger.addHandler(handler);
 	}
 
 	/**
@@ -162,5 +171,28 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
 	public ImageDescriptor getImageDescriptor(String imageFilePath) {
 		return imageDescriptorFromPlugin(getBundle().getSymbolicName(), imageFilePath);
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 */
+	@Override
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		IPreferenceStore prefStore = getPreferenceStore();
+		if (prefStore != null) {
+			String logLevel = prefStore.getString(PreferenceConstants.P_LOG_LEVEL);
+			logger.setLevel(Level.parse(logLevel));
+			logger.info(String.format(JarToUML.getString("logLevelSetTo"), logger.getLevel())); //$NON-NLS-1$
+		} else {
+			logger.warning(JarToUML.getString("JarToUMLPlugin.cannotSetLogLevel")); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * @return the logging handler that outputs to the Jar2UML console.
+	 */
+	public static Handler getHandler() {
+		return handler;
+	}
+
 }
