@@ -26,7 +26,9 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
@@ -86,6 +88,9 @@ public class JarToUML implements Runnable {
 	public static final String LOGGER = "be.ac.vub.jar2uml"; //$NON-NLS-1$
 
 	protected static Logger logger = Logger.getLogger(LOGGER);
+
+	protected static Pattern classFileName = Pattern.compile(".+\\.class$"); //$NON-NLS-1$
+	protected static Pattern jarFileName = Pattern.compile(".+\\.(zip|(j|w|e|s|r)ar)$"); //$NON-NLS-1$
 
 	private static final ResourceBundle resourceBundle =
 		ResourceBundle.getBundle("be.ac.vub.jar2uml.messages"); //$NON-NLS-1$
@@ -415,7 +420,7 @@ public class JarToUML implements Runnable {
 			logger.info(name);
 		}
 		if (monitor != null) {
-	    	setJobStartTime(System.currentTimeMillis());
+			setJobStartTime(System.currentTimeMillis());
 			monitor.beginTask(name, totalWork);
 		}
 	}
@@ -551,7 +556,8 @@ public class JarToUML implements Runnable {
 		Assert.assertNotNull(jar);
 		for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
 			JarEntry entry = entries.nextElement();
-			if (entry.getName().endsWith(".class")) { //$NON-NLS-1$
+			String name = entry.getName();
+			if (classFileName.matcher(name).matches()) {
 				if (!filter(entry.getName())) {
 					continue;
 				}
@@ -562,7 +568,41 @@ public class JarToUML implements Runnable {
 				setMinorFormatVersion(javaClass.getMinor());
 				input.close();
 				parsedClasses.add(javaClass);
+			} else if (jarFileName.matcher(name).matches()) {
+				InputStream input = jar.getInputStream(entry);
+				JarInputStream nestedJar = new JarInputStream(input);
+				parseClasses(nestedJar, parsedClasses);
+				nestedJar.close();
 			}
+			checkCancelled(monitor);
+		}
+	}
+
+	/**
+	 * Parses all classes in jar and adds them to parsedClasses.
+	 * @param jar
+	 * @param parsedClasses
+	 * @throws IOException
+	 */
+	protected void parseClasses(JarInputStream jar, Collection<JavaClass> parsedClasses) throws IOException {
+		Assert.assertNotNull(jar);
+		for (JarEntry entry = jar.getNextJarEntry(); entry != null; entry = jar.getNextJarEntry()) {
+			String name = entry.getName();
+			if (classFileName.matcher(name).matches()) {
+				if (!filter(entry.getName())) {
+					continue;
+				}
+				ClassParser parser = new ClassParser(jar, entry.getName());
+				JavaClass javaClass = parser.parse();
+				setMajorFormatVersion(javaClass.getMajor());
+				setMinorFormatVersion(javaClass.getMinor());
+				parsedClasses.add(javaClass);
+			} else if (jarFileName.matcher(name).matches()) {
+				JarInputStream nestedJar = new JarInputStream(jar);
+				parseClasses(nestedJar, parsedClasses);
+				// do NOT close input stream!
+			}
+			jar.closeEntry();
 			checkCancelled(monitor);
 		}
 	}
@@ -653,7 +693,7 @@ public class JarToUML implements Runnable {
 				JarToUML.getString("JarToUML.skippedFiltered"), 
 				javaClass.getClassName())); //$NON-NLS-1$
 	}
-	
+
 	/**
 	 * Adds all {@link Classifier}s for javaClass to containedClassifiers.
 	 * @param javaClass
@@ -664,8 +704,8 @@ public class JarToUML implements Runnable {
 			logSkippedFiltered(javaClass);
 			return;
 		}
-		Classifier classifier = findContainedClassifier
-		.findClassifier(getModel(), javaClass.getClassName(), null);
+		Classifier classifier = findContainedClassifier.findClassifier(
+				getModel(), javaClass.getClassName(), null);
 		containedClassifiers.add(classifier);
 		List<Classifier> derived = findDerivedClassifiers(classifier);
 		containedClassifiers.addAll(derived);
@@ -727,8 +767,8 @@ public class JarToUML implements Runnable {
 			return;
 		}
 		logger.fine(className);
-		final Classifier classifier = findContainedClassifier.
-		findClassifier(getModel(), className, null);
+		final Classifier classifier = findContainedClassifier.findClassifier(
+				getModel(), className, null);
 		if (classifier != null) {
 			removeClassifier(classifier);
 		}

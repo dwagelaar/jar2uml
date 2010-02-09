@@ -242,7 +242,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 				setFileName(path.removeFileExtension().lastSegment() + fileExtension);
 			}
 		});
-		String[] extensions = new String[] { "*.zip;*.jar" }; //$NON-NLS-1$
+		String[] extensions = new String[] { "*.zip;*.jar;*.war;*.ear;*.sar;*.rar" }; //$NON-NLS-1$
 		editor.setFileExtensions(extensions);
 
 		fileSelectionArea.moveAbove(null);
