@@ -30,19 +30,19 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  */
 public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 
-	private Set<Classifier> containedClassifiers;
+	private Set<? extends Classifier> containedClassifiers;
 
 	/**
 	 * @return the containedClassifiers
 	 */
-	public Set<Classifier> getContainedClassifiers() {
+	public Set<? extends Classifier> getContainedClassifiers() {
 		return containedClassifiers;
 	}
 
 	/**
 	 * @param containedClassifiers the containedClassifiers to set
 	 */
-	public void setContainedClassifiers(Set<Classifier> containedClassifiers) {
+	public void setContainedClassifiers(Set<? extends Classifier> containedClassifiers) {
 		this.containedClassifiers = containedClassifiers;
 	}
 

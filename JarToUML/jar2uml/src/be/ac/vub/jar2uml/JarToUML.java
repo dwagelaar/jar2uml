@@ -68,10 +68,12 @@ import org.eclipse.uml2.uml.Comment;
 import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.NamedElement;
 import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.PackageableElement;
 import org.eclipse.uml2.uml.Property;
+import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.UMLFactory;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.VisibilityKind;
@@ -207,15 +209,14 @@ public class JarToUML implements Runnable {
 	 * @param classifier
 	 * @return All classifiers that are derivatives (i.e. array types) of classifier.
 	 */
-	public static List<Classifier> findDerivedClassifiers(Classifier classifier) {
+	public static Collection<Classifier> findDerivedClassifiers(Classifier classifier) {
 		Assert.assertNotNull(classifier);
 		final String name = classifier.getName();
 		Assert.assertNotNull(name);
 		final List<Classifier> derived = new ArrayList<Classifier>();
 		final Element owner = classifier.getOwner();
 		Assert.assertNotNull(owner);
-		for (Iterator<Element> owned = owner.getOwnedElements().iterator(); owned.hasNext();) {
-			Element e = owned.next();
+		for (Element e : owner.getOwnedElements()) {
 			if (e instanceof Classifier) {
 				Classifier c = (Classifier) e;
 				String cname = c.getName();
@@ -280,6 +281,27 @@ public class JarToUML implements Runnable {
 		}
 	}
 
+	/**
+	 * @param element
+	 * @return The qualified name of element
+	 */
+	public static String qualifiedName(final NamedElement element) {
+		final String qName = element.getQualifiedName();
+		return qName.substring(qName.indexOf(':') + 2);
+	}
+
+	/**
+	 * @param elements
+	 * @return A {@link List} of the qualified names of elements.
+	 */
+	public static List<String> getNameList(Collection<? extends NamedElement> elements) {
+		List<String> list = new ArrayList<String>();
+		for (NamedElement e : elements) {
+			list.add(qualifiedName(e));
+		}
+		return list;
+	}
+
 	protected FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
 	protected RemoveClassifierSwitch removeClassifier = new RemoveClassifierSwitch();
 	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
@@ -296,7 +318,9 @@ public class JarToUML implements Runnable {
 				typeToClassifier,
 				addClassifierProperty,
 				addClassifierOperation);
-	protected AddInferredTagSwitch addInferredTagSwitch = new AddInferredTagSwitch();
+	protected AddInferredTagSwitch addInferredTags = new AddInferredTagSwitch();
+	protected InverseAddInferredTagSwitch inverseAddInferredTags = new InverseAddInferredTagSwitch();
+	protected FindReferredTypesSwitch findReferredTypes = new FindReferredTypesSwitch();
 
 	private Model model = null;
 	private List<JarFile> jars = new ArrayList<JarFile>();
@@ -321,7 +345,7 @@ public class JarToUML implements Runnable {
 		try {
 			final IProgressMonitor monitor = getMonitor();
 			setRunComplete(false);
-			List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
+			final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
 			Assert.assertNotNull(getOutputFile());
 			beginTask(monitor, String.format(
 					JarToUML.getString("JarToUML.startingFor"),
@@ -330,8 +354,8 @@ public class JarToUML implements Runnable {
 			// 1
 			//
 			subTask(monitor, JarToUML.getString("JarToUML.creatingUML")); //$NON-NLS-1$
-			ResourceSet resourceSet = createResourceSet();
-			Resource res = resourceSet.createResource(URI.createURI(getOutputFile()));
+			final ResourceSet resourceSet = createResourceSet();
+			final Resource res = resourceSet.createResource(URI.createURI(getOutputFile()));
 			Assert.assertNotNull(res);
 			setModel(UMLFactory.eINSTANCE.createModel());
 			res.getContents().add(getModel());
@@ -366,13 +390,24 @@ public class JarToUML implements Runnable {
 			//
 			// 5
 			//
-			if (dependenciesOnly) {
+			final Set<? extends Classifier> containedClassifiers = findContainedClassifiers(parsedClasses);
+			if (isDependenciesOnly()) {
 				subTask(monitor, JarToUML.getString("JarToUML.removingClassifiers")); //$NON-NLS-1$
-				removeAllClassifiers(parsedClasses);
+				final Set<? extends Classifier> inferredClassifiers = findInferredClassifiers(containedClassifiers);
+				final Set<? extends Type> referredTypes = findAllReferredTypes(inferredClassifiers);
+				final Set<? extends Classifier> removeClassifiers = new HashSet<Classifier>(containedClassifiers);
+				if (removeClassifiers.removeAll(referredTypes)) {
+					containedClassifiers.retainAll(referredTypes);
+					logger.warning(String.format(
+							JarToUML.getString("JarToUML.cyclicDepsFound"),
+							getNameList(containedClassifiers)));
+					addAllInverseInferredTags(containedClassifiers);
+				}
+				removeAllClassifiers(removeClassifiers);
 				worked(monitor, JarToUML.getString("JarToUML.removedClassifiers")); //$NON-NLS-1$
 			} else {
 				subTask(monitor, JarToUML.getString("JarToUML.addingInferred")); //$NON-NLS-1$
-				addAllInferredTags(parsedClasses);
+				addAllInferredTags(containedClassifiers);
 				worked(monitor, JarToUML.getString("JarToUML.addedInferred")); //$NON-NLS-1$
 			}
 			//
@@ -660,28 +695,46 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
-	 * Removes all classifiers in parsedClasses from the UML model.
-	 * @param parsedClasses
+	 * Removes all classifiers in removeClassifiers from the UML model.
+	 * @param removeClassifiers
 	 * @throws IOException
 	 */
-	protected void removeAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException {
-		for (JavaClass javaClass : parsedClasses) {
-			removeClassifier(javaClass);
+	protected void removeAllClassifiers(Collection<? extends Classifier> removeClassifiers) throws IOException {
+		for (Classifier classifier : removeClassifiers) {
+			removeClassifier(classifier);
 			checkCancelled(monitor);
 		}
 	}
 
 	/**
-	 * Adds inferred tags to all elements not contained in parsedClasses.
-	 * @param parsedClasses
+	 * Adds inferred tags to all elements not contained in containedClassifiers.
+	 * @param containedClassifiers
 	 */
-	protected void addAllInferredTags(Collection<JavaClass> parsedClasses) {
-		final Set<Classifier> containedClassifiers = new HashSet<Classifier>();
-		for (JavaClass javaClass : parsedClasses) {
-			addContainedClassifier(javaClass, containedClassifiers);
+	protected void addAllInferredTags(Set<? extends Classifier> containedClassifiers) {
+		addInferredTags.setContainedClassifiers(containedClassifiers);
+		addInferredTags.doSwitch(getModel());
+	}
+
+	/**
+	 * Adds inferred tags to all elements contained in containedClassifiers.
+	 * @param containedClassifiers
+	 */
+	protected void addAllInverseInferredTags(Set<? extends Classifier> containedClassifiers) {
+		inverseAddInferredTags.setContainedClassifiers(containedClassifiers);
+		inverseAddInferredTags.doSwitch(getModel());
+	}
+
+	/**
+	 * @param referredFrom
+	 * @return All {@link Type}s referenced from elements in referredFrom.
+	 */
+	protected Set<Type> findAllReferredTypes(Collection<? extends Element> referredFrom) {
+		findReferredTypes.resetReferencedTypes();
+		for (Element element : referredFrom) {
+			findReferredTypes.doSwitch(element);
 		}
-		addInferredTagSwitch.setContainedClassifiers(containedClassifiers);
-		addInferredTagSwitch.doSwitch(getModel());
+		logger.fine(JarToUML.getString("JarToUML.foundReferredTypes")); //$NON-NLS-1$
+		return findReferredTypes.getReferencedTypes();
 	}
 
 	/**
@@ -695,11 +748,54 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
-	 * Adds all {@link Classifier}s for javaClass to containedClassifiers.
+	 * @return All {@link Classifier}s corresponding to elements contained in parsedClasses, including derived classifiers.
+	 * @param parsedClasses
+	 */
+	protected Set<Classifier> findContainedClassifiers(Collection<JavaClass> parsedClasses) {
+		final Set<Classifier> containedClassifiers = new HashSet<Classifier>();
+		for (JavaClass javaClass : parsedClasses) {
+			addContainedClassifier(javaClass, containedClassifiers);
+		}
+		logger.fine(JarToUML.getString("JarToUML.foundContainedClassifiers")); //$NON-NLS-1$
+		return containedClassifiers;
+	}
+
+	/**
+	 * @return All {@link Classifier}s not in containedClassifiers.
+	 * @param containedClassifiers
+	 */
+	protected Set<Classifier> findInferredClassifiers(Collection<? extends Classifier> containedClassifiers) {
+		final Set<Classifier> inferredClassifiers = new HashSet<Classifier>();
+		addInferredClassifiers(getModel(), containedClassifiers, inferredClassifiers);
+		logger.fine(JarToUML.getString("JarToUML.foundInferredClassifiers")); //$NON-NLS-1$
+		return inferredClassifiers;
+	}
+
+	/**
+	 * Adds all {@link Classifier}s under container not in containedClassifiers to inferredClassifiers.
+	 * @param container
+	 * @param containedClassifiers
+	 * @param inferredClassifiers
+	 */
+	private void addInferredClassifiers(Element container, Collection<? extends Classifier> containedClassifiers, Set<Classifier> inferredClassifiers) {
+		for (Element e : container.getOwnedElements()) {
+			if (e instanceof Classifier) {
+				if (!containedClassifiers.contains(e)) {
+					inferredClassifiers.add((Classifier) e);
+				}
+				addInferredClassifiers(e, containedClassifiers, inferredClassifiers);
+			} else if (e instanceof Package) {
+				addInferredClassifiers(e, containedClassifiers, inferredClassifiers);
+			}
+		}
+	}
+
+	/**
+	 * Adds all {@link Classifier}s for javaClass to containedClassifiers, including derived classifiers.
 	 * @param javaClass
 	 * @param containedClassifiers
 	 */
-	private void addContainedClassifier(JavaClass javaClass, Set<Classifier> containedClassifiers) {
+	private void addContainedClassifier(JavaClass javaClass, Collection<Classifier> containedClassifiers) {
 		if (!filter(javaClass)) {
 			logSkippedFiltered(javaClass);
 			return;
@@ -707,7 +803,7 @@ public class JarToUML implements Runnable {
 		Classifier classifier = findContainedClassifier.findClassifier(
 				getModel(), javaClass.getClassName(), null);
 		containedClassifiers.add(classifier);
-		List<Classifier> derived = findDerivedClassifiers(classifier);
+		Collection<Classifier> derived = findDerivedClassifiers(classifier);
 		containedClassifiers.addAll(derived);
 	}
 
@@ -721,9 +817,9 @@ public class JarToUML implements Runnable {
 			logSkippedFiltered(javaClass);
 			return;
 		}
-		logger.fine(className);
-		final Classifier classifier = findContainedClassifier. 
-		findClassifier(getModel(), className, UMLPackage.eINSTANCE.getClass_());
+		logger.finest(className);
+		final Classifier classifier = findContainedClassifier.findClassifier(
+				getModel(), className, UMLPackage.eINSTANCE.getClass_());
 		Assert.assertNotNull(classifier);
 		fixClassifier.setJavaClass(javaClass);
 		fixClassifier.doSwitch(classifier);
@@ -747,9 +843,9 @@ public class JarToUML implements Runnable {
 			logSkippedFiltered(javaClass);
 			return;
 		}
-		logger.fine(className);
-		final Classifier classifier = findContainedClassifier.
-		findClassifier(getModel(), className, null);
+		logger.finest(className);
+		final Classifier classifier = findContainedClassifier.findClassifier(
+				getModel(), className, null);
 		if (isIncludeFeatures()) {
 			addProperties(classifier, javaClass);
 			addOperations(classifier, javaClass);
@@ -757,39 +853,17 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
-	 * Remove the classifier corresponding to javaClass from the UML model.
-	 * @param javaClass
-	 */
-	private void removeClassifier(JavaClass javaClass) {
-		final String className = javaClass.getClassName();
-		if (!filter(javaClass)) {
-			logSkippedFiltered(javaClass);
-			return;
-		}
-		logger.fine(className);
-		final Classifier classifier = findContainedClassifier.findClassifier(
-				getModel(), className, null);
-		if (classifier != null) {
-			removeClassifier(classifier);
-		}
-	}
-
-	/**
-	 * Remove classifier from the UML model. Also removes derived and contained
-	 * classifiers.
+	 * Remove classifier from the UML model. Also removes contained classifiers.
 	 * @param classifier
 	 */
 	private void removeClassifier(Classifier classifier) {
 		Assert.assertNotNull(classifier);
-		final List<Classifier> derived = findDerivedClassifiers(classifier);
 		final Element owner = classifier.getOwner();
-		Assert.assertNotNull(owner);
-		for (Iterator<Classifier> it = derived.iterator(); it.hasNext();) {
-			removeClassifier.setClassifier(it.next());
+		if (owner != null) {
+			// null owner means already removed
+			removeClassifier.setClassifier(classifier);
 			removeClassifier.doSwitch(owner);
 		}
-		removeClassifier.setClassifier(classifier);
-		removeClassifier.doSwitch(owner);
 	}
 
 	/**
@@ -805,9 +879,9 @@ public class JarToUML implements Runnable {
 				removeEmptyPackages(pack);
 				if (pack.getPackagedElements().isEmpty()) {
 					it.remove();
-					logger.fine(String.format(
+					logger.finer(String.format(
 							JarToUML.getString("JarToUML.removed"), 
-							pack.getQualifiedName(), 
+							qualifiedName(pack), 
 							pack.eClass().getName())); //$NON-NLS-1$
 				}
 			}
@@ -901,7 +975,7 @@ public class JarToUML implements Runnable {
 			if (!filter(fields[i])) {
 				continue;
 			}
-			logger.fine(fields[i].getSignature());
+			logger.finest(fields[i].getSignature());
 			addClassifierProperty.setPropertyName(fields[i].getName());
 			addClassifierProperty.setBCELPropertyType(fields[i].getType());
 			if (addClassifierProperty.getPropertyType() == null) {
@@ -933,7 +1007,7 @@ public class JarToUML implements Runnable {
 					continue;
 				}
 			}
-			logger.fine(methods[i].getSignature());
+			logger.finest(methods[i].getSignature());
 			org.apache.bcel.generic.Type[] types = methods[i].getArgumentTypes();
 			addClassifierOperation.setOperationName(methods[i].getName());
 			addClassifierOperation.setBCELArgumentTypes(types);
@@ -986,7 +1060,7 @@ public class JarToUML implements Runnable {
 					continue;
 				}
 			}
-			logger.fine(methods[i].getSignature());
+			logger.finest(methods[i].getSignature());
 			addOpCodeRefs(classifier, methods[i]);
 		}
 	}
