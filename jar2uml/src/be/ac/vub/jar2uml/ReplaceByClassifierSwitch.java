@@ -142,7 +142,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	 * @param classifier
 	 */
 	private void logReplace(Classifier classifier) {
-		logger.fine(String.format(
+		logger.finer(String.format(
 				JarToUML.getString("ReplaceByClassifierSwitch.replacing"), 
 				classifier.getQualifiedName(),
 				classifier.eClass().getName(),
