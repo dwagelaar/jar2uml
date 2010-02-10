@@ -1339,7 +1339,15 @@ public class JarToUML implements Runnable {
 				if ((resource != null) && 
 						(includeWorkspaceReferences 
 								|| javaProject.getProject().equals(resource.getProject()))) {
-					addJar(new JarFile(resource.getLocation().toFile()));
+					if (resource instanceof IFile) {
+						addJar(new JarFile(resource.getLocation().toFile()));
+					} else if (resource instanceof IContainer) {
+						addPath((IContainer) resource);
+					} else {
+						throw new IOException(String.format(
+								JarToUML.getString("JarToUML.unexpectedResourceKind"), 
+								resource)); //$NON-NLS-1$
+					}
 				}
 				break;
 			}
