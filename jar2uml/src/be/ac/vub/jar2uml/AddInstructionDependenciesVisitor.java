@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import java.util.Iterator;
-
 import junit.framework.Assert;
 
 import org.apache.bcel.classfile.ConstantPool;
@@ -56,6 +54,12 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
 	protected Classifier owner = null;
 
+	/**
+	 * Creates a new {@link AddInstructionDependenciesVisitor}.
+	 * @param typeToClassifierSwitch
+	 * @param addClassifierPropertySwitch
+	 * @param addClassifierOperationSwitch
+	 */
 	public AddInstructionDependenciesVisitor(
 			TypeToClassifierSwitch typeToClassifierSwitch,
 			AddClassifierPropertySwitch addClassifierPropertySwitch,
@@ -68,6 +72,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		this.addClassifierOperation = addClassifierOperationSwitch;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitFieldOrMethod(org.apache.bcel.generic.FieldOrMethod)
+	 */
+	@Override
 	public void visitFieldOrMethod(FieldOrMethod obj) {
 		Assert.assertNotNull(cpg);
 		Assert.assertNotNull(typeToClassifier);
@@ -75,6 +84,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitGETFIELD(org.apache.bcel.generic.GETFIELD)
+	 */
+	@Override
 	public void visitGETFIELD(GETFIELD obj) {
 		//Only classes have instance fields
 		Assert.assertTrue(owner instanceof Class);
@@ -88,6 +102,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		att.setIsStatic(false);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitGETSTATIC(org.apache.bcel.generic.GETSTATIC)
+	 */
+	@Override
 	public void visitGETSTATIC(GETSTATIC obj) {
 		//Can be invoked on interfaces as well as classes (static final) -> allow DataType
 		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
@@ -101,12 +120,22 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		att.setIsStatic(true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitInvokeInstruction(org.apache.bcel.generic.InvokeInstruction)
+	 */
+	@Override
 	public void visitInvokeInstruction(InvokeInstruction obj) {
 		addClassifierOperation.setOperationName(obj.getMethodName(cpg));
 		addClassifierOperation.setBCELArgumentTypes(obj.getArgumentTypes(cpg));
 		addClassifierOperation.setBCELReturnType(obj.getReturnType(cpg));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKEINTERFACE(org.apache.bcel.generic.INVOKEINTERFACE)
+	 */
+	@Override
 	public void visitINVOKEINTERFACE(INVOKEINTERFACE obj) {
 		//Can be invoked only on interfaces
 		Assert.assertTrue(owner instanceof Interface);
@@ -123,24 +152,35 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		newOp.setIsAbstract(true);
 	}
 
+	/**
+	 * @param parameters
+	 * @return An {@link EList} of the names of each {@link Parameter} in parameters.
+	 */
 	private EList<String> getParameterNames(EList<Parameter> parameters) {
-		EList<String> names = new BasicEList<String>();
-		for (Iterator<Parameter> i = parameters.iterator(); i.hasNext();) {
-			Parameter par = i.next();
+		final EList<String> names = new BasicEList<String>();
+		for (Parameter par : parameters) {
 			names.add(par.getName());
 		}
 		return names;
 	}
 
+	/**
+	 * @param parameters
+	 * @return An {@link EList} of the {@link Type}s of each {@link Parameter} in parameters.
+	 */
 	private EList<Type> getParameterTypes(EList<Parameter> parameters) {
-		EList<Type> types = new BasicEList<Type>();
-		for (Iterator<Parameter> i = parameters.iterator(); i.hasNext();) {
-			Parameter par = i.next();
+		final EList<Type> types = new BasicEList<Type>();
+		for (Parameter par : parameters) {
 			types.add(par.getType());
 		}
 		return types;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKESPECIAL(org.apache.bcel.generic.INVOKESPECIAL)
+	 */
+	@Override
 	public void visitINVOKESPECIAL(INVOKESPECIAL obj) {
 		//Can be invoked only on classes (<init>, superclass methods and private methods)
 		Assert.assertTrue(owner instanceof Class);
@@ -157,6 +197,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		newOp.setIsAbstract(false); //these methods are never abstract
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKESTATIC(org.apache.bcel.generic.INVOKESTATIC)
+	 */
+	@Override
 	public void visitINVOKESTATIC(INVOKESTATIC obj) {
 		//Can be invoked only on classes (interfaces cannot contain static method headers)
 		Assert.assertTrue(owner instanceof Class);
@@ -174,6 +219,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		newOp.setIsStatic(true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKEVIRTUAL(org.apache.bcel.generic.INVOKEVIRTUAL)
+	 */
+	@Override
 	public void visitINVOKEVIRTUAL(INVOKEVIRTUAL obj) {
 		//Can be invoked only on classes (refers to all remaining non-interface methods)
 		Assert.assertTrue(owner instanceof Class);
@@ -185,6 +235,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		newOp.setIsAbstract(true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitPUTFIELD(org.apache.bcel.generic.PUTFIELD)
+	 */
+	@Override
 	public void visitPUTFIELD(PUTFIELD obj) {
 		//Only classes have instance fields
 		Assert.assertTrue(owner instanceof Class);
@@ -200,6 +255,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		att.setIsStatic(false);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitPUTSTATIC(org.apache.bcel.generic.PUTSTATIC)
+	 */
+	@Override
 	public void visitPUTSTATIC(PUTSTATIC obj) {
 		//Can be invoked on interfaces as well as classes (static final) -> allow DataType
 		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
@@ -215,10 +275,17 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		att.setIsStatic(true);
 	}
 
+	/**
+	 * @return The {@link ConstantPool} to use for the instructions.
+	 */
 	public ConstantPool getCp() {
 		return cp;
 	}
 
+	/**
+	 * Sets the {@link ConstantPool} to use for the instructions.
+	 * @param cp
+	 */
 	public void setCp(ConstantPool cp) {
 		this.cp = cp;
 		if (cp == null) {
@@ -228,14 +295,24 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		}
 	}
 
+	/**
+	 * @return The {@link ConstantPoolGen} for {@link #getCp()}.
+	 */
 	public ConstantPoolGen getCpg() {
 		return cpg;
 	}
 
+	/**
+	 * @return The context in which the instructions run.
+	 */
 	public Classifier getInstrContext() {
 		return instrContext;
 	}
 
+	/**
+	 * Sets the context in which the instructions run.
+	 * @param instrContext
+	 */
 	public void setInstrContext(Classifier instrContext) {
 		this.instrContext = instrContext;
 	}

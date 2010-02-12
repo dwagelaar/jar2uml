@@ -27,8 +27,7 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * Switches on {@link Element#getOwner()} of {@link #getClassifier()}
  * and returns itself. Also removes derived datatypes (arrays), nested
  * classifiers and container packages if they become empty.
- * @author dennis
- *
+ * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 
@@ -67,10 +66,10 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	 * Logs the removal of classifier
 	 * @param classifier
 	 */
-	private void logRemoved(Classifier classifier) {
+	private void logRemoving(Classifier classifier) {
 		logger.finer(String.format(
-				JarToUML.getString("RemoveClassifierSwitch.removed"), 
-				classifier.getQualifiedName(),
+				JarToUML.getString("RemoveClassifierSwitch.removing"), 
+				JarToUML.qualifiedName(classifier),
 				classifier.eClass().getName())); //$NON-NLS-1$
 	}
 
@@ -82,9 +81,9 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	public Classifier caseClass(Class umlClass) {
 		final Classifier classifier = getClassifier();
 		Assert.assertNotNull(classifier);
+		logRemoving(classifier);
 		removeNested.doSwitch(classifier);
 		umlClass.getNestedClassifiers().remove(classifier);
-		logRemoved(classifier);
 		return classifier;
 	}
 
@@ -96,9 +95,9 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	public Classifier caseInterface(Interface umlIface) {
 		final Classifier classifier = getClassifier();
 		Assert.assertNotNull(classifier);
+		logRemoving(classifier);
 		removeNested.doSwitch(classifier);
 		umlIface.getNestedClassifiers().remove(classifier);
-		logRemoved(classifier);
 		return classifier;
 	}
 
@@ -110,9 +109,9 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	public Classifier casePackage(Package pack) {
 		final Classifier classifier = getClassifier();
 		Assert.assertNotNull(classifier);
+		logRemoving(classifier);
 		removeNested.doSwitch(classifier);
 		pack.getPackagedElements().remove(classifier);
-		logRemoved(classifier);
 		return classifier;
 	}
 

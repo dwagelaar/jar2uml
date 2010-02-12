@@ -51,7 +51,7 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 * from class file references.
 	 * @param element The element to add the tag to.
 	 */
-	protected void addInferredTag(Element element) {
+	public static void addInferredTag(Element element) {
 		EAnnotation ann = element.getEAnnotation("Jar2UML"); //$NON-NLS-1$
 		if (ann == null) {
 			ann = element.createEAnnotation("Jar2UML"); //$NON-NLS-1$
@@ -65,7 +65,7 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 * from class file references.
 	 * @param element The element to remove the tag from.
 	 */
-	protected void removeInferredTag(Element element) {
+	public static void removeInferredTag(Element element) {
 		final EAnnotation ann = element.getEAnnotation("Jar2UML"); //$NON-NLS-1$
 		if (ann != null) {
 			final EMap<String, String> details = ann.getDetails();
@@ -131,7 +131,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	@Override
 	public Boolean caseDataType(DataType object) {
 		boolean isContained = caseClassifier(object);
-		if (!isContained) {
+		// Always mark as inferred if array type (name ends with "[]")
+		if ((!isContained) || (object.getName().endsWith("[]"))) {
 			addInferredTag(object);
 		}
 		return isContained;

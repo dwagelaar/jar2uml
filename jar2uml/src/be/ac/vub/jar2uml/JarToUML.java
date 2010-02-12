@@ -287,7 +287,12 @@ public class JarToUML implements Runnable {
 	 */
 	public static String qualifiedName(final NamedElement element) {
 		final String qName = element.getQualifiedName();
-		return qName.substring(qName.indexOf(':') + 2);
+		final int sepIndex = qName.indexOf("::");
+		if (sepIndex > 0) {
+			return qName.substring(sepIndex + 2);
+		} else {
+			return qName;
+		}
 	}
 
 	/**
@@ -304,6 +309,7 @@ public class JarToUML implements Runnable {
 
 	protected FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
 	protected RemoveClassifierSwitch removeClassifier = new RemoveClassifierSwitch();
+	protected RemoveClassifierPropertiesSwitch removeClassifierProperties = new RemoveClassifierPropertiesSwitch();
 	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
 	protected TypeToClassifierSwitch typeToClassifier = new TypeToClassifierSwitch();
 	protected FixClassifierSwitch fixClassifier = new FixClassifierSwitch();
@@ -319,7 +325,6 @@ public class JarToUML implements Runnable {
 				addClassifierProperty,
 				addClassifierOperation);
 	protected AddInferredTagSwitch addInferredTags = new AddInferredTagSwitch();
-	protected InverseAddInferredTagSwitch inverseAddInferredTags = new InverseAddInferredTagSwitch();
 	protected FindReferredTypesSwitch findReferredTypes = new FindReferredTypesSwitch();
 
 	private Model model = null;
@@ -401,7 +406,10 @@ public class JarToUML implements Runnable {
 					logger.warning(String.format(
 							JarToUML.getString("JarToUML.cyclicDepsFound"),
 							getNameList(containedClassifiers)));
-					addAllInverseInferredTags(containedClassifiers);
+					// Keep referred classifiers, but strip their properties
+					removeAllProperties(containedClassifiers);
+					// Tag contained classifiers as "inferred" by the inferred classifiers
+					addAllInferredTags(inferredClassifiers);
 				}
 				removeAllClassifiers(removeClassifiers);
 				worked(monitor, JarToUML.getString("JarToUML.removedClassifiers")); //$NON-NLS-1$
@@ -707,21 +715,24 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
+	 * Removes all properties of classifiers in removeClassifiers from the UML model.
+	 * @param removeClassifiers
+	 * @throws IOException
+	 */
+	protected void removeAllProperties(Collection<? extends Classifier> removeClassifiers) throws IOException {
+		for (Classifier classifier : removeClassifiers) {
+			removeProperties(classifier);
+			checkCancelled(monitor);
+		}
+	}
+
+	/**
 	 * Adds inferred tags to all elements not contained in containedClassifiers.
 	 * @param containedClassifiers
 	 */
 	protected void addAllInferredTags(Set<? extends Classifier> containedClassifiers) {
 		addInferredTags.setContainedClassifiers(containedClassifiers);
 		addInferredTags.doSwitch(getModel());
-	}
-
-	/**
-	 * Adds inferred tags to all elements contained in containedClassifiers.
-	 * @param containedClassifiers
-	 */
-	protected void addAllInverseInferredTags(Set<? extends Classifier> containedClassifiers) {
-		inverseAddInferredTags.setContainedClassifiers(containedClassifiers);
-		inverseAddInferredTags.doSwitch(getModel());
 	}
 
 	/**
@@ -782,6 +793,9 @@ public class JarToUML implements Runnable {
 			if (e instanceof Classifier) {
 				if (!containedClassifiers.contains(e)) {
 					inferredClassifiers.add((Classifier) e);
+					logger.finer(String.format(
+							JarToUML.getString("JarToUML.addedInferredClassifier"), 
+							qualifiedName((Classifier) e))); //$NON-NLS-1$
 				}
 				addInferredClassifiers(e, containedClassifiers, inferredClassifiers);
 			} else if (e instanceof Package) {
@@ -803,6 +817,9 @@ public class JarToUML implements Runnable {
 		Classifier classifier = findContainedClassifier.findClassifier(
 				getModel(), javaClass.getClassName(), null);
 		containedClassifiers.add(classifier);
+		logger.finer(String.format(
+				JarToUML.getString("JarToUML.addedContainedClassifier"), 
+				qualifiedName(classifier))); //$NON-NLS-1$
 		Collection<Classifier> derived = findDerivedClassifiers(classifier);
 		containedClassifiers.addAll(derived);
 	}
@@ -867,6 +884,15 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
+	 * Remove features of classifier from the UML model.
+	 * @param classifier
+	 */
+	private void removeProperties(Classifier classifier) {
+		Assert.assertNotNull(classifier);
+		removeClassifierProperties.doSwitch(classifier);
+	}
+
+	/**
 	 * Recursively removes empty packages from fromPackage.
 	 * @param fromPackage
 	 */
@@ -878,11 +904,11 @@ public class JarToUML implements Runnable {
 				Package pack = (Package) o;
 				removeEmptyPackages(pack);
 				if (pack.getPackagedElements().isEmpty()) {
-					it.remove();
 					logger.finer(String.format(
-							JarToUML.getString("JarToUML.removed"), 
+							JarToUML.getString("JarToUML.removing"), 
 							qualifiedName(pack), 
 							pack.eClass().getName())); //$NON-NLS-1$
+					it.remove();
 				}
 			}
 		}

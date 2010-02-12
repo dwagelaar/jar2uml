@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import java.util.logging.Logger;
-
 import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.BasicType;
 import org.apache.bcel.generic.ObjectType;
@@ -25,8 +23,12 @@ import org.apache.bcel.verifier.structurals.UninitializedObjectType;
  */
 public class TypeSwitch<T> {
 
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-
+	/**
+	 * Switches on type and calls the correct case method. If a case method
+	 * returns <code>null</code>, the case method for the superclass is invoked as well.
+	 * @param type
+	 * @return The object returned by the case method.
+	 */
 	public T doSwitch(Type type) {
 		if (type instanceof BasicType) {
 			T result = caseBasicType((BasicType) type);
@@ -51,27 +53,58 @@ public class TypeSwitch<T> {
 		return defaultCase(type);
 	}
 
+	/**
+	 * Invoked if type is a {@link BasicType}.
+	 * @param type
+	 * @return <code>null</code> by default.
+	 */
 	public T caseBasicType(BasicType type) {
 		return null;
 	}
 
+	/**
+	 * Invoked if type is an {@link ArrayType}.
+	 * @param type
+	 * @return <code>null</code> by default.
+	 */
 	public T caseArrayType(ArrayType type) {
 		return null;
 	}
 
+	/**
+	 * Invoked if type is an {@link ObjectType}.
+	 * @param type
+	 * @return <code>null</code> by default.
+	 */
 	public T caseObjectType(ObjectType type) {
 		return null;
 	}
 
+	/**
+	 * Invoked if type is an {@link UninitializedObjectType}.
+	 * @param type
+	 * @return <code>null</code> by default.
+	 */
 	public T caseUninitializedObjectType(UninitializedObjectType type) {
 		return null;
 	}
 
+	/**
+	 * Invoked if type is a {@link ReferenceType}.
+	 * @param type
+	 * @return <code>null</code> by default.
+	 */
 	public T caseReferenceType(ReferenceType type) {
 		return null;
 	}
 
+	/**
+	 * Invoked if type is a {@link Type}.
+	 * @param type
+	 * @return <code>null</code> by default.
+	 */
 	public T defaultCase(Type type) {
 		return null;
 	}
+
 }

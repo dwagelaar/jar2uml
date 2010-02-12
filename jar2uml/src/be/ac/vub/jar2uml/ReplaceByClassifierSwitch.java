@@ -144,7 +144,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	private void logReplace(Classifier classifier) {
 		logger.finer(String.format(
 				JarToUML.getString("ReplaceByClassifierSwitch.replacing"), 
-				classifier.getQualifiedName(),
+				JarToUML.qualifiedName(classifier),
 				classifier.eClass().getName(),
 				getMetaClass().getName())); //$NON-NLS-1$
 	}
@@ -156,8 +156,8 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	@Override
 	public Classifier caseClass(Class umlClass) {
 		Classifier classifier = preSwitch.doSwitch(getClassifier());
-		umlClass.getNestedClassifiers().remove(classifier);
 		logReplace(classifier);
+		umlClass.getNestedClassifiers().remove(classifier);
 		classifier = umlClass.createNestedClassifier(classifier.getName(), getMetaClass());
 		return postSwitch.doSwitch(classifier);
 	}
@@ -169,8 +169,8 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	@Override
 	public Classifier caseInterface(Interface umlIface) {
 		Classifier classifier = preSwitch.doSwitch(getClassifier());
-		umlIface.getNestedClassifiers().remove(classifier);
 		logReplace(classifier);
+		umlIface.getNestedClassifiers().remove(classifier);
 		classifier = umlIface.createNestedClassifier(classifier.getName(), getMetaClass());
 		return postSwitch.doSwitch(classifier);
 	}
@@ -182,8 +182,8 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	@Override
 	public Classifier casePackage(Package pack) {
 		Classifier classifier = preSwitch.doSwitch(getClassifier());
-		pack.getPackagedElements().remove(classifier);
 		logReplace(classifier);
+		pack.getPackagedElements().remove(classifier);
 		classifier = (Classifier) pack.createPackagedElement(classifier.getName(), getMetaClass());
 		return postSwitch.doSwitch(classifier);
 	}

@@ -47,32 +47,58 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	private String classifierName = null;
 	private ReplaceByClassifierSwitch replaceByClassifierSwitch = new ReplaceByClassifierSwitch();
 
+	/**
+	 * @return Whether to create a new {@link Classifier} instance if none found.
+	 */
 	public boolean isCreate() {
 		return create;
 	}
 
+	/**
+	 * Sets whether to create a new {@link Classifier} instance if none found.
+	 * @param create
+	 */
 	public void setCreate(boolean create) {
 		this.create = create;
 	}
 
+	/**
+	 * @return The {@link EClass} of the instance to create if none found.
+	 */
 	public EClass getMetaClass() {
 		return metaClass;
 	}
 
+	/**
+	 * Sets the {@link EClass} of the instance to create if none found.
+	 * @param metaClass
+	 */
 	public void setMetaClass(EClass metaClass) {
 		Assert.assertNotNull(metaClass);
 		Assert.assertEquals(true, UMLPackage.eINSTANCE.getClassifier().isSuperTypeOf(metaClass));
 		this.metaClass = metaClass;
 	}
 
+	/**
+	 * @return The local name of the {@link Classifier} to be found.
+	 */
 	public String getClassifierName() {
 		return classifierName;
 	}
 
+	/**
+	 * Sets the local name of the {@link Classifier} to be found.
+	 * @param classifierName
+	 */
 	public void setClassifierName(String classifierName) {
 		this.classifierName = classifierName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseClass(org.eclipse.uml2.uml.Class)
+	 */
+	@Override
 	public Classifier caseClass(Class parent) {
 		String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
@@ -91,6 +117,11 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		return super.caseClass(parent);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseInterface(org.eclipse.uml2.uml.Interface)
+	 */
+	@Override
 	public Classifier caseInterface(Interface parent) {
 		String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
@@ -109,6 +140,11 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		return super.caseInterface(parent);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#casePackage(org.eclipse.uml2.uml.Package)
+	 */
+	@Override
 	public Classifier casePackage(Package parent) {
 		String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
@@ -130,15 +166,20 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		return super.casePackage(parent);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseClassifier(org.eclipse.uml2.uml.Classifier)
+	 */
+	@Override
 	public Classifier caseClassifier(Classifier parent) {
 		if (isCreate()) {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
 			logger.info(String.format(
-					JarToUML.getString("FindContainedClassifierSwitch.replacedByClass"), 
-					parent,
-					newParent)); //$NON-NLS-1$
+					JarToUML.getString("FindContainedClassifierSwitch.replacingByClass"), 
+					JarToUML.qualifiedName(parent),
+					parent.eClass().getName())); //$NON-NLS-1$
+			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
 			return doSwitch(newParent);
 		}
 		return super.caseClassifier(parent);
