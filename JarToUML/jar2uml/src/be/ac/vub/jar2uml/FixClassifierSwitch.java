@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import java.util.logging.Logger;
-
 import junit.framework.Assert;
 
 import org.apache.bcel.classfile.JavaClass;
@@ -29,8 +27,6 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class FixClassifierSwitch extends UMLSwitch<Classifier> {
-
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private JavaClass javaClass = null;
 	private ReplaceByClassifierSwitch replaceByClassifierSwitch = new ReplaceByClassifierSwitch();

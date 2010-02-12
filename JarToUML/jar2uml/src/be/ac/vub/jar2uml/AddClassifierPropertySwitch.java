@@ -29,31 +29,58 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	private Type propertyType = null;
 	private TypeToClassifierSwitch typeToClassifier = null;
 
+	/**
+	 * Creates a new {@link AddClassifierPropertySwitch}.
+	 * @param typeToClassifier
+	 */
 	public AddClassifierPropertySwitch(TypeToClassifierSwitch typeToClassifier) {
 		Assert.assertNotNull(typeToClassifier);
 		this.typeToClassifier = typeToClassifier;
 	}
 
+	/**
+	 * @return Name of the {@link Property} to create.
+	 */
 	public String getPropertyName() {
 		return propertyName;
 	}
 
+	/**
+	 * Sets the name of the {@link Property} to create.
+	 * @param propertyName
+	 */
 	public void setPropertyName(String propertyName) {
 		this.propertyName = propertyName;
 	}
 
+	/**
+	 * @return {@link Type} of the {@link Property} to create.
+	 */
 	public Type getPropertyType() {
 		return propertyType;
 	}
 
+	/**
+	 * Sets the {@link Type} of the {@link Property} to create.
+	 * @param propertyType
+	 */
 	public void setPropertyType(Type propertyType) {
 		this.propertyType = propertyType;
 	}
 
+	/**
+	 * Sets the {@link org.apache.bcel.generic.Type} of the {@link Property} to create.
+	 * @param propertyType
+	 */
 	public void setBCELPropertyType(org.apache.bcel.generic.Type propertyType) {
 		setPropertyType((Type) typeToClassifier.doSwitch(propertyType));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseClass(org.eclipse.uml2.uml.Class)
+	 */
+	@Override
 	public Property caseClass(Class umlClass) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
@@ -67,6 +94,11 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 		return ownedAtt;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseInterface(org.eclipse.uml2.uml.Interface)
+	 */
+	@Override
 	public Property caseInterface(Interface umlIface) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
@@ -80,6 +112,11 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 		return ownedAtt;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseDataType(org.eclipse.uml2.uml.DataType)
+	 */
+	@Override
 	public Property caseDataType(DataType umlDataType) {
 		String name = getPropertyName();
 		Type type = getPropertyType();

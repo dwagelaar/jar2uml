@@ -39,12 +39,22 @@ public class AddClassifierInterfaceSwitch extends UMLSwitch<DirectedRelationship
 		this.iface = iface;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseClass(org.eclipse.uml2.uml.Class)
+	 */
+	@Override
 	public DirectedRelationship caseClass(Class umlClass) {
 		Interface iface = getIface();
 		Assert.assertNotNull(iface);
 		return umlClass.createInterfaceRealization(null, (Interface) iface);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseInterface(org.eclipse.uml2.uml.Interface)
+	 */
+	@Override
 	public DirectedRelationship caseInterface(Interface umlIface) {
 		Interface iface = getIface();
 		Assert.assertNotNull(iface);

@@ -23,7 +23,6 @@ import org.apache.bcel.generic.INVOKEINTERFACE;
 import org.apache.bcel.generic.INVOKESPECIAL;
 import org.apache.bcel.generic.INVOKESTATIC;
 import org.apache.bcel.generic.INVOKEVIRTUAL;
-import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.NEW;
 import org.apache.bcel.generic.ObjectType;
 import org.apache.bcel.generic.PUTFIELD;
@@ -50,12 +49,21 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
 	protected Classifier owner = null;
 
+	/**
+	 * Creates a new {@link AddInstructionReferencesVisitor}.
+	 * @param typeToClassifierSwitch
+	 */
 	public AddInstructionReferencesVisitor(
 			TypeToClassifierSwitch typeToClassifierSwitch) {
 		Assert.assertNotNull(typeToClassifierSwitch);
 		this.typeToClassifier = typeToClassifierSwitch;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitFieldOrMethod(org.apache.bcel.generic.FieldOrMethod)
+	 */
+	@Override
 	public void visitFieldOrMethod(FieldOrMethod obj) {
 		Assert.assertNotNull(cpg);
 		Assert.assertNotNull(typeToClassifier);
@@ -63,13 +71,16 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
 	}
 
-	private void changeOwnerToClass(Instruction obj) {
+	/**
+	 * Changes {@link #owner} to an instance of {@link Class}.
+	 */
+	private void changeOwnerToClass() {
 		if (!(owner instanceof Class)) {
 			if (!(owner instanceof DataType)) {
 				logger.warning(String.format(
 						JarToUML.getString("AddInstructionReferencesVisitor.changingOwnerToClass"), 
-						owner.getQualifiedName(),
-						owner)); //$NON-NLS-1$
+						JarToUML.qualifiedName(owner),
+						owner.eClass().getName())); //$NON-NLS-1$
 			}
 			replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			replaceByClassifier.setClassifier(owner);
@@ -78,13 +89,16 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		Assert.assertTrue(owner instanceof Class);
 	}
 
-	private void changeOwnerToInterface(Instruction obj) {
+	/**
+	 * Changes {@link #owner} to an instance of {@link Interface}.
+	 */
+	private void changeOwnerToInterface() {
 		if (!(owner instanceof Interface)) {
 			if (!(owner instanceof DataType)) {
 				logger.warning(String.format(
 						JarToUML.getString("AddInstructionReferencesVisitor.changingOwnerToInterface"), 
-						owner.getQualifiedName(),
-						owner)); //$NON-NLS-1$
+						JarToUML.qualifiedName(owner),
+						owner.eClass().getName())); //$NON-NLS-1$
 			}
 			replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getInterface());
 			replaceByClassifier.setClassifier(owner);
@@ -93,51 +107,91 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		Assert.assertTrue(owner instanceof Interface);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitGETFIELD(org.apache.bcel.generic.GETFIELD)
+	 */
+	@Override
 	public void visitGETFIELD(GETFIELD obj) {
 		//Only classes have instance fields
-		changeOwnerToClass(obj);
+		changeOwnerToClass();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKEINTERFACE(org.apache.bcel.generic.INVOKEINTERFACE)
+	 */
+	@Override
 	public void visitINVOKEINTERFACE(INVOKEINTERFACE obj) {
 		//Can be invoked only on interfaces
-		changeOwnerToInterface(obj);
+		changeOwnerToInterface();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKESPECIAL(org.apache.bcel.generic.INVOKESPECIAL)
+	 */
+	@Override
 	public void visitINVOKESPECIAL(INVOKESPECIAL obj) {
 		//Can be invoked only on classes (<init>, superclass methods and private methods)
-		changeOwnerToClass(obj);
+		changeOwnerToClass();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKESTATIC(org.apache.bcel.generic.INVOKESTATIC)
+	 */
+	@Override
 	public void visitINVOKESTATIC(INVOKESTATIC obj) {
 		//Can be invoked only on classes (interfaces cannot contain static method headers)
-		changeOwnerToClass(obj);
+		changeOwnerToClass();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitINVOKEVIRTUAL(org.apache.bcel.generic.INVOKEVIRTUAL)
+	 */
+	@Override
 	public void visitINVOKEVIRTUAL(INVOKEVIRTUAL obj) {
 		//Can be invoked only on classes (refers to all remaining non-interface methods)
-		changeOwnerToClass(obj);
+		changeOwnerToClass();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitPUTFIELD(org.apache.bcel.generic.PUTFIELD)
+	 */
+	@Override
 	public void visitPUTFIELD(PUTFIELD obj) {
 		//Only classes have instance fields
-		changeOwnerToClass(obj);
+		changeOwnerToClass();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitNEW(org.apache.bcel.generic.NEW)
+	 */
+	@Override
 	public void visitNEW(NEW obj) {
 		Assert.assertNotNull(cpg);
 		Assert.assertNotNull(typeToClassifier);
 		ObjectType fieldOwner = obj.getLoadClassType(cpg);;
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
-
-		changeOwnerToClass(obj);
-
+		changeOwnerToClass();
 		owner.setIsAbstract(false);
 	}
 
+	/**
+	 * @return The {@link ConstantPool} to use for the instructions.
+	 */
 	public ConstantPool getCp() {
 		return cp;
 	}
 
+	/**
+	 * Sets the {@link ConstantPool} to use for the instructions.
+	 * @param cp
+	 */
 	public void setCp(ConstantPool cp) {
 		this.cp = cp;
 		if (cp == null) {
@@ -147,6 +201,9 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		}
 	}
 
+	/**
+	 * @return The {@link ConstantPoolGen} for {@link #getCp()}.
+	 */
 	public ConstantPoolGen getCpg() {
 		return cpg;
 	}

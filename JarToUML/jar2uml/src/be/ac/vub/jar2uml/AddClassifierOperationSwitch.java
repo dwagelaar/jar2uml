@@ -42,23 +42,43 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	protected EList<String> allArgNames = null;
 	protected EList<Type> allArgTypes = null;
 
+	/**
+	 * Creates a new {@link AddClassifierOperationSwitch}.
+	 * @param typeToClassifier
+	 */
 	public AddClassifierOperationSwitch(TypeToClassifierSwitch typeToClassifier) {
 		Assert.assertNotNull(typeToClassifier);
 		this.typeToClassifier = typeToClassifier;
 	}
 
+	/**
+	 * @return The {@link EList} of argument {@link Type}s for the {@link Operation} to create.
+	 */
 	public EList<Type> getArgumentTypes() {
 		return argumentTypes;
 	}
 
+	/**
+	 * Sets the {@link EList} of argument {@link Type}s for the {@link Operation} to create.
+	 * @param argumentTypes
+	 */
 	public void setArgumentTypes(EList<Type> argumentTypes) {
 		this.argumentTypes = argumentTypes;
 	}
 
+	/**
+	 * Sets the array of argument {@link org.apache.bcel.generic.Type}s for the {@link Operation} to create.
+	 * @param argumentTypes
+	 */
 	public void setBCELArgumentTypes(org.apache.bcel.generic.Type[] argumentTypes) {
 		setArgumentTypes(toUMLTypes(argumentTypes));
 	}
 
+	/**
+	 * Converts an array of {@link org.apache.bcel.generic.Type}s to an {@link EList} of {@link Type}s.
+	 * @param types
+	 * @return an {@link EList} of {@link Type}s.
+	 */
 	private EList<Type> toUMLTypes(org.apache.bcel.generic.Type[] types) {
 		EList<Type> umlTypes = new BasicEList<Type>();
 		for (int i = 0; i < types.length; i++) {
@@ -73,14 +93,24 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		return umlTypes;
 	}
 
+	/**
+	 * @return The name of the {@link Operation} to create.
+	 */
 	public String getOperationName() {
 		return operationName;
 	}
 
+	/**
+	 * Sets the name of the {@link Operation} to create.
+	 * @param operationName
+	 */
 	public void setOperationName(String operationName) {
 		this.operationName = operationName;
 	}
 
+	/**
+	 * Prepares {@link #argNames}, {@link #allArgNames}, and {@link #allArgTypes} for creation of {@link Operation}.
+	 */
 	protected void prepareArgs() {
 		EList<Type> args = getArgumentTypes();
 		Assert.assertNotNull(args);
@@ -93,6 +123,11 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseClass(org.eclipse.uml2.uml.Class)
+	 */
+	@Override
 	public Operation caseClass(Class object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
@@ -111,6 +146,11 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		return op;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseInterface(org.eclipse.uml2.uml.Interface)
+	 */
+	@Override
 	public Operation caseInterface(Interface object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
@@ -128,6 +168,11 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		return op;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.uml2.uml.util.UMLSwitch#caseDataType(org.eclipse.uml2.uml.DataType)
+	 */
+	@Override
 	public Operation caseDataType(DataType object) {
 		String name = getOperationName();
 		Assert.assertNotNull(name);
@@ -145,6 +190,10 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		return op;
 	}
 
+	/**
+	 * @param args
+	 * @return A list of generated argument names, the size of args.
+	 */
 	private static EList<String> toUMLArgNames(EList<?> args) {
 		EList<String> umlArgNames = new BasicEList<String>();
 		for (int i = 0; i < args.size(); i++) {
@@ -153,14 +202,25 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		return umlArgNames;
 	}
 
+	/**
+	 * @return The return {@link Type} for the {@link Operation} to create.
+	 */
 	public Type getReturnType() {
 		return returnType;
 	}
 
+	/**
+	 * Sets the return {@link Type} for the {@link Operation} to create.
+	 * @param returnType
+	 */
 	public void setReturnType(Type returnType) {
 		this.returnType = returnType;
 	}
 
+	/**
+	 * Sets the return {@link org.apache.bcel.generic.Type} for the {@link Operation} to create.
+	 * @param returnType
+	 */
 	public void setBCELReturnType(org.apache.bcel.generic.Type returnType) {
 		setReturnType((Type) typeToClassifier.doSwitch(returnType));
 	}
