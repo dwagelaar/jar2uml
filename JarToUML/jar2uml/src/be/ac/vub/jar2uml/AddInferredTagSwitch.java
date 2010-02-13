@@ -102,7 +102,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 */
 	@Override
 	public Boolean caseClassifier(Classifier object) {
-		return getContainedClassifiers().contains(object);
+		// Always mark as inferred if array type (name ends with "[]")
+		return getContainedClassifiers().contains(object) || object.getName().endsWith("[]");
 	}
 
 	/* (non-Javadoc)
@@ -131,8 +132,7 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	@Override
 	public Boolean caseDataType(DataType object) {
 		boolean isContained = caseClassifier(object);
-		// Always mark as inferred if array type (name ends with "[]")
-		if ((!isContained) || (object.getName().endsWith("[]"))) {
+		if (!isContained) {
 			addInferredTag(object);
 		}
 		return isContained;
