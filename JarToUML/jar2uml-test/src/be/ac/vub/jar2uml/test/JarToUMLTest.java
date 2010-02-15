@@ -413,7 +413,7 @@ public final class JarToUMLTest extends TestCase {
 		jar2uml.setIncludeFeatures(true);
 		jar2uml.setIncludeInstructionReferences(true);
 		jar2uml.setDependenciesOnly(depsOnly);
-		jar2uml.setOutputFile(javatestProject + "/" + javatestProject + ".uml");
+		jar2uml.setOutputFile("platform:/resource/" + javatestProject + "/" + javatestProject + ".uml");
 		jar2uml.setOutputModelName(javatestProject);
 		assertFalse(jar2uml.isRunComplete());
 		jar2uml.run();
@@ -439,7 +439,7 @@ public final class JarToUMLTest extends TestCase {
 		jar2uml.setIncludeFeatures(true);
 		jar2uml.setIncludeInstructionReferences(true);
 		jar2uml.setDependenciesOnly(depsOnly);
-		jar2uml.setOutputFile(javatestProject + "/" + pksWar + ".uml");
+		jar2uml.setOutputFile("platform:/resource/" + javatestProject + "/" + pksWar + ".uml");
 		jar2uml.setOutputModelName(pksWar);
 		assertFalse(jar2uml.isRunComplete());
 		jar2uml.run();
