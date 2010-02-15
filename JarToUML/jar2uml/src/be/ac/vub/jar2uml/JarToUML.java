@@ -217,7 +217,7 @@ public class JarToUML implements Runnable {
 		final Element owner = classifier.getOwner();
 		Assert.assertNotNull(owner);
 		for (Element e : owner.getOwnedElements()) {
-			if (e instanceof Classifier) {
+			if ((e instanceof Classifier) && (e != classifier)) {
 				Classifier c = (Classifier) e;
 				String cname = c.getName();
 				Assert.assertNotNull(cname);
