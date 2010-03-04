@@ -44,6 +44,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -60,6 +61,7 @@ import org.osgi.framework.Bundle;
 
 import be.ac.vub.jar2uml.FindContainedClassifierSwitch;
 import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 
 /**
  * Test class for {@link JarToUML}.
@@ -107,19 +109,19 @@ public final class JarToUMLTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link be.ac.vub.jar2uml.JarToUML#getString(java.lang.String)}.
+	 * Test method for {@link be.ac.vub.jar2uml.JarToUMLResources#getString(java.lang.String)}.
 	 */
 	public void testGetString() {
-		String usage = JarToUML.getString("JarToUML.usage");
+		String usage = JarToUMLResources.getString("JarToUML.usage");
 		assertNotNull(usage);
 		assertNotSame("JarToUML.usage", usage);
 	}
 
 	/**
-	 * Test method for {@link be.ac.vub.jar2uml.JarToUML#getResourcebundle()}.
+	 * Test method for {@link be.ac.vub.jar2uml.JarToUMLResources#getResourcebundle()}.
 	 */
 	public void testGetResourcebundle() {
-		assertNotNull(JarToUML.getResourcebundle());
+		assertNotNull(JarToUMLResources.getResourcebundle());
 	}
 
 	/**
@@ -376,6 +378,119 @@ public final class JarToUMLTest extends TestCase {
 	}
 
 	/**
+	 * Test method for {@link JarToUML#annotate(org.eclipse.uml2.uml.Element, String, String)}.
+	 */
+	public void testAnnotate() {
+		//
+		// Load a UML model, and find Model object
+		//
+		logger.info("Loading UML model from: " + pkServletDepsUri);
+		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
+		Model root = findModel(res);
+		//
+		// Find java.lang.String
+		//
+		FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
+		Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
+		assertNotNull(javaLangString);
+		//
+		// Annotate
+		//
+		JarToUML.annotate(javaLangString, "test", "test");
+		logger.info("Found annotations: " + javaLangString.getEAnnotations());
+		EAnnotation ann = javaLangString.getEAnnotation(JarToUML.EANNOTATION);
+		assertNotNull(ann);
+		assertEquals("test", ann.getDetails().get("test"));
+	}
+
+	/**
+	 * Test method for {@link JarToUML#deannotate(org.eclipse.uml2.uml.Element, String)}.
+	 */
+	public void testDeannotate() {
+		//
+		// Load a UML model, and find Model object
+		//
+		logger.info("Loading UML model from: " + pkServletDepsUri);
+		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
+		Model root = findModel(res);
+		//
+		// Find java.lang.String
+		//
+		FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
+		Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
+		assertNotNull(javaLangString);
+		//
+		// Annotate
+		//
+		JarToUML.annotate(javaLangString, "test", "test");
+		JarToUML.annotate(javaLangString, "test2", "test2");
+		//
+		// Deannotate test
+		//
+		JarToUML.deannotate(javaLangString, "test");
+		logger.info("Found annotations: " + javaLangString.getEAnnotations());
+		EAnnotation ann = javaLangString.getEAnnotation(JarToUML.EANNOTATION);
+		assertNotNull(ann);
+		assertFalse(ann.getDetails().containsKey("test"));
+		//
+		// Deannotate test2
+		//
+		JarToUML.deannotate(javaLangString, "test2");
+		ann = javaLangString.getEAnnotation(JarToUML.EANNOTATION);
+		assertNull(ann);
+	}
+
+	/**
+	 * Test method for {@link JarToUML#addPaths(IJavaProject, boolean)}.
+	 */
+	public void testAddPaths() {
+		//
+		// Retrieve Java projects
+		//
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
+		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+		IProject projectref = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestReferredProject);
+		IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
+		try {
+			//
+			// Retrieve output locations for Java projects
+			//
+			IResource projectOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
+					jproject.getOutputLocation());
+			IResource projectrefOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
+					jprojectref.getOutputLocation());
+			//
+			// Test without workspace references
+			//
+			JarToUML jar2uml = new JarToUML();
+			jar2uml.addPaths(jproject, false);
+			List<IContainer> paths = jar2uml.getPaths();
+			assertFalse(paths.isEmpty());
+			assertTrue(paths.contains(projectOutput));
+			assertFalse(paths.contains(projectrefOutput));
+			assertTrue(jar2uml.getJars().isEmpty());
+			assertTrue(jar2uml.getCpJars().isEmpty());
+			assertTrue(jar2uml.getCpPaths().isEmpty());
+			//
+			// Test with workspace references
+			//
+			jar2uml = new JarToUML();
+			jar2uml.addPaths(jproject, true);
+			paths = jar2uml.getPaths();
+			assertFalse(paths.isEmpty());
+			assertTrue(paths.contains(projectOutput));
+			assertTrue(paths.contains(projectrefOutput));
+			assertTrue(jar2uml.getJars().isEmpty());
+			assertTrue(jar2uml.getCpJars().isEmpty());
+			assertTrue(jar2uml.getCpPaths().isEmpty());
+		} catch (JavaModelException e) {
+			handle(e);
+		} catch (IOException e) {
+			handle(e);
+		}
+	}
+
+	/**
 	 * Test method for {@link be.ac.vub.jar2uml.JarToUML#run()}.
 	 */
 	public void testRun() {
@@ -401,7 +516,7 @@ public final class JarToUMLTest extends TestCase {
 			handle(e);
 		}
 	}
-	
+
 	private void testRunProject(boolean depsOnly) throws JavaModelException, IOException {
 		//
 		// test run on Java test project
@@ -422,7 +537,7 @@ public final class JarToUMLTest extends TestCase {
 		validateModel(model);
 		model.eResource().save(Collections.EMPTY_MAP);
 	}
-	
+
 	private void testRunJar(boolean depsOnly) throws IOException {
 		//
 		// fetch jar file
