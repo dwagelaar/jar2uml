@@ -21,9 +21,10 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 
-import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 
 /**
  * Shared functionality for Jar2UML import from Java project wizard pages
@@ -32,7 +33,6 @@ import be.ac.vub.jar2uml.JarToUML;
 public abstract class AbstractJavaProjectToUMLImportWizardPage extends AbstractImportWizardPage {
 
 	protected Button includeReferencedProjectsBtn;
-
 	public AbstractJavaProjectToUMLImportWizardPage(String pageName,
 			String description, IStructuredSelection selection) {
 		super(pageName, description, selection);
@@ -69,13 +69,13 @@ public abstract class AbstractJavaProjectToUMLImportWizardPage extends AbstractI
 			IProject project = resource.getProject();
 			if (!project.isAccessible()) {
 				setErrorMessage(String.format(
-						JarToUML.getString("AbstractJavaProjectToUMLImportWizardPage.projectNotAccessible"), 
+						JarToUMLResources.getString("AbstractJavaProjectToUMLImportWizardPage.projectNotAccessible"), 
 						project.getName())); //$NON-NLS-1$
 				valid = false;
 			} else {
 				try {
 					if (project.getNature(JavaCore.NATURE_ID) == null) {
-						setErrorMessage(JarToUML.getString("AbstractJavaProjectToUMLImportWizardPage.onlyJavaProjects")); //$NON-NLS-1$
+						setErrorMessage(JarToUMLResources.getString("AbstractJavaProjectToUMLImportWizardPage.onlyJavaProjects")); //$NON-NLS-1$
 						valid = false;
 					}
 				} catch (CoreException e) {
@@ -84,6 +84,17 @@ public abstract class AbstractJavaProjectToUMLImportWizardPage extends AbstractI
 			}
 		}
 		return valid;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
+	 */
+	@Override
+	protected void createAdvancedControls(Composite parent) {
+		super.createAdvancedControls(parent);
+		includeReferencedProjectsBtn = 
+			createCheckbox(parent, JarToUMLResources.getString("AbstractJavaProjectToUMLImportWizardPage.includeReferencedProjects"), true); //$NON-NLS-1$
 	}
 
 }

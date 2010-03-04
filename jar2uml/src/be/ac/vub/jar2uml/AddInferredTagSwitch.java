@@ -12,7 +12,6 @@ package be.ac.vub.jar2uml;
 
 import java.util.Set;
 
-import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
@@ -51,13 +50,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 * from class file references.
 	 * @param element The element to add the tag to.
 	 */
-	public static void addInferredTag(Element element) {
-		EAnnotation ann = element.getEAnnotation("Jar2UML"); //$NON-NLS-1$
-		if (ann == null) {
-			ann = element.createEAnnotation("Jar2UML"); //$NON-NLS-1$
-		}
-		final EMap<String, String> details = ann.getDetails();
-		details.put("inferred", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final void addInferredTag(Element element) {
+		JarToUML.annotate(element, "inferred", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -65,17 +59,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 * from class file references.
 	 * @param element The element to remove the tag from.
 	 */
-	public static void removeInferredTag(Element element) {
-		final EAnnotation ann = element.getEAnnotation("Jar2UML"); //$NON-NLS-1$
-		if (ann != null) {
-			final EMap<String, String> details = ann.getDetails();
-			if (details.containsKey("inferred")) { //$NON-NLS-1$
-				details.removeKey("inferred"); //$NON-NLS-1$
-			}
-			if (details.isEmpty()) {
-				element.getEAnnotations().remove(ann);
-			}
-		}
+	public static final void removeInferredTag(Element element) {
+		JarToUML.deannotate(element, "inferred"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)

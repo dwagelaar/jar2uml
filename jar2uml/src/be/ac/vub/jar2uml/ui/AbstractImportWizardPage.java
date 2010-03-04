@@ -46,6 +46,7 @@ import org.eclipse.ui.dialogs.ContainerGenerator;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
 import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 
 /**
  * Shared functionality for Jar2UML import wizard pages
@@ -92,6 +93,15 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		return new ByteArrayInputStream(new byte[0]); // dummy input stream
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
+	 */
+	@Override
+	protected void createAdvancedControls(Composite parent) {
+		// do nothing
+	}
+
 	/**
 	 * Creates a file resource and returns it. Overriding necessary for compatibility
 	 * with Eclipse 3.3.
@@ -114,7 +124,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 			protected void execute(IProgressMonitor monitor)
 			throws CoreException {
 				try {
-					monitor.beginTask(JarToUML.getString("AbstractImportWizardPage.taskName"), 1100); //$NON-NLS-1$
+					monitor.beginTask(JarToUMLResources.getString("AbstractImportWizardPage.taskName"), 1100); //$NON-NLS-1$
 					ContainerGenerator generator = new ContainerGenerator(
 							containerPath);
 					generator.generateContainer(new SubProgressMonitor(monitor,
@@ -136,7 +146,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 				ErrorDialog
 				.openError(
 						getContainer().getShell(), // Was Utilities.getFocusShell()
-						JarToUML.getString("AbstractImportWizardPage.creationProblems"), //$NON-NLS-1$
+						JarToUMLResources.getString("AbstractImportWizardPage.creationProblems"), //$NON-NLS-1$
 						null, // no special message
 						((CoreException) e.getTargetException())
 						.getStatus());
@@ -144,13 +154,13 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 				// CoreExceptions are handled above, but unexpected runtime exceptions and errors may still occur.
 				logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
 				StringBuffer body = new StringBuffer();
-				body.append(JarToUML.getString("AbstractImportWizardPage.internalError")); //$NON-NLS-1$
+				body.append(JarToUMLResources.getString("AbstractImportWizardPage.internalError")); //$NON-NLS-1$
 				body.append(' ');
 				body.append(e.getTargetException().getMessage());
 				MessageDialog
 				.openError(
 						getContainer().getShell(),
-						JarToUML.getString("AbstractImportWizardPage.creationProblems"),
+						JarToUMLResources.getString("AbstractImportWizardPage.creationProblems"),
 						body.toString()); //$NON-NLS-1$
 			}
 			return null;
@@ -166,7 +176,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected String getNewFileLabel() {
-		return JarToUML.getString("AbstractImportWizardPage.newFileLabel"); //$NON-NLS-1$
+		return JarToUMLResources.getString("AbstractImportWizardPage.newFileLabel"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -217,37 +227,52 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	/**
 	 * @param parent
 	 * @param fileExtension Extension to add to the created file
-	 * @return A FilesFieldEditor widget
+	 * @return A {@link FilesFieldEditor} widget
 	 */
 	protected FilesFieldEditor createFilesFieldEditor(Composite parent, final String fileExtension) {
-		Composite fileSelectionArea = new Composite(parent, SWT.NONE);
-		GridData fileSelectionData = new GridData(GridData.GRAB_HORIZONTAL
+		final FilesFieldEditor editor = createFilesFieldEditor(parent);
+		editor.getTextControl(parent).addModifyListener(new ModifyListener(){
+			public void modifyText(ModifyEvent e) {
+				IPath path = new Path(editor.getStringValue());
+				setFileName(path.removeFileExtension().lastSegment() + fileExtension);
+			}
+		});
+		return editor;
+	}
+
+	/**
+	 * @param parent
+	 * @return A {@link FilesFieldEditor} widget
+	 */
+	protected FilesFieldEditor createFilesFieldEditor(Composite parent) {
+		final FilesFieldEditor editor = new FilesFieldEditor(
+				"fileSelect",
+				JarToUMLResources.getString("AbstractImportWizardPage.selectFile"),
+				parent); //$NON-NLS-1$ //$NON-NLS-2$
+		String[] extensions = new String[] { "*.zip;*.jar;*.war;*.ear;*.sar;*.rar" }; //$NON-NLS-1$
+		editor.setFileExtensions(extensions);
+		return editor;
+	}
+
+	/**
+	 * @param parent
+	 * @return A {@link Composite} widget that can contain a {@link FilesFieldEditor}.
+	 */
+	protected Composite createFileSelectionArea(Composite parent) {
+		final Composite fileSelectionArea = new Composite(parent, SWT.NONE);
+		final GridData fileSelectionData = new GridData(GridData.GRAB_HORIZONTAL
 				| GridData.FILL_HORIZONTAL);
 		fileSelectionArea.setLayoutData(fileSelectionData);
 
-		GridLayout fileSelectionLayout = new GridLayout();
+		final GridLayout fileSelectionLayout = new GridLayout();
 		fileSelectionLayout.numColumns = 3;
 		fileSelectionLayout.makeColumnsEqualWidth = false;
 		fileSelectionLayout.marginWidth = 0;
 		fileSelectionLayout.marginHeight = 0;
 		fileSelectionArea.setLayout(fileSelectionLayout);
 
-		final FilesFieldEditor editor = new FilesFieldEditor(
-				"fileSelect",
-				JarToUML.getString("AbstractImportWizardPage.selectFile"),
-				fileSelectionArea); //$NON-NLS-1$ //$NON-NLS-2$
-		editor.getTextControl(fileSelectionArea).addModifyListener(new ModifyListener(){
-			public void modifyText(ModifyEvent e) {
-				IPath path = new Path(editor.getStringValue());
-				setFileName(path.removeFileExtension().lastSegment() + fileExtension);
-			}
-		});
-		String[] extensions = new String[] { "*.zip;*.jar;*.war;*.ear;*.sar;*.rar" }; //$NON-NLS-1$
-		editor.setFileExtensions(extensions);
-
 		fileSelectionArea.moveAbove(null);
-
-		return editor;
+		return fileSelectionArea;
 	}
 
 	/**

@@ -78,7 +78,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		if (!(owner instanceof Class)) {
 			if (!(owner instanceof DataType)) {
 				logger.warning(String.format(
-						JarToUML.getString("AddInstructionReferencesVisitor.changingOwnerToClass"), 
+						JarToUMLResources.getString("AddInstructionReferencesVisitor.changingOwnerToClass"), 
 						JarToUML.qualifiedName(owner),
 						owner.eClass().getName())); //$NON-NLS-1$
 			}
@@ -96,7 +96,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 		if (!(owner instanceof Interface)) {
 			if (!(owner instanceof DataType)) {
 				logger.warning(String.format(
-						JarToUML.getString("AddInstructionReferencesVisitor.changingOwnerToInterface"), 
+						JarToUMLResources.getString("AddInstructionReferencesVisitor.changingOwnerToInterface"), 
 						JarToUML.qualifiedName(owner),
 						owner.eClass().getName())); //$NON-NLS-1$
 			}

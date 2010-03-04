@@ -90,7 +90,7 @@ public class TypeToClassifierSwitch extends TypeSwitch<Classifier> {
 	@Override
 	public Classifier caseUninitializedObjectType(UninitializedObjectType type) {
 		logger.warning(String.format(
-				JarToUML.getString("TypeToClassifierSwitch.whatIsUninitObjectType"), 
+				JarToUMLResources.getString("TypeToClassifierSwitch.whatIsUninitObjectType"), 
 				type)); //$NON-NLS-1$
 		return doSwitch(type.getInitialized());
 	}

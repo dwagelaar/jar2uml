@@ -12,10 +12,7 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.ui;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.StringTokenizer;
-import java.util.jar.JarFile;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,7 +20,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.JavaAPIFilter;
 import be.ac.vub.jar2uml.PublicAPIFilter;
 
@@ -31,7 +28,7 @@ import be.ac.vub.jar2uml.PublicAPIFilter;
  * Import wizard to import a Jar file from the local file system into a UML model in the workspace 
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
+public class JarToUMLImportWizardPage extends AbstractJarToUMLImportWizardPage {
 
 	protected FilesFieldEditor editor;
 	protected Button onlyJavaApiBtn;
@@ -55,15 +52,15 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 	 */	
 	@Override
 	protected void createAdvancedControls(Composite parent) {
-		editor = createFilesFieldEditor(parent, ".uml");
+		super.createAdvancedControls(parent);
 		includeFeaturesBtn = 
-			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeFeatures"), true); //$NON-NLS-1$ 
+			createCheckbox(parent, JarToUMLResources.getString("JarToUMLImportWizardPage.includeFeatures"), true); //$NON-NLS-1$ 
 		onlyJavaApiBtn = 
-			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.onlyJavaApi"), false); //$NON-NLS-1$
+			createCheckbox(parent, JarToUMLResources.getString("JarToUMLImportWizardPage.onlyJavaApi"), false); //$NON-NLS-1$
 		allElementsBtn = 
-			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.allElements"), false); //$NON-NLS-1$
+			createCheckbox(parent, JarToUMLResources.getString("JarToUMLImportWizardPage.allElements"), false); //$NON-NLS-1$
 		includeInstrRefsBtn = 
-			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeInstrRefs"), false); //$NON-NLS-1$
+			createCheckbox(parent, JarToUMLResources.getString("JarToUMLImportWizardPage.includeInstrRefs"), false); //$NON-NLS-1$
 
 		includeFeaturesBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -97,23 +94,15 @@ public class JarToUMLImportWizardPage extends AbstractImportWizardPage {
 	@Override
 	protected InputStream getInitialContents() {
 		InputStream in = super.getInitialContents();
-		try {
-			jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
-			if (onlyJavaApiBtn.getSelection()) {
-				jarToUML.setFilter(new JavaAPIFilter());
-			} else if (allElementsBtn.getSelection()) {
-				jarToUML.setFilter(null);
-			} else {
-				jarToUML.setFilter(new PublicAPIFilter());
-			}
-			jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
-			StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";"); //$NON-NLS-1$
-			while (files.hasMoreTokens()) {
-				jarToUML.addJar(new JarFile(files.nextToken()));
-			}
-			return in;
-		} catch (IOException e) {
-			return null;
+		jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
+		if (onlyJavaApiBtn.getSelection()) {
+			jarToUML.setFilter(new JavaAPIFilter());
+		} else if (allElementsBtn.getSelection()) {
+			jarToUML.setFilter(null);
+		} else {
+			jarToUML.setFilter(new PublicAPIFilter());
 		}
+		jarToUML.setIncludeInstructionReferences(includeInstrRefsBtn.getSelection());
+		return in;
 	}
 }

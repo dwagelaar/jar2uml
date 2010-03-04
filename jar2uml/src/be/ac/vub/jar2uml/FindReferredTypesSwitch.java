@@ -55,7 +55,7 @@ public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
 			if (element instanceof Type) {
 				if (refs.add((Type) element)) {
 					logger.finer(String.format(
-							JarToUML.getString("FindReferredTypesSwitch.addedDepSupplier"),
+							JarToUMLResources.getString("FindReferredTypesSwitch.addedDepSupplier"),
 							JarToUML.qualifiedName(element),
 							JarToUML.getNameList(object.getClients()))); //$NON-NLS-1$
 //					doSwitch(element); // transitive closure
@@ -74,7 +74,7 @@ public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
 		final Classifier general = object.getGeneral();
 		if (refs.add(general)) {
 			logger.finer(String.format(
-					JarToUML.getString("FindReferredTypesSwitch.addedGeneral"),
+					JarToUMLResources.getString("FindReferredTypesSwitch.addedGeneral"),
 					JarToUML.qualifiedName(general),
 					JarToUML.qualifiedName(object.getSpecific()))); //$NON-NLS-1$
 //			doSwitch(general); // transitive closure
@@ -91,7 +91,7 @@ public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
 		final Type type = object.getType();
 		if (refs.add(type)) {
 			logger.finer(String.format(
-					JarToUML.getString("FindReferredTypesSwitch.addedElementType"),
+					JarToUMLResources.getString("FindReferredTypesSwitch.addedElementType"),
 					JarToUML.qualifiedName(type),
 					JarToUML.qualifiedName(object))); //$NON-NLS-1$
 //			doSwitch(type); // transitive closure

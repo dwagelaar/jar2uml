@@ -18,19 +18,14 @@ import java.io.InputStream;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 
-import be.ac.vub.jar2uml.JarToUML;
 
 /**
  * Import wizard to import dependencies of a Java project into a UML model in the workspace
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class JavaProjectToUMLImportDependenciesWizardPage extends AbstractJavaProjectToUMLImportWizardPage {
-
-	protected Button includeReferencedProjectsBtn;
 
 	/**
 	 * Creates a new JavaProjectToUMLImportDependenciesWizardPage
@@ -44,16 +39,9 @@ public class JavaProjectToUMLImportDependenciesWizardPage extends AbstractJavaPr
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
-	 */	
-	protected void createAdvancedControls(Composite parent) {
-		includeReferencedProjectsBtn = 
-			createCheckbox(parent, JarToUML.getString("JavaProjectToUMLImportDependenciesWizardPage.includeReferencedProjects"), true); //$NON-NLS-1$
-	}
-
-	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
+	@Override
 	protected InputStream getInitialContents() {
 		InputStream in = super.getInitialContents();
 		jarToUML.setIncludeFeatures(true);
@@ -76,6 +64,7 @@ public class JavaProjectToUMLImportDependenciesWizardPage extends AbstractJavaPr
 	 * Handles the selection of a new resource container
 	 * @param event
 	 */
+	@Override
 	protected void handleSelectionEvent(Event event) {
 		IPath path = getContainerFullPath();
 		if (path != null) {

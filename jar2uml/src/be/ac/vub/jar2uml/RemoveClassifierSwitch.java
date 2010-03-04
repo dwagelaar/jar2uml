@@ -68,7 +68,7 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	private void logRemoving(Classifier classifier) {
 		logger.finer(String.format(
-				JarToUML.getString("RemoveClassifierSwitch.removing"), 
+				JarToUMLResources.getString("RemoveClassifierSwitch.removing"), 
 				JarToUML.qualifiedName(classifier),
 				classifier.eClass().getName())); //$NON-NLS-1$
 	}
