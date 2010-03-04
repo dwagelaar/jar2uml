@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 
-import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.PublicAPIFilter;
 
 /**
@@ -50,18 +50,19 @@ public class JavaProjectToUMLImportWizardPage extends AbstractJavaProjectToUMLIm
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
-	 */	
+	 */
+	@Override
 	protected void createAdvancedControls(Composite parent) {
-		includeReferencedProjectsBtn = 
-			createCheckbox(parent, JarToUML.getString("JavaProjectToUMLImportDependenciesWizardPage.includeReferencedProjects"), true); //$NON-NLS-1$ 
+		super.createAdvancedControls(parent);
 		includeFeaturesBtn = 
-			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeFeatures"), true); //$NON-NLS-1$ 
+			createCheckbox(parent, JarToUMLResources.getString("JarToUMLImportWizardPage.includeFeatures"), true); //$NON-NLS-1$ 
 		allElementsBtn = 
-			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.allElements"), false); //$NON-NLS-1$
+			createCheckbox(parent, JarToUMLResources.getString("JarToUMLImportWizardPage.allElements"), false); //$NON-NLS-1$
 		includeInstrRefsBtn = 
-			createCheckbox(parent, JarToUML.getString("JarToUMLImportWizardPage.includeInstrRefs"), false); //$NON-NLS-1$
+			createCheckbox(parent, JarToUMLResources.getString("JarToUMLImportWizardPage.includeInstrRefs"), false); //$NON-NLS-1$
 
 		includeFeaturesBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (!includeFeaturesBtn.getSelection()) {
 					allElementsBtn.setSelection(false);
@@ -79,6 +80,7 @@ public class JavaProjectToUMLImportWizardPage extends AbstractJavaProjectToUMLIm
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
+	@Override
 	protected InputStream getInitialContents() {
 		InputStream in = super.getInitialContents();
 		jarToUML.setIncludeFeatures(includeFeaturesBtn.getSelection());
@@ -104,6 +106,7 @@ public class JavaProjectToUMLImportWizardPage extends AbstractJavaProjectToUMLIm
 	 * Handles the selection of a new resource container
 	 * @param event
 	 */
+	@Override
 	protected void handleSelectionEvent(Event event) {
 		IPath path = getContainerFullPath();
 		if (path != null) {

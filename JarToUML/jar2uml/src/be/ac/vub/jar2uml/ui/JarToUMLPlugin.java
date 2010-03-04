@@ -33,6 +33,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.ui.logging.ConsoleStreamHandler;
 import be.ac.vub.jar2uml.ui.preferences.PreferenceConstants;
 
@@ -119,7 +120,7 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
 		console = findConsole(JAR2UML_CONSOLE);
 		consoleStream = console.newMessageStream();
 		activateConsole();
-		consoleStream.println(JarToUML.getString("JarToUMLPlugin.consoleInit")); //$NON-NLS-1$
+		consoleStream.println(JarToUMLResources.getString("JarToUMLPlugin.consoleInit")); //$NON-NLS-1$
 		handler = new ConsoleStreamHandler(consoleStream);
 		handler.setLevel(Level.ALL);
 		logger.addHandler(handler);
@@ -182,9 +183,9 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
 		if (prefStore != null) {
 			String logLevel = prefStore.getString(PreferenceConstants.P_LOG_LEVEL);
 			logger.setLevel(Level.parse(logLevel));
-			logger.info(String.format(JarToUML.getString("logLevelSetTo"), logger.getLevel())); //$NON-NLS-1$
+			logger.info(String.format(JarToUMLResources.getString("logLevelSetTo"), logger.getLevel())); //$NON-NLS-1$
 		} else {
-			logger.warning(JarToUML.getString("JarToUMLPlugin.cannotSetLogLevel")); //$NON-NLS-1$
+			logger.warning(JarToUMLResources.getString("JarToUMLPlugin.cannotSetLogLevel")); //$NON-NLS-1$
 		}
 	}
 

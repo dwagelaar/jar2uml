@@ -19,6 +19,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.ui.JarToUMLPlugin;
 
 /**
@@ -39,7 +40,7 @@ public class JarToUMLPreferencePage extends FieldEditorPreferencePage implements
 	public JarToUMLPreferencePage() {
 		super(GRID);
 		setPreferenceStore(JarToUMLPlugin.getPlugin().getPreferenceStore());
-		setDescription(JarToUML.getString("JarToUMLPreferencePage.title")); //$NON-NLS-1$
+		setDescription(JarToUMLResources.getString("JarToUMLPreferencePage.title")); //$NON-NLS-1$
 	}
 
 	/**
@@ -61,7 +62,7 @@ public class JarToUMLPreferencePage extends FieldEditorPreferencePage implements
 		};
 		ComboFieldEditor logLevel = new ComboFieldEditor(
 				PreferenceConstants.P_LOG_LEVEL,
-				JarToUML.getString("JarToUMLPreferencePage.logLevel"), //$NON-NLS-1$
+				JarToUMLResources.getString("JarToUMLPreferencePage.logLevel"), //$NON-NLS-1$
 				lvls,
 				getFieldEditorParent());
 		addField(logLevel);
@@ -92,7 +93,7 @@ public class JarToUMLPreferencePage extends FieldEditorPreferencePage implements
 			String logLevel = getPreferenceStore().getString(PreferenceConstants.P_LOG_LEVEL);
 			Logger logger = Logger.getLogger(JarToUML.LOGGER);
 			logger.setLevel(Level.parse(logLevel));
-			logger.info(String.format(JarToUML.getString("logLevelSetTo"), logger.getLevel())); //$NON-NLS-1$
+			logger.info(String.format(JarToUMLResources.getString("logLevelSetTo"), logger.getLevel())); //$NON-NLS-1$
 		}
 		return ok;
 	}

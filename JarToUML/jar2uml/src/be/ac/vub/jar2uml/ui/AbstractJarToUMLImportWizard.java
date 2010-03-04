@@ -18,7 +18,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 
-import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 
 /**
  * Abstract import wizard class for JarToUML wizards.
@@ -63,7 +63,7 @@ public abstract class AbstractJarToUMLImportWizard extends Wizard implements IIm
 	 * @see org.eclipse.ui.IWorkbenchWizard#init(org.eclipse.ui.IWorkbench, org.eclipse.jface.viewers.IStructuredSelection)
 	 */
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		setWindowTitle(JarToUML.getString("AbstractJarToUMLImportWizard.windowTitle")); //$NON-NLS-1$
+		setWindowTitle(JarToUMLResources.getString("AbstractJarToUMLImportWizard.windowTitle")); //$NON-NLS-1$
 		setDefaultPageImageDescriptor(JarToUMLPlugin.getPlugin().getImageDescriptor(WIZ_IMAGE));
 		setNeedsProgressMonitor(true);
 	}

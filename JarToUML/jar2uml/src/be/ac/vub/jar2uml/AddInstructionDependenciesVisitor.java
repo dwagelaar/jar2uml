@@ -47,6 +47,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	private Classifier instrContext = null;
 	private ConstantPool cp = null;
 	private ConstantPoolGen cpg = null;
+	private Exception exception = null;
 
 	protected TypeToClassifierSwitch typeToClassifier = null;
 	protected AddClassifierPropertySwitch addClassifierProperty = null;
@@ -127,7 +128,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitInvokeInstruction(InvokeInstruction obj) {
 		addClassifierOperation.setOperationName(obj.getMethodName(cpg));
-		addClassifierOperation.setBCELArgumentTypes(obj.getArgumentTypes(cpg));
+		try {
+			addClassifierOperation.setBCELArgumentTypes(obj.getArgumentTypes(cpg));
+		} catch (JarToUMLException e) {
+			setException(e);
+		}
 		addClassifierOperation.setBCELReturnType(obj.getReturnType(cpg));
 	}
 
@@ -315,6 +320,20 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	public void setInstrContext(Classifier instrContext) {
 		this.instrContext = instrContext;
+	}
+
+	/**
+	 * @return the exception that was thrown, or <code>null</code>.
+	 */
+	public Exception getException() {
+		return exception;
+	}
+
+	/**
+	 * @param exception the exception to set
+	 */
+	protected void setException(Exception exception) {
+		this.exception = exception;
 	}
 
 }

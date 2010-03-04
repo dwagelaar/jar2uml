@@ -43,6 +43,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private boolean create = false;
+	private boolean created = false;
 	private EClass metaClass = UMLPackage.eINSTANCE.getDataType();
 	private String classifierName = null;
 	private ReplaceByClassifierSwitch replaceByClassifierSwitch = new ReplaceByClassifierSwitch();
@@ -60,6 +61,21 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	public void setCreate(boolean create) {
 		this.create = create;
+	}
+
+	/**
+	 * @return whether or not a new {@link Classifier} was actually created in the last {@link #doSwitch(org.eclipse.emf.ecore.EObject)}.
+	 */
+	public boolean isCreated() {
+		return created;
+	}
+
+	/**
+	 * Sets whether or not a new {@link Classifier} was actually created in the last {@link #doSwitch(org.eclipse.emf.ecore.EObject)}.
+	 * @param created the created to set
+	 */
+	protected void setCreated(boolean created) {
+		this.created = created;
 	}
 
 	/**
@@ -100,7 +116,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	@Override
 	public Classifier caseClass(Class parent) {
-		String localClassName = getClassifierName();
+		setCreated(false);
+		final String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
 		for (Iterator<Classifier> it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
 			Classifier cl = it.next();
@@ -109,6 +126,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 			}
 		}
 		if (isCreate()) {
+			setCreated(true);
 			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
 			child.setIsAbstract(true);
 			child.setIsLeaf(true);
@@ -123,7 +141,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	@Override
 	public Classifier caseInterface(Interface parent) {
-		String localClassName = getClassifierName();
+		setCreated(false);
+		final String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
 		for (Iterator<Classifier> it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
 			Classifier cl = (Classifier) it.next();
@@ -132,6 +151,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 			}
 		}
 		if (isCreate()) {
+			setCreated(true);
 			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
 			child.setIsAbstract(true);
 			child.setIsLeaf(true);
@@ -146,7 +166,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	@Override
 	public Classifier casePackage(Package parent) {
-		String localClassName = getClassifierName();
+		setCreated(false);
+		final String localClassName = getClassifierName();
 		Assert.assertNotNull(localClassName);
 		for (Iterator<PackageableElement> it = parent.getPackagedElements().iterator(); it.hasNext();) {
 			PackageableElement element = it.next();
@@ -158,6 +179,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 			}
 		}
 		if (isCreate()) {
+			setCreated(true);
 			Classifier child = (Classifier) parent.createPackagedElement(localClassName, getMetaClass());
 			child.setIsAbstract(true);
 			child.setIsLeaf(true);
@@ -172,11 +194,12 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	@Override
 	public Classifier caseClassifier(Classifier parent) {
+		setCreated(false);
 		if (isCreate()) {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			logger.info(String.format(
-					JarToUML.getString("FindContainedClassifierSwitch.replacingByClass"), 
+					JarToUMLResources.getString("FindContainedClassifierSwitch.replacingByClass"), 
 					JarToUML.qualifiedName(parent),
 					parent.eClass().getName())); //$NON-NLS-1$
 			Classifier newParent = (Classifier) replaceByClassifierSwitch.doSwitch(parent.getOwner());
@@ -249,6 +272,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 * @return The requested package or null if create is false and no package is found.
 	 */
 	public Package findPackage(Package root, String packageName, boolean create) {
+		setCreated(false);
 		Assert.assertNotNull(packageName);
 		Package parent = root;
 		final String tail = packageName.substring(packageName.lastIndexOf('.') + 1);
@@ -267,6 +291,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 			}
 		}
 		if (create) {
+			setCreated(true);
 			return parent.createNestedPackage(packageName);
 		} else {
 			return null;
@@ -283,6 +308,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 * created and returned.
 	 */
 	public PrimitiveType findPrimitiveType(Package root, String typeName, boolean create) {
+		setCreated(false);
 		Assert.assertNotNull(typeName);
 		String localTypeName = typeName;
 		Package parent = root;
@@ -305,6 +331,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 			}
 		}
 		if (create) {
+			setCreated(true);
 			return parent.createOwnedPrimitiveType(localTypeName);
 		}
 		return null;

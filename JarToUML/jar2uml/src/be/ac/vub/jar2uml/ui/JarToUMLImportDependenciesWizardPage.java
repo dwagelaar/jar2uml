@@ -12,52 +12,38 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.ui;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.StringTokenizer;
-import java.util.jar.JarFile;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Composite;
 
 /**
  * Import wizard to import dependencies of a Jar file from the local file system into a UML model in the workspace
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class JarToUMLImportDependenciesWizardPage extends AbstractImportWizardPage {
+public class JarToUMLImportDependenciesWizardPage extends AbstractJarToUMLImportWizardPage {
 
-	protected FilesFieldEditor editor;
-
+	/**
+	 * Creates a new {@link JarToUMLImportDependenciesWizardPage}.
+	 * @param pageName
+	 * @param description
+	 * @param selection
+	 */
 	public JarToUMLImportDependenciesWizardPage(String pageName, String description,
 			IStructuredSelection selection) {
 		super(pageName, description, selection);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
-	 */	
-	protected void createAdvancedControls(Composite parent) {
-		editor = createFilesFieldEditor(parent, ".deps.uml"); //$NON-NLS-1$
-	}
-
-	/* (non-Javadoc)
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
+	@Override
 	protected InputStream getInitialContents() {
 		InputStream in = super.getInitialContents();
-		try {
-			jarToUML.setIncludeFeatures(true);
-			jarToUML.setIncludeInstructionReferences(true);
-			jarToUML.setFilter(null);
-			jarToUML.setDependenciesOnly(true);
-			StringTokenizer files = new StringTokenizer(editor.getStringValue(), ";"); //$NON-NLS-1$
-			while (files.hasMoreTokens()) {
-				jarToUML.addJar(new JarFile(files.nextToken()));
-			}
-			return in;
-		} catch (IOException e) {
-			return null;
-		}
+		jarToUML.setIncludeFeatures(true);
+		jarToUML.setIncludeInstructionReferences(true);
+		jarToUML.setFilter(null);
+		jarToUML.setDependenciesOnly(true);
+		return in;
 	}
 
 }

@@ -21,8 +21,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -88,14 +86,12 @@ import be.ac.vub.jar2uml.ui.JarToUMLPlugin;
 public class JarToUML implements Runnable {
 
 	public static final String LOGGER = "be.ac.vub.jar2uml"; //$NON-NLS-1$
+	public static final String EANNOTATION = "Jar2UML"; //$NON-NLS-1$
 
 	protected static Logger logger = Logger.getLogger(LOGGER);
 
 	protected static Pattern classFileName = Pattern.compile(".+\\.class$"); //$NON-NLS-1$
 	protected static Pattern jarFileName = Pattern.compile(".+\\.(zip|(j|w|e|s|r)ar)$"); //$NON-NLS-1$
-
-	private static final ResourceBundle resourceBundle =
-		ResourceBundle.getBundle("be.ac.vub.jar2uml.messages"); //$NON-NLS-1$
 
 	/**
 	 * @param args
@@ -112,28 +108,9 @@ public class JarToUML implements Runnable {
 				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
 			}
 		} catch (Exception e) {
-			logger.severe(JarToUML.getString("JarToUML.usage")); //$NON-NLS-1$
+			logger.severe(JarToUMLResources.getString("JarToUML.usage")); //$NON-NLS-1$
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * @param key
-	 * @return The (translated) string for the given key, or the key if not available.
-	 */
-	public static String getString(String key) {
-		try {
-			return resourceBundle.getString(key);
-		} catch (MissingResourceException e) {
-			return key;
-		}
-	}
-
-	/**
-	 * @return the resourcebundle
-	 */
-	public static ResourceBundle getResourcebundle() {
-		return resourceBundle;
 	}
 
 	/**
@@ -307,6 +284,89 @@ public class JarToUML implements Runnable {
 		return list;
 	}
 
+	/**
+	 * Creates a key-value entry under a "Jar2UML" {@link EAnnotation}.
+	 * @param element
+	 * @param key
+	 * @param value
+	 */
+	public static final void annotate(final Element element, final String key, final String value) {
+		EAnnotation ann = element.getEAnnotation(EANNOTATION);
+		if (ann == null) {
+			ann = element.createEAnnotation(EANNOTATION);
+		}
+		final EMap<String, String> details = ann.getDetails();
+		details.put(key, value);
+	}
+
+	/**
+	 * Removes a key-value entry under a "Jar2UML" {@link EAnnotation}.
+	 * Removes the "Jar2UML" annotation if no key-value pairs left.
+	 * @param element
+	 * @param key
+	 */
+	public static final void deannotate(final Element element, final String key) {
+		final EAnnotation ann = element.getEAnnotation(EANNOTATION);
+		if (ann != null) {
+			final EMap<String, String> details = ann.getDetails();
+			if (details.containsKey(key)) {
+				details.removeKey(key);
+			}
+			if (details.isEmpty()) {
+				element.getEAnnotations().remove(ann);
+			}
+		}
+	}
+
+	/**
+	 * @param element
+	 * @param key
+	 * @return The value of the element annotation with the given key, or <code>null</code>.
+	 */
+	public static final String getAnnotationValue(final Element element, final String key) {
+		final EAnnotation ann = element.getEAnnotation(EANNOTATION);
+		if (ann != null) {
+			final EMap<String, String> details = ann.getDetails();
+			if (details.containsKey(key)) {
+				return details.get(key);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Adds a tag to indicate element has been parsed
+	 * from a classpath entry.
+	 * @param element
+	 */
+	public static final void addClasspathTag(final Element element) {
+		annotate(element, "classpath", "true");
+	}
+
+//	/**
+//	 * Adds a tag to indicate element to be removed later.
+//	 * @param element
+//	 */
+//	public static final void addRemoveTag(final Element element) {
+//		annotate(element, "remove", "true");
+//	}
+//
+//	/**
+//	 * Removes the tag to indicate element to be removed later.
+//	 * @param element
+//	 */
+//	public static final void clearRemoveTag(final Element element) {
+//		deannotate(element, "remove");
+//	}
+//
+//	/**
+//	 * Adds a tag to indicate element to be removed later.
+//	 * @param element
+//	 */
+//	public static final boolean hasRemoveTag(final Element element) {
+//		return "true".equals(getAnnotationValue(element, "remove"));
+//	}
+
 	protected FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
 	protected RemoveClassifierSwitch removeClassifier = new RemoveClassifierSwitch();
 	protected RemoveClassifierPropertiesSwitch removeClassifierProperties = new RemoveClassifierPropertiesSwitch();
@@ -330,6 +390,10 @@ public class JarToUML implements Runnable {
 	private Model model = null;
 	private List<JarFile> jars = new ArrayList<JarFile>();
 	private List<IContainer> paths = new ArrayList<IContainer>();
+	private List<JarFile> cpJars = new ArrayList<JarFile>();
+	private List<IContainer> cpPaths = new ArrayList<IContainer>();
+	private List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
+	private List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
 	private Filter filter = null;
 	private String outputFile = "api.uml"; //$NON-NLS-1$
 	private String outputModelName = "api"; //$NON-NLS-1$
@@ -350,15 +414,14 @@ public class JarToUML implements Runnable {
 		try {
 			final IProgressMonitor monitor = getMonitor();
 			setRunComplete(false);
-			final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
 			Assert.assertNotNull(getOutputFile());
 			beginTask(monitor, String.format(
-					JarToUML.getString("JarToUML.startingFor"),
+					JarToUMLResources.getString("JarToUML.startingFor"),
 					getOutputFile()), 7);  //$NON-NLS-1$
 			//
 			// 1
 			//
-			subTask(monitor, JarToUML.getString("JarToUML.creatingUML")); //$NON-NLS-1$
+			subTask(monitor, JarToUMLResources.getString("JarToUML.creatingUML")); //$NON-NLS-1$
 			final ResourceSet resourceSet = createResourceSet();
 			final Resource res = resourceSet.createResource(URI.createURI(getOutputFile()));
 			Assert.assertNotNull(res);
@@ -366,45 +429,57 @@ public class JarToUML implements Runnable {
 			res.getContents().add(getModel());
 			getModel().setName(getOutputModelName());
 			typeToClassifier.setRoot(getModel());
-			worked(monitor, JarToUML.getString("JarToUML.createdUML")); //$NON-NLS-1$
+			worked(monitor, JarToUMLResources.getString("JarToUML.createdUML")); //$NON-NLS-1$
 			//
 			// 2
 			//
-			subTask(monitor, JarToUML.getString("JarToUML.parsing")); //$NON-NLS-1$
+			subTask(monitor, JarToUMLResources.getString("JarToUML.parsing")); //$NON-NLS-1$
 			for (JarFile jar : getJars()) {
-				parseClasses(jar, parsedClasses);
+				parseClasses(jar, getParsedClasses());
 				checkCancelled(monitor);
 			}
 			for (IContainer path : getPaths()) {
-				parseClasses(path, parsedClasses);
+				parseClasses(path, getParsedClasses());
 				checkCancelled(monitor);
 			}
-			worked(monitor, JarToUML.getString("JarToUML.parsed")); //$NON-NLS-1$
+			for (JarFile jar : getCpJars()) {
+				parseClasses(jar, getParsedCpClasses());
+				checkCancelled(monitor);
+			}
+			for (IContainer path : getCpPaths()) {
+				parseClasses(path, getParsedCpClasses());
+				checkCancelled(monitor);
+			}
+			worked(monitor, JarToUMLResources.getString("JarToUML.parsed")); //$NON-NLS-1$
 			//
 			// 3
 			//
-			subTask(monitor, JarToUML.getString("JarToUML.addingClassifiers")); //$NON-NLS-1$
-			addAllClassifiers(parsedClasses);
-			worked(monitor, JarToUML.getString("JarToUML.addedClassifiers")); //$NON-NLS-1$
+			subTask(monitor, JarToUMLResources.getString("JarToUML.addingClassifiers")); //$NON-NLS-1$
+			addAllClassifiers(getParsedClasses());
+			List<JavaClass> skippedClasses = addClassifiersClosure(getParsedCpClasses());
+			getParsedCpClasses().removeAll(skippedClasses);
+			worked(monitor, JarToUMLResources.getString("JarToUML.addedClassifiers")); //$NON-NLS-1$
 			//
 			// 4
 			//
-			subTask(monitor, JarToUML.getString("JarToUML.addingProperties")); //$NON-NLS-1$
-			addAllProperties(parsedClasses);
-			worked(monitor, JarToUML.getString("JarToUML.addedProperties")); //$NON-NLS-1$
+			subTask(monitor, JarToUMLResources.getString("JarToUML.addingProperties")); //$NON-NLS-1$
+			addAllProperties(getParsedClasses());
+			addAllProperties(getParsedCpClasses());
+			worked(monitor, JarToUMLResources.getString("JarToUML.addedProperties")); //$NON-NLS-1$
 			//
 			// 5
 			//
-			final Set<? extends Classifier> containedClassifiers = findContainedClassifiers(parsedClasses);
+			final Set<Classifier> containedClassifiers = findContainedClassifiers(getParsedClasses());
+			containedClassifiers.addAll(findContainedClassifiers(getParsedCpClasses()));
 			if (isDependenciesOnly()) {
-				subTask(monitor, JarToUML.getString("JarToUML.removingClassifiers")); //$NON-NLS-1$
-				final Set<? extends Classifier> inferredClassifiers = findInferredClassifiers(containedClassifiers);
-				final Set<? extends Type> referredTypes = findAllReferredTypes(inferredClassifiers);
-				final Set<? extends Classifier> removeClassifiers = new HashSet<Classifier>(containedClassifiers);
+				subTask(monitor, JarToUMLResources.getString("JarToUML.removingClassifiers")); //$NON-NLS-1$
+				final Set<Classifier> inferredClassifiers = findInferredClassifiers(containedClassifiers);
+				final Set<Type> referredTypes = findAllReferredTypes(inferredClassifiers);
+				final Set<Classifier> removeClassifiers = new HashSet<Classifier>(containedClassifiers);
 				if (removeClassifiers.removeAll(referredTypes)) {
 					containedClassifiers.retainAll(referredTypes);
 					logger.warning(String.format(
-							JarToUML.getString("JarToUML.cyclicDepsFound"),
+							JarToUMLResources.getString("JarToUML.cyclicDepsFound"),
 							getNameList(containedClassifiers)));
 					// Keep referred classifiers, but strip their properties
 					removeAllProperties(containedClassifiers);
@@ -412,25 +487,25 @@ public class JarToUML implements Runnable {
 					addAllInferredTags(inferredClassifiers);
 				}
 				removeAllClassifiers(removeClassifiers);
-				worked(monitor, JarToUML.getString("JarToUML.removedClassifiers")); //$NON-NLS-1$
+				worked(monitor, JarToUMLResources.getString("JarToUML.removedClassifiers")); //$NON-NLS-1$
 			} else {
-				subTask(monitor, JarToUML.getString("JarToUML.addingInferred")); //$NON-NLS-1$
+				subTask(monitor, JarToUMLResources.getString("JarToUML.addingInferred")); //$NON-NLS-1$
 				addAllInferredTags(containedClassifiers);
-				worked(monitor, JarToUML.getString("JarToUML.addedInferred")); //$NON-NLS-1$
+				worked(monitor, JarToUMLResources.getString("JarToUML.addedInferred")); //$NON-NLS-1$
 			}
 			//
 			// 6
 			//
-			subTask(monitor, JarToUML.getString("JarToUML.removingEmpty")); //$NON-NLS-1$
+			subTask(monitor, JarToUMLResources.getString("JarToUML.removingEmpty")); //$NON-NLS-1$
 			removeEmptyPackages(getModel());
-			worked(monitor, JarToUML.getString("JarToUML.removedEmpty")); //$NON-NLS-1$
+			worked(monitor, JarToUMLResources.getString("JarToUML.removedEmpty")); //$NON-NLS-1$
 			//
 			// 7
 			//
-			subTask(monitor, JarToUML.getString("JarToUML.addingMetadata")); //$NON-NLS-1$
+			subTask(monitor, JarToUMLResources.getString("JarToUML.addingMetadata")); //$NON-NLS-1$
 			Comment comment = getModel().createOwnedComment();
 			comment.setBody(String.format(
-					JarToUML.getString("JarToUML.generatedBy"), 
+					JarToUMLResources.getString("JarToUML.generatedBy"), 
 					JarToUMLPlugin.getPlugin().getBundle().getVersion(),
 					getInputList())); //$NON-NLS-1$
 			EAnnotation ann = getModel().createEAnnotation("Jar2UML"); //$NON-NLS-1$
@@ -438,16 +513,18 @@ public class JarToUML implements Runnable {
 			details.put("majorBytecodeFormatVersion", String.valueOf(getMajorFormatVersion())); //$NON-NLS-1$
 			details.put("minorBytecodeFormatVersion", String.valueOf(getMinorFormatVersion())); //$NON-NLS-1$
 			details.put("preverified", String.valueOf(isPreverified())); //$NON-NLS-1$
-			worked(monitor, JarToUML.getString("JarToUML.addedMetadata"));
+			worked(monitor, JarToUMLResources.getString("JarToUML.addedMetadata"));
 			setRunComplete(true);
 		} catch (OperationCanceledException e) {
-			logger.info(JarToUML.getString("JarToUML.cancelled")); //$NON-NLS-1$
+			logger.info(JarToUMLResources.getString("JarToUML.cancelled")); //$NON-NLS-1$
 		} catch (IOException e) {
 			report(e);
 		} catch (CoreException e) {
 			report(e);
+		} catch (JarToUMLException e) {
+			report(e);
 		} finally {
-			done(monitor, JarToUML.getString("JarToUML.finished")); //$NON-NLS-1$
+			done(monitor, JarToUMLResources.getString("JarToUML.finished")); //$NON-NLS-1$
 		}
 	}
 
@@ -492,7 +569,7 @@ public class JarToUML implements Runnable {
 		if (message != null) {
 			final long time = System.currentTimeMillis()-getJobStartTime();
 			logger.info(String.format(
-					JarToUML.getString("JarToUML.logAt"), 
+					JarToUMLResources.getString("JarToUML.logAt"), 
 					message, time, time, time)); //$NON-NLS-1$
 		}
 		if (monitor != null) {
@@ -522,7 +599,7 @@ public class JarToUML implements Runnable {
 	 */
 	protected void checkCancelled(IProgressMonitor monitor) throws OperationCanceledException {
 		if ((monitor != null) && monitor.isCanceled()) {
-			throw new OperationCanceledException(JarToUML.getString("operationCancelledByUser")); //$NON-NLS-1$
+			throw new OperationCanceledException(JarToUMLResources.getString("operationCancelledByUser")); //$NON-NLS-1$
 		}
 	}
 
@@ -614,7 +691,8 @@ public class JarToUML implements Runnable {
 			} else if (jarFileName.matcher(name).matches()) {
 				InputStream input = jar.getInputStream(entry);
 				JarInputStream nestedJar = new JarInputStream(input);
-				parseClasses(nestedJar, parsedClasses);
+				// switch to classpath classes collection
+				parseClasses(nestedJar, getParsedCpClasses());
 				nestedJar.close();
 			}
 			checkCancelled(monitor);
@@ -642,7 +720,8 @@ public class JarToUML implements Runnable {
 				parsedClasses.add(javaClass);
 			} else if (jarFileName.matcher(name).matches()) {
 				JarInputStream nestedJar = new JarInputStream(jar);
-				parseClasses(nestedJar, parsedClasses);
+				// switch to classpath classes collection
+				parseClasses(nestedJar, getParsedCpClasses());
 				// do NOT close input stream!
 			}
 			jar.closeEntry();
@@ -682,20 +761,45 @@ public class JarToUML implements Runnable {
 	 * Adds all classifiers in parsedClasses to the UML model. Does not add classifier properties.
 	 * @param parsedClasses
 	 * @throws IOException
+	 * @throws JarToUMLException 
 	 */
-	protected void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException {
+	protected void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException, JarToUMLException {
 		for (JavaClass javaClass : parsedClasses) {
-			addClassifier(javaClass);
+			addClassifier(javaClass, false);
 			checkCancelled(monitor);
 		}
+	}
+
+	/**
+	 * Adds the closure of all referenced classifiers in parsedClasses to the UML model. Does not add classifier properties.
+	 * @param parsedClasses
+	 * @return The entries in parsedClasses that have not been added.
+	 * @throws IOException
+	 * @throws JarToUMLException 
+	 */
+	protected List<JavaClass> addClassifiersClosure(Collection<JavaClass> parsedClasses) throws IOException, JarToUMLException {
+		final List<JavaClass> processClasses = new ArrayList<JavaClass>(parsedClasses);
+		final Set<JavaClass> addedClasses = new HashSet<JavaClass>();
+		do {
+			processClasses.removeAll(addedClasses);
+			addedClasses.clear();
+			for (JavaClass javaClass : processClasses) {
+				if (addClassifier(javaClass, true)) {
+					addedClasses.add(javaClass);
+				}
+				checkCancelled(monitor);
+			}
+		} while (!addedClasses.isEmpty());
+		return processClasses;
 	}
 
 	/**
 	 * Adds the properties of all classifiers in parsedClasses to the classifiers in the UML model.
 	 * @param parsedClasses
 	 * @throws IOException
+	 * @throws JarToUMLException 
 	 */
-	protected void addAllProperties(Collection<JavaClass> parsedClasses) throws IOException {
+	protected void addAllProperties(Collection<JavaClass> parsedClasses) throws IOException, JarToUMLException {
 		for (JavaClass javaClass : parsedClasses) {
 			addClassifierProperties(javaClass);
 			checkCancelled(monitor);
@@ -744,7 +848,7 @@ public class JarToUML implements Runnable {
 		for (Element element : referredFrom) {
 			findReferredTypes.doSwitch(element);
 		}
-		logger.fine(JarToUML.getString("JarToUML.foundReferredTypes")); //$NON-NLS-1$
+		logger.fine(JarToUMLResources.getString("JarToUML.foundReferredTypes")); //$NON-NLS-1$
 		return findReferredTypes.getReferencedTypes();
 	}
 
@@ -754,7 +858,7 @@ public class JarToUML implements Runnable {
 	 */
 	private void logSkippedFiltered(JavaClass javaClass) {
 		logger.fine(String.format(
-				JarToUML.getString("JarToUML.skippedFiltered"), 
+				JarToUMLResources.getString("JarToUML.skippedFiltered"), 
 				javaClass.getClassName())); //$NON-NLS-1$
 	}
 
@@ -767,7 +871,7 @@ public class JarToUML implements Runnable {
 		for (JavaClass javaClass : parsedClasses) {
 			addContainedClassifier(javaClass, containedClassifiers);
 		}
-		logger.fine(JarToUML.getString("JarToUML.foundContainedClassifiers")); //$NON-NLS-1$
+		logger.fine(JarToUMLResources.getString("JarToUML.foundContainedClassifiers")); //$NON-NLS-1$
 		return containedClassifiers;
 	}
 
@@ -778,7 +882,7 @@ public class JarToUML implements Runnable {
 	protected Set<Classifier> findInferredClassifiers(Collection<? extends Classifier> containedClassifiers) {
 		final Set<Classifier> inferredClassifiers = new HashSet<Classifier>();
 		addInferredClassifiers(getModel(), containedClassifiers, inferredClassifiers);
-		logger.fine(JarToUML.getString("JarToUML.foundInferredClassifiers")); //$NON-NLS-1$
+		logger.fine(JarToUMLResources.getString("JarToUML.foundInferredClassifiers")); //$NON-NLS-1$
 		return inferredClassifiers;
 	}
 
@@ -794,7 +898,7 @@ public class JarToUML implements Runnable {
 				if (!containedClassifiers.contains(e)) {
 					inferredClassifiers.add((Classifier) e);
 					logger.finer(String.format(
-							JarToUML.getString("JarToUML.addedInferredClassifier"), 
+							JarToUMLResources.getString("JarToUML.addedInferredClassifier"), 
 							qualifiedName((Classifier) e))); //$NON-NLS-1$
 				}
 				addInferredClassifiers(e, containedClassifiers, inferredClassifiers);
@@ -818,7 +922,7 @@ public class JarToUML implements Runnable {
 				getModel(), javaClass.getClassName(), null);
 		containedClassifiers.add(classifier);
 		logger.finer(String.format(
-				JarToUML.getString("JarToUML.addedContainedClassifier"), 
+				JarToUMLResources.getString("JarToUML.addedContainedClassifier"), 
 				qualifiedName(classifier))); //$NON-NLS-1$
 		Collection<Classifier> derived = findDerivedClassifiers(classifier);
 		containedClassifiers.addAll(derived);
@@ -827,34 +931,62 @@ public class JarToUML implements Runnable {
 	/**
 	 * Adds a classifier to the UML model that represents javaClass. Does not add classifier properties.
 	 * @param javaClass The BCEL class representation to convert.
+	 * @param isCp whether to treat javaClass as a classpath class.
+	 * @return <code>true</code> iff javaClass was added.
+	 * @throws JarToUMLException 
 	 */
-	private void addClassifier(JavaClass javaClass) {
+	private boolean addClassifier(JavaClass javaClass, boolean isCp) throws JarToUMLException {
 		final String className = javaClass.getClassName();
 		if (!filter(javaClass)) {
 			logSkippedFiltered(javaClass);
-			return;
+			return false;
 		}
 		logger.finest(className);
-		final Classifier classifier = findContainedClassifier.findClassifier(
-				getModel(), className, UMLPackage.eINSTANCE.getClass_());
+		Classifier classifier;
+		if (isCp) {
+			classifier = findContainedClassifier.findClassifier(
+					getModel(), className, null);
+			if (classifier == null) {
+				// classifier was not referenced
+				return false;
+			}
+		} else {
+			classifier = findContainedClassifier.findClassifier(
+					getModel(), className, javaClass.isInterface() ? 
+							UMLPackage.eINSTANCE.getInterface() : UMLPackage.eINSTANCE.getClass_());
+		}
 		Assert.assertNotNull(classifier);
+		// replace by instance of correct meta-class, if necessary
 		fixClassifier.setJavaClass(javaClass);
-		fixClassifier.doSwitch(classifier);
+		classifier = fixClassifier.doSwitch(classifier);
+		// add tag to classpath classifiers
+		if (isCp) {
+			addClasspathTag(classifier);
+		}
+		// add realizations/generalizations with correct types in 1st pass, as replacing already referenced types is not possible
 		addReferencedInterfaces(javaClass);
 		addReferencedGenerals(javaClass);
-		// add realizations/generalizations in 1st pass, since inheritance hierarchy is needed in 2nd pass
+		// add realizations/generalizations in 1st pass, as class hierarchy is needed in 2nd pass
 		addInterfaceRealizations(classifier, javaClass);
 		addGeneralizations(classifier, javaClass);
+		// add referred types in 1st pass, as replacing already referenced types is not possible
+		if (isIncludeFeatures()) {
+			addPropertyTypes(classifier, javaClass);
+			addOperationReferences(classifier, javaClass);
+		}
+		// correct referred types in 1st pass, as replacing already referenced types is not possible
 		if (isIncludeInstructionReferences()) {
 			addOpCodeReferences(classifier, javaClass);
 		}
+		return true;
 	}
 
 	/**
 	 * Adds the properties of the javaClass to the corresponding classifier in the UML model.
 	 * @param javaClass The BCEL class representation to convert.
+	 * @throws JarToUMLException 
 	 */
-	private void addClassifierProperties(JavaClass javaClass) {
+	private void addClassifierProperties(JavaClass javaClass) throws JarToUMLException {
 		final String className = javaClass.getClassName();
 		if (!filter(javaClass)) {
 			logSkippedFiltered(javaClass);
@@ -905,7 +1037,7 @@ public class JarToUML implements Runnable {
 				removeEmptyPackages(pack);
 				if (pack.getPackagedElements().isEmpty()) {
 					logger.finer(String.format(
-							JarToUML.getString("JarToUML.removing"), 
+							JarToUMLResources.getString("JarToUML.removing"), 
 							qualifiedName(pack), 
 							pack.eClass().getName())); //$NON-NLS-1$
 					it.remove();
@@ -916,13 +1048,13 @@ public class JarToUML implements Runnable {
 
 	/**
 	 * Adds interfaces implemented by javaClass to the UML model. Used in 1st pass.
-	 * @param javaClass The Java class file to convert.
+	 * @param javaClass the Java class file to convert.
 	 */
 	private void addReferencedInterfaces(JavaClass javaClass) {
 		String interfaces[] = javaClass.getInterfaceNames();
 		for (int i = 0; i < interfaces.length; i++) {
-			Classifier iface = findContainedClassifier.
-			findClassifier(getModel(), interfaces[i], UMLPackage.eINSTANCE.getInterface());
+			Classifier iface = findContainedClassifier.findClassifier(
+					getModel(), interfaces[i], UMLPackage.eINSTANCE.getInterface());
 			if (!(iface instanceof Interface)) {
 				replaceByClassifier.setClassifier(iface);
 				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getInterface());
@@ -934,7 +1066,7 @@ public class JarToUML implements Runnable {
 
 	/**
 	 * Adds interface realizations to classifier for each interface implemented
-	 * by javaClass. Used in 2nd pass.
+	 * by javaClass. Used in 1st pass.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
 	 */
@@ -942,8 +1074,8 @@ public class JarToUML implements Runnable {
 		Assert.assertNotNull(classifier);
 		String interfaces[] = javaClass.getInterfaceNames();
 		for (int i = 0; i < interfaces.length; i++) {
-			Classifier iface = findContainedClassifier.
-			findClassifier(getModel(), interfaces[i], UMLPackage.eINSTANCE.getInterface());
+			Classifier iface = findContainedClassifier.findClassifier(
+					getModel(), interfaces[i], null);
 			Assert.assertTrue(iface instanceof Interface);
 			addClassifierInterface.setIface((Interface) iface);
 			addClassifierInterface.doSwitch(classifier);
@@ -951,26 +1083,24 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
-	 * Adds superclasses of javaClass to the UML model. Used in 1st pass.
+	 * Adds superclass of javaClass to the UML model. Used in 1st pass.
 	 * @param javaClass The Java class file to convert.
 	 */
 	private void addReferencedGenerals(JavaClass javaClass) {
-		if (!"java.lang.Object".equals(javaClass.getSuperclassName())) { //$NON-NLS-1$
-			Classifier superClass = findContainedClassifier.
-			findClassifier(getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
-			if (superClass != null) {
-				if (!(superClass instanceof Class)) {
-					replaceByClassifier.setClassifier(superClass);
-					replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-					superClass = (Classifier) replaceByClassifier.doSwitch(superClass.getOwner());
-				}
+		if (!"java.lang.Object".equals(javaClass.getClassName())) { //$NON-NLS-1$
+			Classifier superClass = findContainedClassifier.findClassifier(
+					getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
+			if (!(superClass instanceof Class)) {
+				replaceByClassifier.setClassifier(superClass);
+				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
+				superClass = (Classifier) replaceByClassifier.doSwitch(superClass.getOwner());
 			}
 		}
 	}
 
 	/**
 	 * Adds generalizations to classifier for each superclass
-	 * of javaClass. Used in 2nd pass.
+	 * of javaClass. Used in 1st pass.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
 	 */
@@ -980,8 +1110,8 @@ public class JarToUML implements Runnable {
 			return;
 		}
 		if (!classifier.getQualifiedName().endsWith("java::lang::Object")) { //$NON-NLS-1$
-			Classifier superClass = findContainedClassifier.
-			findClassifier(getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
+			Classifier superClass = findContainedClassifier.findClassifier(
+					getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
 			if (superClass != null) {
 				Assert.assertTrue(superClass instanceof Class);
 				classifier.createGeneralization(superClass);
@@ -993,8 +1123,9 @@ public class JarToUML implements Runnable {
 	 * Adds a property to classifier for each javaClass field.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
+	 * @throws JarToUMLException 
 	 */
-	private void addProperties(Classifier classifier, JavaClass javaClass) {
+	private void addProperties(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
 		Assert.assertNotNull(classifier);
 		Field[] fields = javaClass.getFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -1005,8 +1136,8 @@ public class JarToUML implements Runnable {
 			addClassifierProperty.setPropertyName(fields[i].getName());
 			addClassifierProperty.setBCELPropertyType(fields[i].getType());
 			if (addClassifierProperty.getPropertyType() == null) {
-				logger.warning(String.format(
-						JarToUML.getString("JarToUML.typeNotFoundFor"), 
+				throw new JarToUMLException(String.format(
+						JarToUMLResources.getString("JarToUML.typeNotFoundFor"), 
 						javaClass.getClassName(),
 						fields[i].getName(),
 						fields[i].getType().getSignature())); //$NON-NLS-1$
@@ -1020,11 +1151,38 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
+	 * Adds property types to the model for each javaClass field.
+	 * @param classifier The classifier representation of javaClass.
+	 * @param javaClass The Java class file to convert.
+	 * @throws JarToUMLException 
+	 */
+	private void addPropertyTypes(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
+		Assert.assertNotNull(classifier);
+		Field[] fields = javaClass.getFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (!filter(fields[i])) {
+				continue;
+			}
+			logger.finest(fields[i].getSignature());
+			addClassifierProperty.setPropertyName(fields[i].getName());
+			addClassifierProperty.setBCELPropertyType(fields[i].getType());
+			if (addClassifierProperty.getPropertyType() == null) {
+				throw new JarToUMLException(String.format(
+						JarToUMLResources.getString("JarToUML.typeNotFoundFor"), 
+						javaClass.getClassName(),
+						fields[i].getName(),
+						fields[i].getType().getSignature())); //$NON-NLS-1$
+			}
+		}
+	}
+
+	/**
 	 * Adds an operation to classifier for each javaClass method.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
+	 * @throws JarToUMLException 
 	 */
-	private void addOperations(Classifier classifier, JavaClass javaClass) {
+	private void addOperations(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
 		Assert.assertNotNull(classifier);
 		Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
@@ -1053,12 +1211,36 @@ public class JarToUML implements Runnable {
 	}
 
 	/**
+	 * Adds referenced types to the model for each javaClass method.
+	 * @param classifier The classifier representation of javaClass.
+	 * @param javaClass The Java class file to convert.
+	 * @throws JarToUMLException 
+	 */
+	private void addOperationReferences(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
+		Assert.assertNotNull(classifier);
+		Method[] methods = javaClass.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			if (getFilter() != null) {
+				if (!getFilter().filter(methods[i])) {
+					continue;
+				}
+			}
+			logger.finest(methods[i].getSignature());
+			org.apache.bcel.generic.Type[] types = methods[i].getArgumentTypes();
+			addClassifierOperation.setOperationName(methods[i].getName());
+			addClassifierOperation.setBCELArgumentTypes(types);
+			addClassifierOperation.setBCELReturnType(methods[i].getReturnType());
+		}
+	}
+
+	/**
 	 * Adds fields/methods referenced by the bytecode instructions of method
 	 * to the UML model. Used in 2nd pass.
 	 * @param instrContext The classifier on which the method is defined.
 	 * @param method The method for which to convert the references.
+	 * @throws JarToUMLException 
 	 */
-	private void addOpCode(Classifier instrContext, Method method) {
+	private void addOpCode(Classifier instrContext, Method method) throws JarToUMLException {
 		if (method.getCode() == null) {
 			return;
 		}
@@ -1068,6 +1250,10 @@ public class JarToUML implements Runnable {
 		Instruction[] instr = instrList.getInstructions();
 		for (int i = 0; i < instr.length; i++) {
 			instr[i].accept(addInstructionDependencies);
+			final Exception e = addInstructionDependencies.getException();
+			if (e != null) {
+				throw new JarToUMLException(e);
+			}
 		}
 	}
 
@@ -1366,12 +1552,12 @@ public class JarToUML implements Runnable {
 						(includeWorkspaceReferences 
 								|| javaProject.getProject().equals(resource.getProject()))) {
 					if (resource instanceof IFile) {
-						addJar(new JarFile(resource.getLocation().toFile()));
+						addCpJar(new JarFile(resource.getLocation().toFile()));
 					} else if (resource instanceof IContainer) {
-						addPath((IContainer) resource);
+						addCpPath((IContainer) resource);
 					} else {
 						throw new IOException(String.format(
-								JarToUML.getString("JarToUML.unexpectedResourceKind"), 
+								JarToUMLResources.getString("JarToUML.unexpectedResourceKind"), 
 								resource)); //$NON-NLS-1$
 					}
 				}
@@ -1414,4 +1600,87 @@ public class JarToUML implements Runnable {
 	protected void setJobStartTime(long jobStartTime) {
 		this.jobStartTime = jobStartTime;
 	}
+
+	/**
+	 * The jar files for which the class files should
+	 * only be reverse engineered as they are referenced
+	 * by the main class files.
+	 * @return the jars on the classpath
+	 */
+	public List<JarFile> getCpJars() {
+		return cpJars;
+	}
+
+	/**
+	 * Adds cpJar to the classpath jars.
+	 * @param cpJar
+	 */
+	public void addCpJar(JarFile cpJar) {
+		this.cpJars.add(cpJar);
+	}
+
+	/**
+	 * Removes cpJar from the classpath jars.
+	 * @param cpJar
+	 */
+	public void removeCpJar(JarFile cpJar) {
+		this.cpJars.remove(cpJar);
+	}
+
+	/**
+	 * Clears the classpath jars.
+	 */
+	public void clearCpJars() {
+		this.cpJars.clear();
+	}
+
+	/**
+	 * The paths for which the class files should
+	 * only be reverse engineered as they are referenced
+	 * by the main class files.
+	 * @return the paths on the classpath
+	 */
+	public List<IContainer> getCpPaths() {
+		return cpPaths;
+	}
+
+	/**
+	 * Adds cpPath to the classpath paths.
+	 * @param cpPath
+	 */
+	public void addCpPath(IContainer cpPath) {
+		this.cpPaths.add(cpPath);
+	}
+
+	/**
+	 * Remove cpPath from the classpath paths.
+	 * @param cpPath
+	 */
+	public void removeCpPath(IContainer cpPath) {
+		this.cpPaths.remove(cpPath);
+	}
+
+	/**
+	 * Clears the classpath paths.
+	 */
+	public void clearCpPaths() {
+		this.cpPaths.clear();
+	}
+
+	/**
+	 * @return the parsed classes
+	 */
+	public List<JavaClass> getParsedClasses() {
+		return parsedClasses;
+	}
+
+	/**
+	 * @return the parsed classpath classes
+	 * @see #getCpJars()
+	 * @see #getCpPaths()
+	 */
+	public List<JavaClass> getParsedCpClasses() {
+		return parsedCpClasses;
+	}
+
 }

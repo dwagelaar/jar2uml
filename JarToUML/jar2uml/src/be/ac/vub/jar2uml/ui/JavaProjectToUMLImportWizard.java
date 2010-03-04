@@ -15,7 +15,7 @@ package be.ac.vub.jar2uml.ui;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
 
-import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 
 /**
  * Import wizard to import a Java project into a UML model in the workspace
@@ -38,8 +38,8 @@ public class JavaProjectToUMLImportWizard extends AbstractJarToUMLImportWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		super.init(workbench, selection);
 		mainPage = new JavaProjectToUMLImportWizardPage(
-				JarToUML.getString("JavaProjectToUMLImportWizard.pageName"),
-				JarToUML.getString("JavaProjectToUMLImportWizard.description"),
+				JarToUMLResources.getString("JavaProjectToUMLImportWizard.pageName"),
+				JarToUMLResources.getString("JavaProjectToUMLImportWizard.description"),
 				selection); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
