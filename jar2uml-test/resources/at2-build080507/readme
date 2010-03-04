@@ -1,0 +1,29 @@
+AmbientTalk/2 Project
+(c) Programming Technology Lab, 2006 - 2007
+Authors: Tom Van Cutsem & Stijn Mostinckx
+
+Developed and maintained by the Ambient Group: see http://prog.vub.ac.be/amop
+
+The Ambient Group is:
+Jessie Dedecker
+Wolfgang De Meuter
+Elisa Gonzalez
+Stijn Mostinckx
+Stijn Timbermont
+Jorge Vallejos
+Tom Van Cutsem
+
+This is the binary distribution of the AmbientTalk/2 interpreter.
+
+A quick tour of what's included:
+- AmbientTalk 2.tmbundle: the TextMate support bundle, simply drag it on to TextMate, if you have that application installed.
+- iat: the shell script that starts the interactive ambienttalk shell (iat).
+- ambienttalk2.jar: the code for the AT/2 interpreter, preferably to be ran via the iat script
+- at: the 'system library' that is shipped with the language. As a user, you can modify the files, but at your own risk :-)
+- lib: external Java libraries for the interpreter
+
+Do not forget to set the value of the AT_HOME environment variable when running iat from within TextMate.
+
+For more information, visit http://prog.vub.ac.be/amop
+
+For changelists and version information, visit http://prog.vub.ac.be/amop/at/changelog
