@@ -31,16 +31,19 @@ public abstract class AbstractJarToUMLImportWizardPage extends AbstractImportWiz
 	protected Composite fileSelectionArea;
 	protected FilesFieldEditor editor;
 	protected FilesFieldEditor cpEditor;
+	protected String fileExtension;
 
 	/**
 	 * Creates a new {@link AbstractJarToUMLImportWizardPage}.
 	 * @param pageName
 	 * @param description
 	 * @param selection
+	 * @param fileExtension
 	 */
 	public AbstractJarToUMLImportWizardPage(String pageName,
-			String description, IStructuredSelection selection) {
+			String description, IStructuredSelection selection, String fileExtension) {
 		super(pageName, description, selection);
+		this.fileExtension = fileExtension;
 	}
 
 	/*
@@ -51,7 +54,7 @@ public abstract class AbstractJarToUMLImportWizardPage extends AbstractImportWiz
 	protected void createAdvancedControls(Composite parent) {
 		super.createAdvancedControls(parent);
 		fileSelectionArea = createFileSelectionArea(parent);
-		editor = createFilesFieldEditor(fileSelectionArea, ".deps.uml"); //$NON-NLS-1$
+		editor = createFilesFieldEditor(fileSelectionArea, fileExtension); //$NON-NLS-1$
 		editor.setLabelText(JarToUMLResources.getString("AbstractJarToUMLImportWizardPage.selectJarFile")); //$NON-NLS-1$
 		cpEditor = createFilesFieldEditor(fileSelectionArea);
 		cpEditor.setLabelText(JarToUMLResources.getString("AbstractJarToUMLImportWizardPage.selectCpJarFile")); //$NON-NLS-1$

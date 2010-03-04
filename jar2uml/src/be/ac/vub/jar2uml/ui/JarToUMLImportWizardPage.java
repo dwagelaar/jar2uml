@@ -44,7 +44,7 @@ public class JarToUMLImportWizardPage extends AbstractJarToUMLImportWizardPage {
 	 */
 	public JarToUMLImportWizardPage(String pageName, String description, 
 			IStructuredSelection selection) {
-		super(pageName, description, selection);
+		super(pageName, description, selection, ".uml");
 	}
 
 	/* (non-Javadoc)
