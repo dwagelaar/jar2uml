@@ -30,7 +30,7 @@ public class JarToUMLImportDependenciesWizardPage extends AbstractJarToUMLImport
 	 */
 	public JarToUMLImportDependenciesWizardPage(String pageName, String description,
 			IStructuredSelection selection) {
-		super(pageName, description, selection);
+		super(pageName, description, selection, ".deps.uml");
 	}
 
 	/* (non-Javadoc)
