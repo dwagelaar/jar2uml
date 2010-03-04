@@ -25,7 +25,6 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
 
 import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.AccessFlags;
@@ -67,20 +66,27 @@ import be.ac.vub.jar2uml.JarToUMLResources;
  * Test class for {@link JarToUML}.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public final class JarToUMLTest extends TestCase {
+public final class JarToUMLTest extends EMFTestCase {
 
-	private static final Bundle bundle = Platform.getBundle("be.ac.vub.jar2uml.test");
+	private static final String PLUGIN_ID = "be.ac.vub.jar2uml.test";
+	private static final String PLUGIN_URI = "platform:/plugin/" + PLUGIN_ID;
+
+	private static final Bundle bundle = Platform.getBundle(PLUGIN_ID);
 
 	private static final String javatestProject = "javatest";
 	private static final String javatestReferredProject = "javatestref";
 	private static final String instantmessengerJar = "resources/instantmessenger.jar";
 	private static final String thisClassFile = "be/ac/vub/jar2uml/test/JarToUMLTest.class";
-	private static final String pkServletDepsUri = "platform:/plugin/be.ac.vub.jar2uml.test/resources/platformkitservlet.deps.uml";
-	private static final String imJar = "im.jar";
+	private static final String pkServletDepsUri = PLUGIN_URI + "/resources/platformkitservlet.deps.uml";
 	private static final String pkServletWar = "resources/platformkitservlet.war";
-	private static final String pksWar = "pks.war";
 
-	private static Logger logger = Logger.getLogger(JarToUML.LOGGER);
+	private static final String atJar = "resources/at2-build080507/ambienttalk2.jar";
+	private static final String antlrJar = "resources/at2-build080507/lib/antlr.jar";
+	private static final String getoptJar = "resources/at2-build080507/lib/java-getopt-1.0.13.jar";
+	private static final String atModelUri = PLUGIN_URI + "/resources/at2-build080507/ambienttalk2.uml";
+	private static final String atDepsModelUri = PLUGIN_URI + "/resources/at2-build080507/ambienttalk2.deps.uml";
+
+	static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	/**
 	 * Creates a new {@link JarToUMLTest}.
@@ -277,13 +283,9 @@ public final class JarToUMLTest extends TestCase {
 	public void testIsPreverifiedCode() {
 		try {
 			//
-			// Create "im.jar" in Java test project
+			// Copy instant messenger jar to Java test project
 			//
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
-			URL imJarUrl = bundle.getResource(instantmessengerJar);
-			IFile file = project.getFile(imJar);
-			logger.info("Creating jar file: " + file);
-			file.create(imJarUrl.openStream(), true, null);
+			IFile file = copyFileToTestProject(instantmessengerJar);
 			//
 			// run with preverified
 			//
@@ -296,6 +298,7 @@ public final class JarToUMLTest extends TestCase {
 			//
 			// run without preverified
 			//
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
 			jar2uml = new JarToUML();
 			jar2uml.addPath(project);
 			jar2uml.run();
@@ -325,9 +328,7 @@ public final class JarToUMLTest extends TestCase {
 		//
 		// Load a UML model with derived classifiers, and find Model object
 		//
-		logger.info("Loading UML model from: " + pkServletDepsUri);
-		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
-		Model root = findModel(res);
+		Model root = loadModelFromUri(pkServletDepsUri);
 		//
 		// Find java.lang.String
 		//
@@ -496,31 +497,78 @@ public final class JarToUMLTest extends TestCase {
 	public void testRun() {
 		try {
 			//
-			// Create "pks.war" in Java test project
+			// Create ambienttalk jars in Java test project
 			//
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
-			URL pksJarUrl = bundle.getResource(pkServletWar);
-			IFile file = project.getFile(pksWar);
-			logger.info("Creating jar file: " + file);
-			file.create(pksJarUrl.openStream(), true, null);
+			IFile atFile = copyFileToTestProject(atJar);
+			IFile antlrFile = copyFileToTestProject(antlrJar);
+			IFile getoptFile = copyFileToTestProject(getoptJar);
 			//
-			// test runs
+			// Create platformkit servlet war in Java test project
+			//
+			IFile pksFile = copyFileToTestProject(pkServletWar);
+			//
+			// test run on Java test project
 			//
 			testRunProject(false);
 			testRunProject(true);
-			testRunJar(false);
-			testRunJar(true);
+			//
+			// test run on ambienttalk jars
+			//
+			Model atModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+			Model atRefModel = loadModelFromUri(atModelUri);
+			assertEquals(atModel.eResource(), atRefModel.eResource());
+			Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+			Model atRefDepsModel = loadModelFromUri(atDepsModelUri);
+			logger.info(atDepsModel.eResource().getContents().toString());
+			logger.info(atRefDepsModel.eResource().getContents().toString());
+			assertEquals(atDepsModel.eResource(), atRefDepsModel.eResource());
+			//
+			// test run on platformkit servlet war
+			//
+			Model pksModel = testRunJar(false, new IFile[]{pksFile}, new IFile[]{});
+			Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{});
 		} catch (CoreException e) {
 			handle(e);
 		} catch (IOException e) {
 			handle(e);
+		} catch (InterruptedException e) {
+			handle(e);
 		}
 	}
+	
+	/**
+	 * Copies the file at the given path to the root of the Java test project.
+	 * @param path
+	 * @return The target file.
+	 * @throws CoreException
+	 * @throws IOException
+	 */
+	private IFile copyFileToTestProject(String path) throws CoreException, IOException {
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
+		URL url = bundle.getResource(path);
+		String targetPath = fileName(path);
+		IFile file = project.getFile(targetPath);
+		logger.info("Creating jar file: " + file);
+		file.create(url.openStream(), true, null);
+		return file;
+	}
 
-	private void testRunProject(boolean depsOnly) throws JavaModelException, IOException {
-		//
-		// test run on Java test project
-		//
+	/**
+	 * @param path
+	 * @return The last segment of path (after last '/').
+	 */
+	private static String fileName(String path) {
+		return path.substring(path.lastIndexOf('/') + 1);
+	}
+
+	/**
+	 * Test run on Java test project.
+	 * @param depsOnly
+	 * @return The generated model.
+	 * @throws JavaModelException
+	 * @throws IOException
+	 */
+	private Model testRunProject(boolean depsOnly) throws JavaModelException, IOException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
 		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 		JarToUML jar2uml = new JarToUML();
@@ -536,32 +584,50 @@ public final class JarToUMLTest extends TestCase {
 		Model model = jar2uml.getModel();
 		validateModel(model);
 		model.eResource().save(Collections.EMPTY_MAP);
+		return model;
 	}
 
-	private void testRunJar(boolean depsOnly) throws IOException {
-		//
-		// fetch jar file
-		//
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
-		IFile file = project.getFile(pksWar);
-		//
-		// test run on "pks.war"
-		//
+	/**
+	 * Test run on jar files.
+	 * @param depsOnly
+	 * @param jarFiles
+	 * @param cpJarFiles
+	 * @return The generated model.
+	 * @throws IOException
+	 */
+	private Model testRunJar(boolean depsOnly, IFile[] jarFiles, IFile[] cpJarFiles) throws IOException {
 		JarToUML jar2uml = new JarToUML();
-		JarFile pksJarFile = new JarFile(file.getLocation().toFile());
-		assertNotNull(pksJarFile);
-		jar2uml.addJar(pksJarFile);
+		for (IFile file : jarFiles) {
+			jar2uml.addJar(jarFile(file));
+		}
+		for (IFile file : cpJarFiles) {
+			jar2uml.addCpJar(jarFile(file));
+		}
 		jar2uml.setIncludeFeatures(true);
 		jar2uml.setIncludeInstructionReferences(true);
 		jar2uml.setDependenciesOnly(depsOnly);
-		jar2uml.setOutputFile("platform:/resource/" + javatestProject + "/" + pksWar + ".uml");
-		jar2uml.setOutputModelName(pksWar);
+		String outFileName = jarFiles[0].getFullPath().removeFileExtension().lastSegment();
+		if (depsOnly) {
+			outFileName += ".deps";
+		}
+		jar2uml.setOutputFile("platform:/resource/" + javatestProject + "/" + outFileName + ".uml");
+		jar2uml.setOutputModelName(outFileName);
 		assertFalse(jar2uml.isRunComplete());
 		jar2uml.run();
 		assertTrue(jar2uml.isRunComplete());
 		Model model = jar2uml.getModel();
 		validateModel(model);
 		model.eResource().save(Collections.EMPTY_MAP);
+		return model;
+	}
+
+	/**
+	 * @param file
+	 * @return The {@link JarFile} corresponding to file.
+	 * @throws IOException
+	 */
+	private static JarFile jarFile(IFile file) throws IOException {
+		return new JarFile(file.getLocation().toFile());
 	}
 
 	/**
@@ -602,6 +668,17 @@ public final class JarToUMLTest extends TestCase {
 		fail(e.getLocalizedMessage());
 	}
 
+	/**
+	 * Loads a UML Model from the given EMF uri.
+	 * @param uri
+	 * @return The (first) root Model in the loaded resource, if any, <code>null</code> otherwise.
+	 */
+	private static Model loadModelFromUri(String uri) {
+		logger.info("Loading UML model from: " + uri);
+		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(uri), true);
+		return findModel(res);
+	}
+	
 	/**
 	 * @param res
 	 * @return The (first) root Model in res, if any, <code>null</code> otherwise.

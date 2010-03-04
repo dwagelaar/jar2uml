@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# extracts the path where the 'iat' shell script is located
+CURRENTWD=`dirname $0`
+# automatically extract all .jar files in the lib subdirectory
+JARS=`ls $CURRENTWD/lib/*.jar`
+JARPATH="$CURRENTWD/ambienttalk2.jar"
+
+# append the .jar files using ':' to construct a valid classpath
+for JAR in $JARS;
+do
+	JARPATH="$JARPATH:$JAR"
+done
+
+# if AT_HOME env var is not defined, set it to the location of this script
+if ! [ $AT_HOME ]; then
+  AT_HOME=$CURRENTWD
+fi
+
+# invoke the IAT shell via the JVM and:
+# - pass the AT_HOME and AT_OBJECTPATH environment variables to the JVM environment via -D
+# - make sure to include all the jar files in the ./lib directory
+# - invoke the main IAT class
+# - pass any parameters to this script to IAT
+# - pipe System.err to the console
+java -DAT_HOME=$AT_HOME -DAT_OBJECTPATH=$AT_OBJECTPATH -classpath $CLASSPATH:$JARPATH edu.vub.at.IAT "$@" 2> /dev/console
