@@ -11,7 +11,6 @@
 package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import junit.framework.Assert;
 
@@ -39,8 +38,6 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
-
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private boolean create = false;
 	private boolean created = false;
@@ -198,7 +195,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		if (isCreate()) {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-			logger.info(String.format(
+			JarToUML.logger.info(String.format(
 					JarToUMLResources.getString("FindContainedClassifierSwitch.replacingByClass"), 
 					JarToUML.qualifiedName(parent),
 					parent.eClass().getName())); //$NON-NLS-1$

@@ -127,13 +127,13 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	@Override
 	public void visitInvokeInstruction(InvokeInstruction obj) {
-		addClassifierOperation.setOperationName(obj.getMethodName(cpg));
 		try {
+			addClassifierOperation.setOperationName(obj.getMethodName(cpg));
 			addClassifierOperation.setBCELArgumentTypes(obj.getArgumentTypes(cpg));
+			addClassifierOperation.setBCELReturnType(obj.getReturnType(cpg));
 		} catch (JarToUMLException e) {
 			setException(e);
 		}
-		addClassifierOperation.setBCELReturnType(obj.getReturnType(cpg));
 	}
 
 	/*

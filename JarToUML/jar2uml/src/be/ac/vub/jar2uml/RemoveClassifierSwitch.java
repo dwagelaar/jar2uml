@@ -11,7 +11,6 @@
 package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import junit.framework.Assert;
 
@@ -56,8 +55,6 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 		}
 	}
 
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-
 	private Classifier classifier = null;
 
 	protected RemoveNestedClassifierSwitch removeNested = new RemoveNestedClassifierSwitch();
@@ -67,7 +64,7 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	 * @param classifier
 	 */
 	private void logRemoving(Classifier classifier) {
-		logger.finer(String.format(
+		JarToUML.logger.finer(String.format(
 				JarToUMLResources.getString("RemoveClassifierSwitch.removing"), 
 				JarToUML.qualifiedName(classifier),
 				classifier.eClass().getName())); //$NON-NLS-1$

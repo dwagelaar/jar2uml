@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import java.util.logging.Logger;
-
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.DataType;
@@ -27,15 +25,13 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  */
 public class RemoveClassifierPropertiesSwitch extends UMLSwitch<Classifier> {
 
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-
 	/**
 	 * Logs the removal of classifier
 	 * @param classifier
 	 */
 	private void logRemoving(Classifier classifier) {
-		logger.finer(String.format(
-				JarToUMLResources.getString("RemoveClassifierFeaturesSwitch.removing"), 
+		JarToUML.logger.finer(String.format(
+				JarToUMLResources.getString("RemoveClassifierPropertiesSwitch.removing"), 
 				JarToUML.qualifiedName(classifier),
 				classifier.eClass().getName())); //$NON-NLS-1$
 	}

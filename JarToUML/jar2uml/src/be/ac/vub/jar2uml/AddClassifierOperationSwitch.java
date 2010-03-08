@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import java.util.logging.Logger;
-
 import junit.framework.Assert;
 
 import org.eclipse.emf.common.util.BasicEList;
@@ -30,8 +28,6 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
-
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private String operationName = null;
 	private EList<Type> argumentTypes = null;
@@ -224,7 +220,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	 * @param returnType
 	 */
 	public void setBCELReturnType(org.apache.bcel.generic.Type returnType) {
-		setReturnType((Type) typeToClassifier.doSwitch(returnType));
+		setReturnType(typeToClassifier.doSwitch(returnType));
 	}
 
 }
