@@ -37,8 +37,8 @@
 
    <plugin
          id="be.ac.vub.jar2uml"
-         download-size="164"
-         install-size="164"
+         download-size="192"
+         install-size="192"
          version="0.0.0"
          unpack="false"/>
 
@@ -51,8 +51,8 @@
 
    <plugin
          id="be.ac.vub.jar2uml.doc"
-         download-size="3988"
-         install-size="3988"
+         download-size="4084"
+         install-size="4084"
          version="0.0.0"
          unpack="false"/>
 
