@@ -7,7 +7,25 @@
 <body lang="EN-US">
 <h2>Release Notes</h2>
 
-<h3>JarToUML 1.1.2 ($Rev$ - $Date$)</h3>
+<h3>JarToUML 1.1.3 ($Rev$ - $Date$)</h3>
+
+<ul>
+	<li>Refactored code to:
+		<ul>
+			<li>Use singleton JarToUML.logger instance.</li>
+			<li>Divide JarToUML steps/passes into separate classes.</li>
+			<li>Guarantee proper type-to-classifier conversion.</li>
+		</ul>
+	</li>
+	<li>Added <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=51">support for support for non-primary jar files (or classpath entries) when importing dependencies</a>.</li>
+	<li>Added unit testing code.</li>
+	<li>Fixed bug: Don't consider a classifier as a derived classifier (with "[]" at the end) of itself.</li>
+	<li>Fixed bug: Array types (inferred, "[]") can also be inferred as Classes, not just DataTypes, e.g. when a clone() method is invoked on them.</li>
+	<li>Fixed <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=50">bug 50: Import dependencies does not work properly in the presence of cyclic dependencies.</li>
+	<li>Fixed <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=49">bug 49: Import from Java project fails when a library on the classpath is not a jar file.</li>
+</ul>
+
+<h3>JarToUML 1.1.2 (Rev: 7986 - Date: 2010-02-09 18:37:29 +0100 (di, 09 feb 2010))</h3>
 
 <ul>
 	<li>Added <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=48">support for cyclic dependencies</a>.</li>
