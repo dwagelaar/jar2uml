@@ -13,14 +13,11 @@ package be.ac.vub.jar2uml;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.DataType;
-import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.util.UMLSwitch;
 
 /**
- * Removes the properties of {@link #getClassifier()}.
- * Switches on {@link Element#getOwner()} of {@link #getClassifier()}
- * and returns itself.
+ * Removes the properties of the switched element.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class RemoveClassifierPropertiesSwitch extends UMLSwitch<Classifier> {

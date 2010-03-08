@@ -79,7 +79,6 @@ public abstract class JarToUMLOperation {
 
 	/**
 	 * Handles cancelled progress monitor
-	 * @param monitor
 	 * @throws OperationCanceledException
 	 */
 	protected void checkCancelled() throws OperationCanceledException {

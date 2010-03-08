@@ -36,7 +36,8 @@
 			packagenames="
 				be.ac.vub.jar2uml,
 				be.ac.vub.jar2uml.ui,
-				be.ac.vub.jar2uml.ui.logging"
+				be.ac.vub.jar2uml.ui.logging,
+				be.ac.vub.jar2uml.ui.preferences"
 			source="1.5" 
 			sourcepath="
 				../../jar2uml/src" 
