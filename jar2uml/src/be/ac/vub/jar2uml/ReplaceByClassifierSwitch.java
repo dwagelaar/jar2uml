@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import java.util.logging.Logger;
-
 import junit.framework.Assert;
 
 import org.eclipse.emf.common.util.EList;
@@ -124,8 +122,6 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 		}
 	}
 
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
-
 	private Classifier classifier = null;
 	private EClass metaClass = UMLPackage.eINSTANCE.getDataType();
 
@@ -142,7 +138,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	 * @param classifier
 	 */
 	private void logReplace(Classifier classifier) {
-		logger.finer(String.format(
+		JarToUML.logger.finer(String.format(
 				JarToUMLResources.getString("ReplaceByClassifierSwitch.replacing"), 
 				JarToUML.qualifiedName(classifier),
 				classifier.eClass().getName(),

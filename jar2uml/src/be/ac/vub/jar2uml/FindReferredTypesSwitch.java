@@ -10,9 +10,9 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Dependency;
@@ -29,8 +29,6 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
-
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private Set<Type> referencedTypes = new HashSet<Type>();
 
@@ -54,11 +52,10 @@ public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
 		for (NamedElement element : object.getSuppliers()) {
 			if (element instanceof Type) {
 				if (refs.add((Type) element)) {
-					logger.finer(String.format(
+					JarToUML.logger.finer(String.format(
 							JarToUMLResources.getString("FindReferredTypesSwitch.addedDepSupplier"),
 							JarToUML.qualifiedName(element),
 							JarToUML.getNameList(object.getClients()))); //$NON-NLS-1$
-//					doSwitch(element); // transitive closure
 				}
 			}
 		}
@@ -73,11 +70,10 @@ public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
 		final Set<Type> refs = getReferencedTypes();
 		final Classifier general = object.getGeneral();
 		if (refs.add(general)) {
-			logger.finer(String.format(
+			JarToUML.logger.finer(String.format(
 					JarToUMLResources.getString("FindReferredTypesSwitch.addedGeneral"),
 					JarToUML.qualifiedName(general),
 					JarToUML.qualifiedName(object.getSpecific()))); //$NON-NLS-1$
-//			doSwitch(general); // transitive closure
 		}
 		return refs;
 	}
@@ -90,13 +86,25 @@ public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
 		final Set<Type> refs = getReferencedTypes();
 		final Type type = object.getType();
 		if (refs.add(type)) {
-			logger.finer(String.format(
+			JarToUML.logger.finer(String.format(
 					JarToUMLResources.getString("FindReferredTypesSwitch.addedElementType"),
 					JarToUML.qualifiedName(type),
 					JarToUML.qualifiedName(object))); //$NON-NLS-1$
-//			doSwitch(type); // transitive closure
 		}
 		return refs;
+	}
+
+	/**
+	 * @param referredFrom
+	 * @return All {@link Type}s referenced from elements in referredFrom.
+	 */
+	public Set<Type> findAllReferredTypes(Collection<? extends Element> referredFrom) {
+		resetReferencedTypes();
+		for (Element element : referredFrom) {
+			doSwitch(element);
+		}
+		JarToUML.logger.fine(JarToUMLResources.getString("FindReferredTypesSwitch.foundReferredTypes")); //$NON-NLS-1$
+		return getReferencedTypes();
 	}
 
 	/**

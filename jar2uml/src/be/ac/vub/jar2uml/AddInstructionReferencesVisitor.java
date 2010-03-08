@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import java.util.logging.Logger;
-
 import junit.framework.Assert;
 
 import org.apache.bcel.classfile.ConstantPool;
@@ -39,8 +37,6 @@ import org.eclipse.uml2.uml.UMLPackage;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class AddInstructionReferencesVisitor extends EmptyVisitor {
-
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 
 	private ConstantPool cp = null;
 	private ConstantPoolGen cpg = null;
@@ -77,7 +73,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	private void changeOwnerToClass() {
 		if (!(owner instanceof Class)) {
 			if (!(owner instanceof DataType)) {
-				logger.warning(String.format(
+				JarToUML.logger.warning(String.format(
 						JarToUMLResources.getString("AddInstructionReferencesVisitor.changingOwnerToClass"), 
 						JarToUML.qualifiedName(owner),
 						owner.eClass().getName())); //$NON-NLS-1$
@@ -95,7 +91,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	private void changeOwnerToInterface() {
 		if (!(owner instanceof Interface)) {
 			if (!(owner instanceof DataType)) {
-				logger.warning(String.format(
+				JarToUML.logger.warning(String.format(
 						JarToUMLResources.getString("AddInstructionReferencesVisitor.changingOwnerToInterface"), 
 						JarToUML.qualifiedName(owner),
 						owner.eClass().getName())); //$NON-NLS-1$
