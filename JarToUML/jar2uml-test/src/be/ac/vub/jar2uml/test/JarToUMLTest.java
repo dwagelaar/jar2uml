@@ -11,7 +11,6 @@
 package be.ac.vub.jar2uml.test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,12 +25,10 @@ import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -145,18 +142,23 @@ public final class JarToUMLTest extends J2UTestCase {
 			// Retrieve Java project
 			//
 			IProject project = getProject(javatestProject);
-			IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+			//TODO remove
+//			IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 			//
 			// Copy "JarToUMLTest.class" into Java project
 			//
-			IPath outPath = jproject.getOutputLocation();
-			JarToUML.logger.info("class file path: " + outPath);
-			IPath classFilePath = outPath.append(thisClassFile);
-			IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
-			createPath((IFolder) classFile.getParent());
-			InputStream input = JarToUMLTest.class.getResourceAsStream("JarToUMLTest.class");
-			classFile.create(input, true, null);
-			JarToUML.logger.info("created file: " + classFile);
+			IFile classFile = copyClassToTestProject(JarToUMLTest.class);
+			//TODO remove
+//			IPath outPath = jproject.getOutputLocation();
+//			JarToUML.logger.info("class file path: " + outPath);
+//			IPath classFilePath = outPath.append(thisClassFile);
+//			IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
+//			if (!classFile.exists()) {
+//				createPath((IFolder) classFile.getParent());
+//				InputStream input = JarToUMLTest.class.getResourceAsStream("JarToUMLTest.class");
+//				classFile.create(input, true, null);
+//				JarToUML.logger.info("created file: " + classFile);
+//			}
 			//
 			// Find the copied class file
 			//
@@ -205,6 +207,7 @@ public final class JarToUMLTest extends J2UTestCase {
 			//
 			// Test this class
 			//
+			String thisClassFile = classFilePath(JarToUMLTest.class);
 			URL thisClassUrl = bundle.getResource(thisClassFile);
 			ClassParser parser = new ClassParser(thisClassUrl.openStream(), thisClassFile);
 			JavaClass javaClass = parser.parse();

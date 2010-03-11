@@ -11,6 +11,7 @@
 package be.ac.vub.jar2uml.test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,12 +26,14 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.uml2.uml.Model;
 import org.osgi.framework.Bundle;
 
@@ -49,8 +52,6 @@ public abstract class J2UTestCase extends EMFTestCase {
 
 	public static final String javatestProject = "javatest";
 	public static final String javatestReferredProject = "javatestref";
-
-	public static final String thisClassFile = "be/ac/vub/jar2uml/test/JarToUMLTest.class";
 
 	public static final String pkServletDepsUri = PLUGIN_URI + "/resources/platformkitservlet.deps.uml";
 	public static final String pkServletWar = "resources/platformkitservlet.war";
@@ -72,13 +73,50 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 */
 	public static IFile copyFileToTestProject(String path)
 	throws CoreException, IOException {
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javatestProject);
-		URL url = bundle.getResource(path);
+		IProject project = getProject(javatestProject);
 		String targetPath = fileName(path);
 		IFile file = project.getFile(targetPath);
-		JarToUML.logger.info("Creating jar file: " + file);
-		file.create(url.openStream(), true, null);
+		if (!file.exists()) {
+			JarToUML.logger.info("Creating jar file: " + file);
+			URL url = bundle.getResource(path);
+			file.create(url.openStream(), true, null);
+		}
 		return file;
+	}
+
+	/**
+	 * Copies the class file to the right place in the Java test project.
+	 * @param clazz
+	 * @return The target file.
+	 * @throws CoreException
+	 * @throws IOException
+	 */
+	public static IFile copyClassToTestProject(Class<?> clazz)
+	throws CoreException {
+		String path = classFilePath(clazz);
+		JarToUML.logger.info("copying class file: " + path);
+		IProject project = getProject(javatestProject);
+		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+		IPath outPath = jproject.getOutputLocation();
+		JarToUML.logger.info("class file path: " + outPath);
+		IPath classFilePath = outPath.append(path);
+		IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
+		if (!classFile.exists()) {
+			createPath((IFolder) classFile.getParent());
+			InputStream input = clazz.getResourceAsStream(path.substring(path.lastIndexOf('/') + 1));
+			classFile.create(input, true, null);
+			JarToUML.logger.info("created file: " + classFile);
+		}
+		return classFile;
+	}
+	
+	/**
+	 * @param clazz
+	 * @return The file path of clazz relative to the classpath root.
+	 * Works only for named classes.
+	 */
+	public static String classFilePath(Class<?> clazz) {
+		return clazz.getName().replace('.', '/').concat(".class");
 	}
 
 	/**
@@ -134,7 +172,9 @@ public abstract class J2UTestCase extends EMFTestCase {
 		if (!parent.exists() && parent instanceof IFolder) {
 			createPath((IFolder) parent);
 		}
-		path.create(true, true, null);
+		if (!path.exists()) {
+			path.create(true, true, null);
+		}
 	}
 
 	/**
