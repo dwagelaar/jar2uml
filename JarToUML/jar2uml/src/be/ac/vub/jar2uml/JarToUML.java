@@ -346,9 +346,9 @@ public final class JarToUML implements Runnable {
 							getNameList(containedClassifiers)));
 					// Keep referred classifiers, but strip their properties
 					removeFromModel.removeAllProperties(containedClassifiers);
-					// Tag contained classifiers as "inferred" by the inferred classifiers
-					markInferredClassifiers.addAllInferredTags(inferredClassifiers);
 				}
+				// Tag contained classifiers as "inferred" by the inferred classifiers
+				markInferredClassifiers.addAllInferredTags(inferredClassifiers);
 				removeFromModel.removeAllClassifiers(removeClassifiers);
 				worked(monitor, JarToUMLResources.getString("JarToUML.removedClassifiers")); //$NON-NLS-1$
 			} else {
