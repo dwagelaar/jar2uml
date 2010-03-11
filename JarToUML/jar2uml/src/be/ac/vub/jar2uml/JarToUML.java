@@ -507,7 +507,9 @@ public final class JarToUML implements Runnable {
 	 * @param jar
 	 */
 	public void addJar(JarFile jar) {
-		jars.add(jar);
+		if (!this.jars.contains(jar)) {
+			this.jars.add(jar);
+		}
 	}
 
 	/**
@@ -515,14 +517,14 @@ public final class JarToUML implements Runnable {
 	 * @param jar
 	 */
 	public void removeJar(JarFile jar) {
-		jars.remove(jar);
+		this.jars.remove(jar);
 	}
 
 	/**
 	 * Clears the collection of jars to process.
 	 */
 	public void clearJars() {
-		jars.clear();
+		this.jars.clear();
 	}
 
 	/**
@@ -674,7 +676,9 @@ public final class JarToUML implements Runnable {
 	 * @param path the path to add
 	 */
 	public void addPath(IContainer path) {
-		this.paths.add(path);
+		if (!this.paths.contains(path)) {
+			this.paths.add(path);
+		}
 	}
 
 	/**
@@ -776,7 +780,9 @@ public final class JarToUML implements Runnable {
 	 * @param cpJar
 	 */
 	public void addCpJar(JarFile cpJar) {
-		this.cpJars.add(cpJar);
+		if (!this.cpJars.contains(cpJar)) {
+			this.cpJars.add(cpJar);
+		}
 	}
 
 	/**
@@ -809,7 +815,9 @@ public final class JarToUML implements Runnable {
 	 * @param cpPath
 	 */
 	public void addCpPath(IContainer cpPath) {
-		this.cpPaths.add(cpPath);
+		if (!this.cpPaths.contains(cpPath)) {
+			this.cpPaths.add(cpPath);
+		}
 	}
 
 	/**
