@@ -11,7 +11,6 @@
 package be.ac.vub.jar2uml.test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -20,15 +19,10 @@ import org.apache.bcel.classfile.Code;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IJavaProject;
 
 import be.ac.vub.jar2uml.AddProperties;
-import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.ParseClasses;
 
 /**
@@ -65,18 +59,23 @@ public final class AddPropertiesTest extends J2UTestCase {
 			// Retrieve Java project
 			//
 			IProject project = getProject(javatestProject);
-			IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+			//TODO remove
+//			IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 			//
 			// Copy "AddPropertiesTest.class" into Java project
 			//
-			IPath outPath = jproject.getOutputLocation();
-			JarToUML.logger.info("class file path: " + outPath);
-			IPath classFilePath = outPath.append(thisClassFile);
-			IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
-			createPath((IFolder) classFile.getParent());
-			InputStream input = JarToUMLTest.class.getResourceAsStream("AddPropertiesTest.class");
-			classFile.create(input, true, null);
-			JarToUML.logger.info("created file: " + classFile);
+			copyClassToTestProject(AddPropertiesTest.class);
+			//TODO remove
+//			IPath outPath = jproject.getOutputLocation();
+//			JarToUML.logger.info("class file path: " + outPath);
+//			IPath classFilePath = outPath.append(thisClassFile);
+//			IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
+//			if (!classFile.exists()) {
+//				createPath((IFolder) classFile.getParent());
+//				InputStream input = AddPropertiesTest.class.getResourceAsStream("AddPropertiesTest.class");
+//				classFile.create(input, true, null);
+//				JarToUML.logger.info("created file: " + classFile);
+//			}
 			//
 			// Run without preverified code
 			//
