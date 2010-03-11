@@ -56,6 +56,26 @@ import be.ac.vub.jar2uml.ParseClasses;
 public final class JarToUMLTest extends J2UTestCase {
 
 	/**
+	 * @param collection
+	 * @return <code>true</code> iff the collection has no duplicate entries.
+	 */
+	public static boolean hasUniqueEntries(Collection<?> collection) {
+		Set<?> set = new HashSet<Object>(collection);
+		return set.size() == collection.size();
+	}
+
+	/**
+	 * @param a
+	 * @param b
+	 * @return The intersection of a and b.
+	 */
+	public static Collection<?> intersection(Collection<?> a, Collection<?> b) {
+		final Collection<?> intersection = new ArrayList<Object>(a);
+		intersection.retainAll(b);
+		return intersection;
+	}
+
+	/**
 	 * Creates a new {@link JarToUMLTest}.
 	 * @param name
 	 */
@@ -142,23 +162,10 @@ public final class JarToUMLTest extends J2UTestCase {
 			// Retrieve Java project
 			//
 			IProject project = getProject(javatestProject);
-			//TODO remove
-//			IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 			//
 			// Copy "JarToUMLTest.class" into Java project
 			//
 			IFile classFile = copyClassToTestProject(JarToUMLTest.class);
-			//TODO remove
-//			IPath outPath = jproject.getOutputLocation();
-//			JarToUML.logger.info("class file path: " + outPath);
-//			IPath classFilePath = outPath.append(thisClassFile);
-//			IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
-//			if (!classFile.exists()) {
-//				createPath((IFolder) classFile.getParent());
-//				InputStream input = JarToUMLTest.class.getResourceAsStream("JarToUMLTest.class");
-//				classFile.create(input, true, null);
-//				JarToUML.logger.info("created file: " + classFile);
-//			}
 			//
 			// Find the copied class file
 			//
@@ -380,25 +387,31 @@ public final class JarToUMLTest extends J2UTestCase {
 			//
 			JarToUML jar2uml = new JarToUML();
 			jar2uml.addPaths(jproject, false);
+			jar2uml.addPaths(jproject, false); //try to break stuff
 			List<IContainer> paths = jar2uml.getPaths();
 			assertFalse(paths.isEmpty());
 			assertTrue(paths.contains(projectOutput));
 			assertFalse(paths.contains(projectrefOutput));
+			assertTrue(hasUniqueEntries(paths));
 			assertTrue(jar2uml.getJars().isEmpty());
 			assertTrue(jar2uml.getCpJars().isEmpty());
 			assertTrue(jar2uml.getCpPaths().isEmpty());
+			assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
 			//
 			// Test with workspace references
 			//
 			jar2uml = new JarToUML();
 			jar2uml.addPaths(jproject, true);
+			jar2uml.addPaths(jproject, true); //try to break stuff
 			paths = jar2uml.getPaths();
 			assertFalse(paths.isEmpty());
 			assertTrue(paths.contains(projectOutput));
 			assertTrue(paths.contains(projectrefOutput));
+			assertTrue(hasUniqueEntries(paths));
 			assertTrue(jar2uml.getJars().isEmpty());
 			assertTrue(jar2uml.getCpJars().isEmpty());
 			assertTrue(jar2uml.getCpPaths().isEmpty());
+			assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
 		} catch (JavaModelException e) {
 			handle(e);
 		} catch (IOException e) {
@@ -466,6 +479,9 @@ public final class JarToUMLTest extends J2UTestCase {
 		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 		JarToUML jar2uml = new JarToUML();
 		jar2uml.addPaths(jproject, true);
+		assertTrue(hasUniqueEntries(jar2uml.getPaths()));
+		assertTrue(hasUniqueEntries(jar2uml.getCpPaths()));
+		assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
 		jar2uml.setIncludeFeatures(true);
 		jar2uml.setIncludeInstructionReferences(true);
 		jar2uml.setDependenciesOnly(depsOnly);
@@ -496,6 +512,9 @@ public final class JarToUMLTest extends J2UTestCase {
 		for (IFile file : cpJarFiles) {
 			jar2uml.addCpJar(jarFile(file));
 		}
+		assertTrue(hasUniqueEntries(jar2uml.getJars()));
+		assertTrue(hasUniqueEntries(jar2uml.getCpJars()));
+		assertTrue(intersection(jar2uml.getJars(), jar2uml.getCpJars()).isEmpty());
 		jar2uml.setIncludeFeatures(true);
 		jar2uml.setIncludeInstructionReferences(true);
 		jar2uml.setDependenciesOnly(depsOnly);

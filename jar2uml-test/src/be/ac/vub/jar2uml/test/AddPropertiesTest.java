@@ -59,23 +59,10 @@ public final class AddPropertiesTest extends J2UTestCase {
 			// Retrieve Java project
 			//
 			IProject project = getProject(javatestProject);
-			//TODO remove
-//			IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 			//
 			// Copy "AddPropertiesTest.class" into Java project
 			//
 			copyClassToTestProject(AddPropertiesTest.class);
-			//TODO remove
-//			IPath outPath = jproject.getOutputLocation();
-//			JarToUML.logger.info("class file path: " + outPath);
-//			IPath classFilePath = outPath.append(thisClassFile);
-//			IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
-//			if (!classFile.exists()) {
-//				createPath((IFolder) classFile.getParent());
-//				InputStream input = AddPropertiesTest.class.getResourceAsStream("AddPropertiesTest.class");
-//				classFile.create(input, true, null);
-//				JarToUML.logger.info("created file: " + classFile);
-//			}
 			//
 			// Run without preverified code
 			//
