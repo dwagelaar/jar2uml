@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.AccessFlags;
 import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.core.resources.IContainer;
@@ -267,7 +265,7 @@ public final class JarToUML implements Runnable {
 		try {
 			final IProgressMonitor monitor = getMonitor();
 			setRunComplete(false);
-			Assert.assertNotNull(getOutputFile());
+			assert getOutputFile() != null : JarToUMLResources.getString("JarToUML.nullOutputFile"); //$NON-NLS-1$
 			beginTask(monitor, String.format(
 					JarToUMLResources.getString("JarToUML.startingFor"),
 					getOutputFile()), 7);  //$NON-NLS-1$
@@ -277,7 +275,7 @@ public final class JarToUML implements Runnable {
 			subTask(monitor, JarToUMLResources.getString("JarToUML.creatingUML")); //$NON-NLS-1$
 			final ResourceSet resourceSet = createResourceSet();
 			final Resource res = resourceSet.createResource(URI.createURI(getOutputFile()));
-			Assert.assertNotNull(res);
+			assert res != null : String.format(JarToUMLResources.getString("JarToUML.nullRes"), getOutputFile()); //$NON-NLS-1$
 			setModel(UMLFactory.eINSTANCE.createModel());
 			final Model model = getModel();
 			res.getContents().add(model);

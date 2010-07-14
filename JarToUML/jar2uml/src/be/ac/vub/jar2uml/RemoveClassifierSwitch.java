@@ -34,7 +34,7 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	 * Removes nested classifiers of {@link #doSwitch(org.eclipse.emf.ecore.EObject)}.
 	 * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
 	 */
-	public class RemoveNestedClassifierSwitch extends UMLSwitch<Classifier> {
+	public static class RemoveNestedClassifierSwitch extends UMLSwitch<Classifier> {
 
 		public Classifier caseClass(Class umlClass) {
 			for (Iterator<Classifier> it = umlClass.getNestedClassifiers().iterator(); it.hasNext();) {

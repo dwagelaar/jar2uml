@@ -184,7 +184,7 @@ public class AddClassifiers extends AddToModel {
 			if (!(superClass instanceof Class)) {
 				replaceByClassifier.setClassifier(superClass);
 				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-				superClass = (Classifier) replaceByClassifier.doSwitch(superClass.getOwner());
+				replaceByClassifier.doSwitch(superClass.getOwner());
 			}
 		}
 	}
