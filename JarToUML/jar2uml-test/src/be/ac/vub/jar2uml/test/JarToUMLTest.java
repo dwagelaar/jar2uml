@@ -47,13 +47,15 @@ import be.ac.vub.jar2uml.FindContainedClassifierSwitch;
 import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.MarkInferredClassifiers;
-import be.ac.vub.jar2uml.ParseClasses;
 
 /**
  * Test class for {@link JarToUML}.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public final class JarToUMLTest extends J2UTestCase {
+
+	public static final String javatestProject = "JarToUMLTest";
+	public static final String javatestReferredProject = "JarToUMLTestRef";
 
 	/**
 	 * @param collection
@@ -151,34 +153,6 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertNotNull(resourceSet);
 		Object factory = resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().get(UMLResource.FILE_EXTENSION);
 		assertSame(UMLResource.Factory.INSTANCE, factory);
-	}
-
-	/**
-	 * Test method for {@link be.ac.vub.jar2uml.ParseClasses#findClassFilesIn(org.eclipse.core.resources.IContainer, java.util.List)}.
-	 */
-	public void testFindClassFilesIn() {
-		try {
-			//
-			// Retrieve Java project
-			//
-			IProject project = getProject(javatestProject);
-			//
-			// Copy "JarToUMLTest.class" into Java project
-			//
-			IFile classFile = copyClassToTestProject(JarToUMLTest.class);
-			//
-			// Find the copied class file
-			//
-			List<IFile> cfs = new ArrayList<IFile>();
-			ParseClasses.findClassFilesIn(project, cfs);
-			JarToUML.logger.info("Class files in project: " + cfs);
-			assertFalse(cfs.isEmpty());
-			assertTrue(cfs.contains(classFile));
-		} catch (JavaModelException e) {
-			handle(e);
-		} catch (CoreException e) {
-			handle(e);
-		}
 	}
 
 	/**
@@ -427,13 +401,14 @@ public final class JarToUMLTest extends J2UTestCase {
 			//
 			// Create ambienttalk jars in Java test project
 			//
-			IFile atFile = copyFileToTestProject(atJar);
-			IFile antlrFile = copyFileToTestProject(antlrJar);
-			IFile getoptFile = copyFileToTestProject(getoptJar);
+			final IProject project = getProject(javatestProject);
+			final IFile atFile = copyFileToProject(atJar, project);
+			final IFile antlrFile = copyFileToProject(antlrJar, project);
+			final IFile getoptFile = copyFileToProject(getoptJar, project);
 			//
 			// Create platformkit servlet war in Java test project
 			//
-			IFile pksFile = copyFileToTestProject(pkServletWar);
+			final IFile pksFile = copyFileToProject(pkServletWar, project);
 			//
 			// test run on Java test project
 			//
@@ -442,19 +417,19 @@ public final class JarToUMLTest extends J2UTestCase {
 			//
 			// test run on ambienttalk jars
 			//
-			Model atModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
-			Model atRefModel = loadModelFromUri(atModelUri);
+			final Model atModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+			final Model atRefModel = loadModelFromUri(atModelUri);
 			assertEquals(atModel.eResource(), atRefModel.eResource());
-			Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
-			Model atRefDepsModel = loadModelFromUri(atDepsModelUri);
+			final Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+			final Model atRefDepsModel = loadModelFromUri(atDepsModelUri);
 			JarToUML.logger.info(atDepsModel.eResource().getContents().toString());
 			JarToUML.logger.info(atRefDepsModel.eResource().getContents().toString());
 			assertEquals(atDepsModel.eResource(), atRefDepsModel.eResource());
 			//
 			// test run on platformkit servlet war
 			//
-			Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{});
-			Model pksRefDepsModel = loadModelFromUri(pkServletDepsUri);
+			final Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{});
+			final Model pksRefDepsModel = loadModelFromUri(pkServletDepsUri);
 			JarToUML.logger.info(pksDepsModel.eResource().getContents().toString());
 			JarToUML.logger.info(pksRefDepsModel.eResource().getContents().toString());
 			assertEquals(pksDepsModel.eResource(), pksRefDepsModel.eResource());
@@ -531,6 +506,16 @@ public final class JarToUMLTest extends J2UTestCase {
 		validateModel(model);
 		model.eResource().save(Collections.EMPTY_MAP);
 		return model;
+	}
+
+	/* (non-Javadoc)
+	 * @see be.ac.vub.jar2uml.test.J2UTestCase#setUp()
+	 */
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		createJavaProject(javatestProject);
+		createJavaProject(javatestReferredProject);
 	}
 
 }
