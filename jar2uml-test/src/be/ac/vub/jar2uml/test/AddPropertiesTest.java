@@ -31,15 +31,21 @@ import be.ac.vub.jar2uml.ParseClasses;
  */
 public final class AddPropertiesTest extends J2UTestCase {
 
+	public static final String javatestProject = "AddPropertiesTest";
+
 	/**
 	 * Test method for {@link AddProperties#isPreverified(org.apache.bcel.classfile.Code)}
 	 */
 	public void testIsPreverifiedCode() {
 		try {
 			//
+			// Retrieve Java test project
+			//
+			final IProject project = getProject(javatestProject);
+			//
 			// Copy instant messenger jar to Java test project
 			//
-			IFile file = JarToUMLTest.copyFileToTestProject(instantmessengerJar);
+			IFile file = JarToUMLTest.copyFileToProject(instantmessengerJar, project);
 			JarFile jar = JarToUMLTest.jarFile(file);
 			//
 			// Run with preverified code
@@ -56,13 +62,9 @@ public final class AddPropertiesTest extends J2UTestCase {
 			}
 			assertTrue(preverified);
 			//
-			// Retrieve Java project
-			//
-			IProject project = getProject(javatestProject);
-			//
 			// Copy "AddPropertiesTest.class" into Java project
 			//
-			copyClassToTestProject(AddPropertiesTest.class);
+			copyClassToJavaProject(AddPropertiesTest.class, project);
 			//
 			// Run without preverified code
 			//
@@ -121,6 +123,15 @@ public final class AddPropertiesTest extends J2UTestCase {
 	public void testAddOpCode() {
 		//TODO implement
 		fail("Not yet implemented");
+	}
+
+	/* (non-Javadoc)
+	 * @see be.ac.vub.jar2uml.test.J2UTestCase#setUp()
+	 */
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		createJavaProject(javatestProject);
 	}
 
 }

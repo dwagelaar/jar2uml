@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 
 import org.eclipse.core.resources.IContainer;
@@ -50,9 +51,6 @@ public abstract class J2UTestCase extends EMFTestCase {
 
 	public static final Bundle bundle = Platform.getBundle(PLUGIN_ID);
 
-	public static final String javatestProject = "javatest";
-	public static final String javatestReferredProject = "javatestref";
-
 	public static final String pkServletDepsUri = PLUGIN_URI + "/resources/platformkitservlet.deps.uml";
 	public static final String pkServletWar = "resources/platformkitservlet.war";
 
@@ -64,16 +62,18 @@ public abstract class J2UTestCase extends EMFTestCase {
 
 	public static final String instantmessengerJar = "resources/instantmessenger.jar";
 
+	public static final String jaxbOsgiJar = "resources/jaxb-osgi.jar";
+
 	/**
-	 * Copies the file at the given path to the root of the Java test project.
+	 * Copies the file at the given path to the root of the given project.
 	 * @param path
+	 * @param project
 	 * @return The target file.
 	 * @throws CoreException
 	 * @throws IOException
 	 */
-	public static IFile copyFileToTestProject(String path)
+	public static IFile copyFileToProject(String path, IProject project)
 	throws CoreException, IOException {
-		IProject project = getProject(javatestProject);
 		String targetPath = fileName(path);
 		IFile file = project.getFile(targetPath);
 		if (!file.exists()) {
@@ -85,17 +85,17 @@ public abstract class J2UTestCase extends EMFTestCase {
 	}
 
 	/**
-	 * Copies the class file to the right place in the Java test project.
+	 * Copies the class file to the right place in the given project.
 	 * @param clazz
+	 * @param project Must be a Java project!
 	 * @return The target file.
 	 * @throws CoreException
 	 * @throws IOException
 	 */
-	public static IFile copyClassToTestProject(Class<?> clazz)
+	public static IFile copyClassToJavaProject(Class<?> clazz, IProject project)
 	throws CoreException {
 		String path = classFilePath(clazz);
 		JarToUML.logger.info("copying class file: " + path);
-		IProject project = getProject(javatestProject);
 		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 		IPath outPath = jproject.getOutputLocation();
 		JarToUML.logger.info("class file path: " + outPath);
@@ -134,6 +134,16 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 */
 	public static JarFile jarFile(IFile file) throws IOException {
 		return new JarFile(file.getLocation().toFile());
+	}
+
+	/**
+	 * @param file
+	 * @return The {@link JarInputStream} corresponding to file.
+	 * @throws IOException
+	 * @throws CoreException 
+	 */
+	public static JarInputStream jarInputStream(IFile file) throws IOException, CoreException {
+		return new JarInputStream(file.getContents());
 	}
 
 	/**
@@ -253,8 +263,6 @@ public abstract class J2UTestCase extends EMFTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		createJavaProject(javatestProject);
-		createJavaProject(javatestReferredProject);
 		//
 		// Refresh workspace
 		//
