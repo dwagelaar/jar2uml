@@ -72,10 +72,18 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
 	}
 
 	/**
+	 * Sets the singleton instance of the Eclipse plugin.
+	 * @param pi
+	 */
+	private static void setPlugin(JarToUMLPlugin pi) {
+		plugin = pi;
+	}
+
+	/**
 	 * Creates a new {@link JarToUMLPlugin}.
 	 */
 	public JarToUMLPlugin() {
-		plugin = this;
+		setPlugin(this);
 		if (console == null) {
 			initConsole();
 		}

@@ -30,7 +30,6 @@ import be.ac.vub.jar2uml.PublicAPIFilter;
  */
 public class JarToUMLImportWizardPage extends AbstractJarToUMLImportWizardPage {
 
-	protected FilesFieldEditor editor;
 	protected Button onlyJavaApiBtn;
 	protected Button allElementsBtn;
 	protected Button includeInstrRefsBtn;
