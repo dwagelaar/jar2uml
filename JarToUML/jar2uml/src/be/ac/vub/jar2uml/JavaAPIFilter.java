@@ -25,11 +25,12 @@ public class JavaAPIFilter extends PublicAPIFilter {
 	 * @see be.ac.vub.jar2uml.PublicAPIFilter#filter(java.lang.String)
 	 */
 	public boolean filter(String expression) {
-		return (expression.startsWith("java")
-				|| expression.startsWith("org/omg")
-				|| expression.startsWith("org/w3c")
-				|| expression.startsWith("org/xml")
-				|| expression.startsWith("org/ietf"));
+		return (expression.startsWith("java/")
+				|| expression.startsWith("javax/")
+				|| expression.startsWith("org/omg/")
+				|| expression.startsWith("org/w3c/")
+				|| expression.startsWith("org/xml/")
+				|| expression.startsWith("org/ietf/"));
 	}
 
 	/*
