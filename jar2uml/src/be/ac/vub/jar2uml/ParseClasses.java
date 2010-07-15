@@ -38,7 +38,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public class ParseClasses extends JarToUMLOperation {
 
-	private static Pattern classFileName = Pattern.compile("^[a-zA-Z_0-9/]+\\.class$"); //$NON-NLS-1$
+	private static Pattern classFileName = Pattern.compile("^(WEB-INF/classes/)?[a-zA-Z_0-9/\\$]+\\.class$"); //$NON-NLS-1$
 	private static Pattern jarFileName = Pattern.compile(".+\\.(zip|(j|w|e|s|r)ar)$"); //$NON-NLS-1$
 
 	/**
