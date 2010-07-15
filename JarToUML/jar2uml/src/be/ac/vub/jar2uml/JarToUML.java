@@ -158,8 +158,10 @@ public final class JarToUML implements Runnable {
 			return VisibilityKind.PUBLIC_LITERAL;
 		} else if (flags.isProtected()) {
 			return VisibilityKind.PROTECTED_LITERAL;
-		} else {
+		} else if (flags.isPrivate()) {
 			return VisibilityKind.PRIVATE_LITERAL;
+		} else {
+			return VisibilityKind.PACKAGE_LITERAL;
 		}
 	}
 
@@ -257,6 +259,7 @@ public final class JarToUML implements Runnable {
 	private boolean dependenciesOnly = false;
 	private boolean runComplete = false;
 	private long jobStartTime;
+	private boolean includeComment = true;
 
 	/**
 	 * Performs the actual jar to UML conversion.
@@ -364,11 +367,13 @@ public final class JarToUML implements Runnable {
 			// 7
 			//
 			subTask(monitor, JarToUMLResources.getString("JarToUML.addingMetadata")); //$NON-NLS-1$
-			Comment comment = getModel().createOwnedComment();
-			comment.setBody(String.format(
-					JarToUMLResources.getString("JarToUML.generatedBy"), 
-					JarToUMLPlugin.getPlugin().getBundle().getVersion(),
-					getInputList())); //$NON-NLS-1$
+			if (isIncludeComment()) {
+				Comment comment = getModel().createOwnedComment();
+				comment.setBody(String.format(
+						JarToUMLResources.getString("JarToUML.generatedBy"), 
+						JarToUMLPlugin.getPlugin().getBundle().getVersion(),
+						getInputList())); //$NON-NLS-1$
+			}
 			EAnnotation ann = getModel().createEAnnotation("Jar2UML"); //$NON-NLS-1$
 			EMap<String,String> details = ann.getDetails();
 			details.put("majorBytecodeFormatVersion", String.valueOf(parseClasses.getMajorFormatVersion())); //$NON-NLS-1$
@@ -847,6 +852,22 @@ public final class JarToUML implements Runnable {
 	 */
 	public List<JavaClass> getParsedCpClasses() {
 		return parsedCpClasses;
+	}
+
+	/**
+	 * Whether or not to include a generator comment. Defaults to true.
+	 * @return the includeComment
+	 */
+	public boolean isIncludeComment() {
+		return includeComment;
+	}
+
+	/**
+	 * Whether or not to include a generator comment. Defaults to true.
+	 * @param includeComment the includeComment to set
+	 */
+	public void setIncludeComment(boolean includeComment) {
+		this.includeComment = includeComment;
 	}
 
 }
