@@ -13,12 +13,15 @@ package be.ac.vub.jar2uml.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
+import org.eclipse.emf.compare.diff.metamodel.DiffElement;
+import org.eclipse.emf.compare.diff.metamodel.DiffModel;
+import org.eclipse.emf.compare.diff.service.DiffService;
 import org.eclipse.emf.compare.match.MatchOptions;
 import org.eclipse.emf.compare.match.metamodel.MatchModel;
 import org.eclipse.emf.compare.match.service.MatchService;
 import org.eclipse.emf.ecore.resource.Resource;
-
-import junit.framework.TestCase;
 
 /**
  * Test case functionality for EMF-based code.
@@ -51,8 +54,12 @@ public abstract class EMFTestCase extends TestCase {
 	throws InterruptedException {
 		final Map<String, Object> options = new HashMap<String, Object>();
 		options.put(MatchOptions.OPTION_IGNORE_XMI_ID, Boolean.TRUE);
-		MatchModel match = MatchService.doResourceMatch(leftResource, rightResource, options);
+		final MatchModel match = MatchService.doResourceMatch(leftResource, rightResource, options);
 		assertTrue(match.getUnmatchedElements().isEmpty());
+		final DiffModel diff = DiffService.doDiff(match);
+		assertTrue(diff.getOwnedElements().size() == 1);
+		final DiffElement de = diff.getOwnedElements().get(0);
+		assertTrue(de.getSubDiffElements().isEmpty());
 	}
 
 }

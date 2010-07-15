@@ -214,7 +214,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertEquals(VisibilityKind.PUBLIC_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Constants.ACC_PUBLIC) { } ));
 		assertEquals(VisibilityKind.PROTECTED_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Constants.ACC_PROTECTED) { } ));
 		assertEquals(VisibilityKind.PRIVATE_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Constants.ACC_PRIVATE) { } ));
-		assertEquals(VisibilityKind.PRIVATE_LITERAL, JarToUML.toUMLVisibility(new AccessFlags() { } ));
+		assertEquals(VisibilityKind.PACKAGE_LITERAL, JarToUML.toUMLVisibility(new AccessFlags() { } ));
 	}
 
 	/**
@@ -457,6 +457,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertTrue(hasUniqueEntries(jar2uml.getPaths()));
 		assertTrue(hasUniqueEntries(jar2uml.getCpPaths()));
 		assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
+		jar2uml.setIncludeComment(false);
 		jar2uml.setIncludeFeatures(true);
 		jar2uml.setIncludeInstructionReferences(true);
 		jar2uml.setDependenciesOnly(depsOnly);
@@ -490,6 +491,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertTrue(hasUniqueEntries(jar2uml.getJars()));
 		assertTrue(hasUniqueEntries(jar2uml.getCpJars()));
 		assertTrue(intersection(jar2uml.getJars(), jar2uml.getCpJars()).isEmpty());
+		jar2uml.setIncludeComment(false);
 		jar2uml.setIncludeFeatures(true);
 		jar2uml.setIncludeInstructionReferences(true);
 		jar2uml.setDependenciesOnly(depsOnly);
