@@ -410,6 +410,10 @@ public final class JarToUMLTest extends J2UTestCase {
 			//
 			final IFile pksFile = copyFileToProject(pkServletWar, project);
 			//
+			// Create jaxb-osgi.jar in Java test project
+			//
+			final IFile jaxbOsgiFile = copyFileToProject(jaxbOsgiJar, project);
+			//
 			// test run on Java test project
 			//
 			testRunProject(false);
@@ -433,6 +437,14 @@ public final class JarToUMLTest extends J2UTestCase {
 			JarToUML.logger.info(pksDepsModel.eResource().getContents().toString());
 			JarToUML.logger.info(pksRefDepsModel.eResource().getContents().toString());
 			assertEquals(pksDepsModel.eResource(), pksRefDepsModel.eResource());
+			//
+			// test run on jaxb-osgi.jar
+			//
+			final Model jaxbOsgiDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{});
+			final Model jaxbOsgiRefDepsModel = loadModelFromUri(jaxbOsgiDepsUri);
+			JarToUML.logger.info(jaxbOsgiDepsModel.eResource().getContents().toString());
+			JarToUML.logger.info(jaxbOsgiRefDepsModel.eResource().getContents().toString());
+			assertEquals(jaxbOsgiDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
 		} catch (CoreException e) {
 			handle(e);
 		} catch (IOException e) {

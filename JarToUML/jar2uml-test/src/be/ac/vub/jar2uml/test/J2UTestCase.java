@@ -63,6 +63,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	public static final String instantmessengerJar = "resources/instantmessenger.jar";
 
 	public static final String jaxbOsgiJar = "resources/jaxb-osgi.jar";
+	public static final String jaxbOsgiDepsUri = PLUGIN_URI + "/resources/jaxb-osgi.deps.uml";
 
 	/**
 	 * Copies the file at the given path to the root of the given project.
