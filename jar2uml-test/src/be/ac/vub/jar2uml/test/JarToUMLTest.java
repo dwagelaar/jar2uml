@@ -47,6 +47,7 @@ import be.ac.vub.jar2uml.FindContainedClassifierSwitch;
 import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.MarkInferredClassifiers;
+import be.ac.vub.jar2uml.test.data.B;
 
 /**
  * Test class for {@link JarToUML}.
@@ -413,6 +414,11 @@ public final class JarToUMLTest extends J2UTestCase {
 			// Create jaxb-osgi.jar in Java test project
 			//
 			final IFile jaxbOsgiFile = copyFileToProject(jaxbOsgiJar, project);
+			//
+			// Copy B and B.BB test classes (cyclic dependency + contained type test)
+			//
+			copyClassToJavaProject(B.class, project);
+			copyClassToJavaProject(B.BB.class, project);
 			//
 			// test run on Java test project
 			//
