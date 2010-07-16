@@ -30,6 +30,31 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  */
 public class FindReferredTypesSwitch extends UMLSwitch<Set<Type>> {
 
+	/**
+	 * @param forTypes
+	 * @return The {@link Type}s directly or indirectly containing any of forTypes.
+	 */
+	public static Set<Type> findContainerTypes(Collection<Type> forTypes) {
+		final Set<Type> containerTypes = new HashSet<Type>();
+		for (Type type : forTypes) {
+			addContainerTypes(type, containerTypes);
+		}
+		return containerTypes;
+	}
+
+	/**
+	 * Adds the {@link Type}s directly or indirectly containing forType to containerTypes.
+	 * @param forType
+	 * @param containerTypes
+	 */
+	private static void addContainerTypes(Type forType, Collection<Type> containerTypes) {
+		final Element owner = forType.getOwner();
+		if (owner instanceof Type) {
+			containerTypes.add((Type) owner);
+			addContainerTypes((Type) owner, containerTypes); 
+		}
+	}
+
 	private Set<Type> referencedTypes = new HashSet<Type>();
 
 	/* (non-Javadoc)

@@ -339,6 +339,9 @@ public final class JarToUML implements Runnable {
 				subTask(monitor, JarToUMLResources.getString("JarToUML.removingClassifiers")); //$NON-NLS-1$
 				final Set<Classifier> inferredClassifiers = markInferredClassifiers.findInferredClassifiers(containedClassifiers);
 				final Set<Type> referredTypes = findReferredTypes.findAllReferredTypes(inferredClassifiers);
+				final Set<Type> containerTypes = FindReferredTypesSwitch.findContainerTypes(referredTypes);
+				// also retain container types of referred types, otherwise we still get dangling refs.
+				referredTypes.addAll(containerTypes);
 				final Set<Classifier> removeClassifiers = new HashSet<Classifier>(containedClassifiers);
 				if (removeClassifiers.removeAll(referredTypes)) {
 					containedClassifiers.retainAll(referredTypes);
