@@ -19,6 +19,8 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 
+import junit.framework.Assert;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -35,7 +37,9 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.NamedElement;
 import org.osgi.framework.Bundle;
 
 import be.ac.vub.jar2uml.JarToUML;
@@ -64,6 +68,9 @@ public abstract class J2UTestCase extends EMFTestCase {
 
 	public static final String jaxbOsgiJar = "resources/jaxb-osgi.jar";
 	public static final String jaxbOsgiDepsUri = PLUGIN_URI + "/resources/jaxb-osgi.deps.uml";
+
+	public static final String j2eeJar = "resources/j2ee.jar";
+	public static final String j2eeDepsUri = PLUGIN_URI + "/resources/j2ee.deps.uml";
 
 	/**
 	 * Copies the file at the given path to the root of the given project.
@@ -224,6 +231,23 @@ public abstract class J2UTestCase extends EMFTestCase {
 	}
 
 	/**
+	 * @param element
+	 * @return A human-readable {@link String} that identifies element.
+	 */
+	public static final String toString(Element element) {
+		if (element instanceof NamedElement) {
+			final String qName = ((NamedElement) element).getQualifiedName();
+			if (qName != null) {
+				return qName;
+			} else {
+				return element.toString();
+			}
+		} else {
+			return element.toString();
+		}
+	}
+
+	/**
 	 * Validates the model.
 	 * @param model
 	 */
@@ -240,6 +264,38 @@ public abstract class J2UTestCase extends EMFTestCase {
 		model.validateVisibilityNeedsOwnership(diagnostics, context);
 		JarToUML.logger.info("Model diagnostics: " + diagnostics.getMessage());
 		assertEquals(Diagnostic.OK, diagnostics.getSeverity());
+	}
+
+	/**
+	 * Validates the use of "inferred" tags in element.
+	 * @param element
+	 * @return <code>true</code> iff element is marked as inferred
+	 */
+	public static boolean validateInferredTags(Element element) {
+		if ("true".equals(JarToUML.getAnnotationValue(element, "inferred"))) {
+			// if this element is inferred, it cannot have any children marked as inferred
+			boolean someChildrenInferred = false;
+			for (Element child : element.getOwnedElements()) {
+				someChildrenInferred |= validateInferredTags(child);
+			}
+			Assert.assertFalse(
+					String.format("Some children of %s marked as inferred, while self is already marked as inferred", toString(element)),
+					someChildrenInferred);
+			return true;
+		} else {
+			// if this element is not inferred, it cannot have all children marked as inferred
+			boolean allChildrenInferred = true;
+			boolean hasChildren = false;
+			for (Element child : element.getOwnedElements()) {
+				hasChildren = true;
+				allChildrenInferred &= validateInferredTags(child);
+			}
+			allChildrenInferred = allChildrenInferred && hasChildren;
+			Assert.assertFalse(
+					String.format("All children of %s marked as inferred, while self not inferred", toString(element)),
+					allChildrenInferred);
+			return false;
+		}
 	}
 
 	/**
