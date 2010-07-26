@@ -415,6 +415,10 @@ public final class JarToUMLTest extends J2UTestCase {
 			//
 			final IFile jaxbOsgiFile = copyFileToProject(jaxbOsgiJar, project);
 			//
+			// Create j2ee.jar in Java test project
+			//
+			final IFile j2eeFile = copyFileToProject(j2eeJar, project);
+			//
 			// Copy B and B.BB test classes (cyclic dependency + contained type test)
 			//
 			copyClassToJavaProject(B.class, project);
@@ -451,6 +455,14 @@ public final class JarToUMLTest extends J2UTestCase {
 			JarToUML.logger.info(jaxbOsgiDepsModel.eResource().getContents().toString());
 			JarToUML.logger.info(jaxbOsgiRefDepsModel.eResource().getContents().toString());
 			assertEquals(jaxbOsgiDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
+			//
+			// test run on j2ee.jar
+			//
+			final Model j2eeDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{});
+			final Model j2eeRefDepsModel = loadModelFromUri(j2eeDepsUri);
+			JarToUML.logger.info(j2eeDepsModel.eResource().getContents().toString());
+			JarToUML.logger.info(j2eeRefDepsModel.eResource().getContents().toString());
+			assertEquals(j2eeDepsModel.eResource(), j2eeRefDepsModel.eResource());
 		} catch (CoreException e) {
 			handle(e);
 		} catch (IOException e) {
@@ -486,6 +498,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertTrue(jar2uml.isRunComplete());
 		Model model = jar2uml.getModel();
 		validateModel(model);
+		validateInferredTags(model);
 		model.eResource().save(Collections.EMPTY_MAP);
 		return model;
 	}
@@ -524,6 +537,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertTrue(jar2uml.isRunComplete());
 		Model model = jar2uml.getModel();
 		validateModel(model);
+		validateInferredTags(model);
 		model.eResource().save(Collections.EMPTY_MAP);
 		return model;
 	}
