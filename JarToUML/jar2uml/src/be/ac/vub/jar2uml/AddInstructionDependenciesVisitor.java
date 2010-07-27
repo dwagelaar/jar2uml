@@ -26,11 +26,13 @@ import org.apache.bcel.generic.InvokeInstruction;
 import org.apache.bcel.generic.PUTFIELD;
 import org.apache.bcel.generic.PUTSTATIC;
 import org.apache.bcel.generic.ReferenceType;
+import org.apache.bcel.verifier.structurals.Frame;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.DataType;
+import org.eclipse.uml2.uml.Feature;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Parameter;
@@ -44,10 +46,11 @@ import org.eclipse.uml2.uml.VisibilityKind;
  */
 public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 
-	private Classifier instrContext = null;
-	private ConstantPool cp = null;
-	private ConstantPoolGen cpg = null;
-	private Exception exception = null;
+	private Classifier instrContext;
+	private ConstantPool cp;
+	private ConstantPoolGen cpg;
+	private Frame frame;
+	private Exception exception;
 
 	protected TypeToClassifierSwitch typeToClassifier = null;
 	protected AddClassifierPropertySwitch addClassifierProperty = null;
@@ -65,6 +68,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 			TypeToClassifierSwitch typeToClassifierSwitch,
 			AddClassifierPropertySwitch addClassifierPropertySwitch,
 			AddClassifierOperationSwitch addClassifierOperationSwitch) {
+		super();
 		Assert.assertNotNull(typeToClassifierSwitch);
 		Assert.assertNotNull(addClassifierPropertySwitch);
 		Assert.assertNotNull(addClassifierOperationSwitch);
@@ -79,9 +83,9 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	@Override
 	public void visitFieldOrMethod(FieldOrMethod obj) {
+		final ConstantPoolGen cpg = getCpg();
 		Assert.assertNotNull(cpg);
-		Assert.assertNotNull(typeToClassifier);
-		ReferenceType fieldOwner = obj.getReferenceType(cpg);
+		final ReferenceType fieldOwner = obj.getReferenceType(cpg);
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
 	}
 
@@ -93,12 +97,15 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitGETFIELD(GETFIELD obj) {
 		//Only classes have instance fields
 		Assert.assertTrue(owner instanceof Class);
+		final ConstantPoolGen cpg = getCpg();
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
-		Property att = (Property) addClassifierProperty.doSwitch(owner);
-		if (getInstrContext().conformsTo(owner)) {
-			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
+		final Property att = (Property) addClassifierProperty.doSwitch(owner);
+		final Classifier accessContext = typeToClassifier.doSwitch(getGetFieldAccessContext());
+		if (accessContext != null) {
+			setVisibility(att, accessContext);
+		} else {
+			setVisibility(att);
 		}
 		att.setIsStatic(false);
 	}
@@ -111,13 +118,11 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitGETSTATIC(GETSTATIC obj) {
 		//Can be invoked on interfaces as well as classes (static final) -> allow DataType
 		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
+		final ConstantPoolGen cpg = getCpg();
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
-		Property att = (Property) addClassifierProperty.doSwitch(owner);
-		if (getInstrContext().conformsTo(owner)) {
-			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
-		}
+		final Property att = (Property) addClassifierProperty.doSwitch(owner);
+		setVisibility(att);
 		att.setIsStatic(true);
 	}
 
@@ -127,10 +132,12 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	@Override
 	public void visitInvokeInstruction(InvokeInstruction obj) {
+		final ConstantPoolGen cpg = getCpg();
+		final org.apache.bcel.generic.Type returnType = obj.getReturnType(cpg);
 		try {
 			addClassifierOperation.setOperationName(obj.getMethodName(cpg));
 			addClassifierOperation.setBCELArgumentTypes(obj.getArgumentTypes(cpg));
-			addClassifierOperation.setBCELReturnType(obj.getReturnType(cpg));
+			addClassifierOperation.setBCELReturnType(returnType);
 		} catch (JarToUMLException e) {
 			setException(e);
 		}
@@ -144,41 +151,15 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitINVOKEINTERFACE(INVOKEINTERFACE obj) {
 		//Can be invoked only on interfaces
 		Assert.assertTrue(owner instanceof Interface);
-		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
-		Assert.assertNotNull(getInstrContext());
-		if (getInstrContext().conformsTo(owner)) {
-			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			EList<Parameter> params = newOp.getOwnedParameters();
-			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
-			if (childOp != null) {
-				newOp.setIsLeaf(false);
-			}
+		final Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
+		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
+		if (accessContext != null) {
+			setVisibility(newOp, accessContext);
+			setIsLeaf(newOp, accessContext);
+		} else { //no stack information available
+			setVisibility(newOp);
+			setIsLeaf(newOp);
 		}
-		newOp.setIsAbstract(true);
-	}
-
-	/**
-	 * @param parameters
-	 * @return An {@link EList} of the names of each {@link Parameter} in parameters.
-	 */
-	private EList<String> getParameterNames(EList<Parameter> parameters) {
-		final EList<String> names = new BasicEList<String>();
-		for (Parameter par : parameters) {
-			names.add(par.getName());
-		}
-		return names;
-	}
-
-	/**
-	 * @param parameters
-	 * @return An {@link EList} of the {@link Type}s of each {@link Parameter} in parameters.
-	 */
-	private EList<Type> getParameterTypes(EList<Parameter> parameters) {
-		final EList<Type> types = new BasicEList<Type>();
-		for (Parameter par : parameters) {
-			types.add(par.getType());
-		}
-		return types;
 	}
 
 	/*
@@ -190,14 +171,13 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		//Can be invoked only on classes (<init>, superclass methods and private methods)
 		Assert.assertTrue(owner instanceof Class);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
-		Assert.assertNotNull(getInstrContext());
-		if (getInstrContext().conformsTo(owner)) {
-			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			EList<Parameter> params = newOp.getOwnedParameters();
-			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
-			if (childOp != null) {
-				newOp.setIsLeaf(false);
-			}
+		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
+		if (accessContext != null) {
+			setVisibility(newOp, accessContext);
+			setIsLeaf(newOp, accessContext);
+		} else { //no stack information available
+			setVisibility(newOp);
+			setIsLeaf(newOp);
 		}
 		newOp.setIsAbstract(false); //these methods are never abstract
 	}
@@ -211,15 +191,8 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		//Can be invoked only on classes (interfaces cannot contain static method headers)
 		Assert.assertTrue(owner instanceof Class);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
-		Assert.assertNotNull(getInstrContext());
-		if (getInstrContext().conformsTo(owner)) {
-			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			EList<Parameter> params = newOp.getOwnedParameters();
-			Operation childOp = getInstrContext().getOperation(newOp.getName(), getParameterNames(params), getParameterTypes(params));
-			if (childOp != null) {
-				newOp.setIsLeaf(false);
-			}
-		}
+		setVisibility(newOp);
+		setIsLeaf(newOp);
 		newOp.setIsAbstract(false); //these methods are never abstract
 		newOp.setIsStatic(true);
 	}
@@ -233,11 +206,14 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		//Can be invoked only on classes (refers to all remaining non-interface methods)
 		Assert.assertTrue(owner instanceof Class);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
-		Assert.assertNotNull(getInstrContext());
-		if (getInstrContext().conformsTo(owner)) {
-			newOp.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
+		if (accessContext != null) {
+			setVisibility(newOp, accessContext);
+			setIsLeaf(newOp, accessContext);
+		} else { //no stack information available
+			setVisibility(newOp);
+			setIsLeaf(newOp);
 		}
-		newOp.setIsAbstract(true);
 	}
 
 	/*
@@ -250,13 +226,15 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertTrue(owner instanceof Class);
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
-		Property att = (Property) addClassifierProperty.doSwitch(owner);
-		Assert.assertNotNull(getInstrContext());
-		if (getInstrContext().conformsTo(owner)) {
-			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
-			//even 'final' (isReadOly) fields can be 'put' once
+		final Property att = (Property) addClassifierProperty.doSwitch(owner);
+		final Classifier accessContext = typeToClassifier.doSwitch(getPutFieldAccessContext());
+		if (accessContext != null) {
+			setVisibility(att, accessContext);
+		} else {
+			setVisibility(att);
 		}
+		//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
+		//even 'final' (isReadOly) fields can be 'put' once
 		att.setIsStatic(false);
 	}
 
@@ -270,14 +248,181 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
-		Property att = (Property) addClassifierProperty.doSwitch(owner);
-		Assert.assertNotNull(getInstrContext());
-		if (getInstrContext().conformsTo(owner)) {
-			att.setVisibility(VisibilityKind.PROTECTED_LITERAL);
-			//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
-			//even 'final' (isReadOnly) fields can be 'put' once
-		}
+		final Property att = (Property) addClassifierProperty.doSwitch(owner);
+		setVisibility(att);
+		//fields cannot be redefined in Java, so not possible to check on 'isLeaf'
+		//even 'final' (isReadOnly) fields can be 'put' once
 		att.setIsStatic(true);
+	}
+
+	/**
+	 * @param instr
+	 * @return The access context of the (dynamic) invoke instruction, if available, otherwise <code>null</code>.
+	 */
+	private org.apache.bcel.generic.Type getAccessContext(final InvokeInstruction instr) {
+		Assert.assertFalse(instr instanceof INVOKESTATIC);
+		final Frame frame = getFrame();
+		return (frame == null) ? null : frame.getStack().peek(addClassifierOperation.getArgumentTypes().size());
+	}
+
+	/**
+	 * @return The access context of a GETFIELD instruction, if available, otherwise <code>null</code>.
+	 */
+	private org.apache.bcel.generic.Type getGetFieldAccessContext() {
+		final Frame frame = getFrame();
+		return (frame == null) ? null : frame.getStack().peek();
+	}
+
+	/**
+	 * @return The access context of a PUTFIELD instruction, if available, otherwise <code>null</code>.
+	 */
+	private org.apache.bcel.generic.Type getPutFieldAccessContext() {
+		final Frame frame = getFrame();
+		return (frame == null) ? null : frame.getStack().peek(1);
+	}
+
+	/**
+	 * Sets the visibility of feature, given the access context.
+	 * @param feature
+	 * @param accessContext
+	 */
+	private void setVisibility(final Feature feature, final Classifier accessContext) {
+		final Classifier instrContext = getInstrContext();
+		if (owner.equals(instrContext)) {
+			return; //This feature is part of the contained code, and does not need to be inferred
+		}
+		if (owner.getNearestPackage().equals(instrContext.getNearestPackage())) {
+			//feature access within same package
+			if (!feature.isSetVisibility()) {
+				feature.setVisibility(VisibilityKind.PACKAGE_LITERAL);
+			}
+		} else if (instrContext.conformsTo(accessContext) || instrContext.conformsTo(owner)) {
+			//feature access on instance of this class or known superclass
+			if (!feature.isSetVisibility() || feature.getVisibility().equals(VisibilityKind.PACKAGE_LITERAL)) {
+				feature.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			}
+		} else {
+			//other feature access
+			if (TypeToClassifierSwitch.isArrayType(accessContext) && "java::lang::Object::clone".equals(JarToUML.qualifiedName(feature))) {
+				/* 
+				 * Array types need special treatment: see 10.7 in http://java.sun.com/docs/books/jls/second_edition/html/arrays.doc.html
+				 * All array types have an implicit public clone() method that is inherited from java.lang.Object.
+				 * Here, the owner shows up as java.lang.Object, which means that it is actually clone() from java.lang.Object that is invoked.
+				 */
+				if (!feature.isSetVisibility() || feature.getVisibility().equals(VisibilityKind.PACKAGE_LITERAL)) {
+					feature.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+				}
+			} else {
+				feature.setVisibility(VisibilityKind.PUBLIC_LITERAL);
+			}
+		}
+	}
+
+	/**
+	 * Sets the visibility of feature, regardless of access context.
+	 * WARNING: this only works correctly if the entire class hierarchy is known!
+	 * @param feature
+	 */
+	private void setVisibility(final Feature feature) {
+		final Classifier instrContext = getInstrContext();
+		if (owner.equals(instrContext)) {
+			return; //This feature is part of the contained code, and does not need to be inferred
+		}
+		if (owner.getNearestPackage().equals(instrContext.getNearestPackage())) {
+			//feature access within same package
+			if (!feature.isSetVisibility()) {
+				feature.setVisibility(VisibilityKind.PACKAGE_LITERAL);
+			}
+		} else if (instrContext.conformsTo(owner)) {
+			//feature access on known superclass
+			//TODO WARNING: this only works correctly if the entire class hierarchy is known!
+			//Inheritance links between inferred classes are typically missing!
+			if (!feature.isSetVisibility() || feature.getVisibility().equals(VisibilityKind.PACKAGE_LITERAL)) {
+				feature.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+			}
+		} else {
+			//other feature access (uncertain due to missing access context)
+			if ("java::lang::Object::clone".equals(JarToUML.qualifiedName(feature))) {
+				/* 
+				 * Array types need special treatment: see 10.7 in http://java.sun.com/docs/books/jls/second_edition/html/arrays.doc.html
+				 * All array types have an implicit public clone() method that is inherited from java.lang.Object.
+				 * Here, the owner shows up as java.lang.Object, which means that it is actually clone() from java.lang.Object that is invoked.
+				 * 
+				 * Without access context information, we cannot be sure that clone() is invoked on
+				 * an array, but as all Java versions have a protected java.lang.Object#clone() we'll
+				 * assume that this code would have never compiled if the access context weren't an array.
+				 */
+				if (!feature.isSetVisibility() || feature.getVisibility().equals(VisibilityKind.PACKAGE_LITERAL)) {
+					feature.setVisibility(VisibilityKind.PROTECTED_LITERAL);
+				}
+			} //else leave visibility unset (implicit public)
+		}
+	}
+
+	/**
+	 * Checks if op cannot be final, and sets it so if true. 
+	 * @param op
+	 * @param accessContext
+	 */
+	private void setIsLeaf(final Operation op, final Classifier accessContext) {
+		final Classifier instrContext = getInstrContext();
+		if (owner.equals(instrContext)) {
+			return; //This feature is part of the contained code, and does not need to be inferred
+		}
+		if (instrContext.conformsTo(accessContext) || instrContext.conformsTo(owner)) {
+			//feature access on instance of this class or known superclass
+			final EList<Parameter> params = op.getOwnedParameters();
+			final Operation childOp = instrContext.getOperation(op.getName(), getParameterNames(params), getParameterTypes(params));
+			if (childOp != null) {
+				op.setIsLeaf(false);
+			}
+		}
+	}
+
+	/**
+	 * Checks if op cannot be final, and sets it so if true.
+	 * WARNING: this only works correctly if the entire class hierarchy is known!
+	 * @param op
+	 */
+	private void setIsLeaf(final Operation op) {
+		final Classifier instrContext = getInstrContext();
+		if (owner.equals(instrContext)) {
+			return; //This feature is part of the contained code, and does not need to be inferred
+		}
+		if (instrContext.conformsTo(owner)) {
+			//feature access on superclass
+			//TODO WARNING: this only works correctly if the entire class hierarchy is known!
+			//Inheritance links between inferred classes are typically missing!
+			final EList<Parameter> params = op.getOwnedParameters();
+			final Operation childOp = instrContext.getOperation(op.getName(), getParameterNames(params), getParameterTypes(params));
+			if (childOp != null) {
+				op.setIsLeaf(false);
+			}
+		}
+	}
+
+	/**
+	 * @param parameters
+	 * @return An {@link EList} of the names of each {@link Parameter} in parameters.
+	 */
+	private EList<String> getParameterNames(final EList<Parameter> parameters) {
+		final EList<String> names = new BasicEList<String>();
+		for (Parameter par : parameters) {
+			names.add(par.getName());
+		}
+		return names;
+	}
+
+	/**
+	 * @param parameters
+	 * @return An {@link EList} of the {@link Type}s of each {@link Parameter} in parameters.
+	 */
+	private EList<Type> getParameterTypes(final EList<Parameter> parameters) {
+		final EList<Type> types = new BasicEList<Type>();
+		for (Parameter par : parameters) {
+			types.add(par.getType());
+		}
+		return types;
 	}
 
 	/**
@@ -334,6 +479,20 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	protected void setException(Exception exception) {
 		this.exception = exception;
+	}
+
+	/**
+	 * @return the frame
+	 */
+	public Frame getFrame() {
+		return frame;
+	}
+
+	/**
+	 * @param frame the frame to set
+	 */
+	public void setFrame(Frame frame) {
+		this.frame = frame;
 	}
 
 }
