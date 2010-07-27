@@ -17,6 +17,7 @@ import org.apache.bcel.generic.BasicType;
 import org.apache.bcel.generic.ObjectType;
 import org.apache.bcel.verifier.structurals.UninitializedObjectType;
 import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Package;
 import org.eclipse.uml2.uml.UMLPackage;
 
@@ -25,6 +26,14 @@ import org.eclipse.uml2.uml.UMLPackage;
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class TypeToClassifierSwitch extends TypeSwitch<Classifier> {
+
+	/**
+	 * @param classifier
+	 * @return <code>true</code> iff classifier represents a Java {@link ArrayType}.
+	 */
+	public static final boolean isArrayType(Classifier classifier) {
+		return (classifier instanceof DataType) && classifier.getName().endsWith("[]");
+	}
 
 	private Package root = null;
 	private FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
@@ -93,9 +102,7 @@ public class TypeToClassifierSwitch extends TypeSwitch<Classifier> {
 	 */
 	@Override
 	public Classifier caseUninitializedObjectType(UninitializedObjectType type) {
-		JarToUML.logger.warning(String.format(
-				JarToUMLResources.getString("TypeToClassifierSwitch.whatIsUninitObjectType"), 
-				type)); //$NON-NLS-1$
+		//Special type for constructor methods; changes into object type after construction
 		return doSwitch(type.getInitialized());
 	}
 

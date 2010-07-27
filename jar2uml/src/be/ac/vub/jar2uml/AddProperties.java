@@ -12,22 +12,39 @@ package be.ac.vub.jar2uml;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.apache.bcel.Constants;
 import org.apache.bcel.classfile.Attribute;
 import org.apache.bcel.classfile.Code;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.StackMap;
+import org.apache.bcel.generic.ATHROW;
 import org.apache.bcel.generic.Instruction;
+import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
+import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.ObjectType;
+import org.apache.bcel.generic.Type;
+import org.apache.bcel.verifier.exc.StructuralCodeConstraintException;
+import org.apache.bcel.verifier.structurals.ControlFlowGraph;
+import org.apache.bcel.verifier.structurals.ExceptionHandler;
+import org.apache.bcel.verifier.structurals.Frame;
+import org.apache.bcel.verifier.structurals.InstructionContext;
+import org.apache.bcel.verifier.structurals.LocalVariables;
+import org.apache.bcel.verifier.structurals.UninitializedObjectType;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Property;
+
+import be.ac.vub.jar2uml.cflow.JarToUMLExecutionVisitor;
 
 /**
  * Adds {@link Classifier} {@link Operation}s and {@link Property}s to the UML {@link Model}.
@@ -57,6 +74,7 @@ public class AddProperties extends AddToModel {
 				typeToClassifier,
 				addClassifierProperty,
 				addClassifierOperation);
+	protected JarToUMLExecutionVisitor execution = new JarToUMLExecutionVisitor();
 
 	private boolean preverified;
 
@@ -164,7 +182,7 @@ public class AddProperties extends AddToModel {
 			op.setIsStatic(methods[i].isStatic());
 			op.setIsLeaf(methods[i].isFinal());
 			if (isIncludeInstructionReferences()) {
-				addOpCode(classifier, methods[i]);
+				addOpCode(classifier, javaClass, methods[i]);
 			}
 			if (isPreverified(methods[i].getCode())) {
 				setPreverified(true);
@@ -176,23 +194,134 @@ public class AddProperties extends AddToModel {
 	 * Adds fields/methods referenced by the bytecode instructions of method
 	 * to the UML model. Used in 2nd pass.
 	 * @param instrContext The classifier on which the method is defined.
+	 * @param javaClass The {@link JavaClass} representation of instrContext.
 	 * @param method The method for which to convert the references.
 	 * @throws JarToUMLException 
 	 */
-	public void addOpCode(Classifier instrContext, Method method) throws JarToUMLException {
-		if (method.getCode() == null) {
+	public void addOpCode(final Classifier instrContext, final JavaClass javaClass, final Method method) throws JarToUMLException {
+		final Code code = method.getCode();
+		if (code == null) {
 			return;
 		}
 		addInstructionDependencies.setInstrContext(instrContext);
 		addInstructionDependencies.setCp(method.getConstantPool());
-		InstructionList instrList = new InstructionList(method.getCode().getCode());
-		Instruction[] instr = instrList.getInstructions();
-		for (int i = 0; i < instr.length; i++) {
-			instr[i].accept(addInstructionDependencies);
-			final Exception e = addInstructionDependencies.getException();
+		final MethodGen method_gen = new MethodGen(method, javaClass.getClassName(), addInstructionDependencies.getCpg());
+		try {
+			final ControlFlowGraph cfgraph = new ControlFlowGraph(method_gen);
+			final InstructionContext[] succ = new InstructionContext[] {
+					cfgraph.contextOf(method_gen.getInstructionList().getStart())
+			};
+			//Successfully determined control flow graph: simulate stack frame
+			final Frame frame = new Frame(code.getMaxLocals(), code.getMaxStack());
+			initLocalVariableTypes(frame, javaClass, method);
+			addInstructionDependencies.setFrame(frame);
+			execution.setConstantPoolGen(addInstructionDependencies.getCpg());
+			execution.setFrame(frame);
+			executeInstr(cfgraph, succ, new HashSet<InstructionContext>());
+		} catch (StructuralCodeConstraintException e) {
+			JarToUML.logger.warning(String.format(
+					JarToUMLResources.getString("AddProperties.cannotCreateCFG"),
+					method_gen, javaClass.getClassName(), e.getLocalizedMessage())); //$NON-NLS-1$
+			//Fall back to naive instruction visiting, which cannot keep a correct stack frame
+			addInstructionDependencies.setFrame(null);
+			final InstructionList instrList = new InstructionList(code.getCode());
+			final Instruction[] instr = instrList.getInstructions();
+			for (int i = 0; i < instr.length; i++) {
+				instr[i].accept(addInstructionDependencies);
+				final Exception ve = addInstructionDependencies.getException();
+				if (ve != null) {
+					throw new JarToUMLException(ve);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Executes all possible execution paths and records the inferred dependencies.
+	 * @param cfg the control flow graph
+	 * @param succ all possible successor instructions
+	 * @param history already executed instructions
+	 * @throws JarToUMLException
+	 */
+	private void executeInstr(final ControlFlowGraph cfg, final InstructionContext[] succ, final Set<InstructionContext> history) throws JarToUMLException {
+		final Frame frame = addInstructionDependencies.getFrame();
+		for (InstructionContext ic : succ) {
+			//Skip already covered instructions
+			if (history.contains(ic)) {
+				continue;
+			}
+			//Use frame copy for each possible execution path
+			Frame frameClone = frame.getClone();
+			addInstructionDependencies.setFrame(frameClone);
+			execution.setFrame(frameClone);
+			//add dependencies
+			InstructionHandle instr = ic.getInstruction();
+			instr.accept(addInstructionDependencies);
+			Exception e = addInstructionDependencies.getException();
 			if (e != null) {
 				throw new JarToUMLException(e);
 			}
+			//update stack
+			instr.accept(execution);
+			history.add(ic);
+			executeInstr(cfg, ic.getSuccessors(), history);
+			executeInstr(cfg, ic.getExceptionHandlers(), history);
+		}
+	}
+	
+	/**
+	 * Executes all possible execution paths and records the inferred dependencies.
+	 * @param cfg the control flow graph
+	 * @param succ all possible successor instructions
+	 * @param history already executed instructions
+	 * @throws JarToUMLException
+	 */
+	private void executeInstr(final ControlFlowGraph cfg, final ExceptionHandler[] succ, final Set<InstructionContext> history) throws JarToUMLException {
+		final Frame frame = addInstructionDependencies.getFrame();
+		for (ExceptionHandler eh : succ) {
+			//Use frame copy for each possible execution path
+			Frame frameClone = frame.getClone();
+			addInstructionDependencies.setFrame(frameClone);
+			execution.setFrame(frameClone);
+			//simulate throwing the exception, resulting in a correct stack
+			frameClone.getStack().clear();
+			final org.apache.bcel.generic.ObjectType exceptionType = eh.getExceptionType();
+			if (exceptionType != null) {
+				frameClone.getStack().push(exceptionType);
+			} else {
+				frameClone.getStack().push(Type.THROWABLE);
+			}
+			new ATHROW().accept(execution);
+			//execute handler
+			executeInstr(cfg, new InstructionContext[]{ cfg.contextOf(eh.getHandlerStart()) }, history);
+		}
+	}
+	
+	/**
+	 * Initialises the local variable types in frame according to the method
+	 * context (javaClass) and argument types.
+	 * @param frame
+	 * @param javaClass
+	 * @param method
+	 */
+	private void initLocalVariableTypes(final Frame frame, final JavaClass javaClass, final Method method) {
+		final LocalVariables localVars = frame.getLocals();
+		int i = 0;
+		if (!method.isStatic()) {
+			final ObjectType objectType = new ObjectType(javaClass.getClassName());
+			if (Constants.CONSTRUCTOR_NAME.equals(method.getName())) {
+				localVars.set(i, new UninitializedObjectType(objectType));
+			} else {
+				localVars.set(i, objectType);
+			}
+			i++;
+		}
+		for (Type argType : method.getArgumentTypes()) {
+			if (argType == Type.BYTE || argType == Type.SHORT || argType == Type.BOOLEAN || argType == Type.CHAR){
+				argType = Type.INT;
+			}
+			localVars.set(i, argType);
+			i++;
 		}
 	}
 
