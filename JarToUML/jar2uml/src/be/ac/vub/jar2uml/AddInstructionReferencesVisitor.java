@@ -149,8 +149,10 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	 */
 	@Override
 	public void visitINVOKEVIRTUAL(INVOKEVIRTUAL obj) {
-		//Can be invoked only on classes (refers to all remaining non-interface methods)
-		changeOwnerToClass();
+		//Can be invoked only on classes and array types (refers to all remaining non-interface methods)
+		if (!TypeToClassifierSwitch.isArrayType(owner)) {
+			changeOwnerToClass();
+		}
 	}
 
 	/*
