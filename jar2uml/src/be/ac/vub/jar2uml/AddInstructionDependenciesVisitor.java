@@ -188,7 +188,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		Assert.assertTrue(owner instanceof Class);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
 		setVisibilityStatic(newOp);
-		setIsLeaf(newOp);
+		setIsLeafStatic(newOp);
 		newOp.setIsAbstract(false); //these methods are never abstract
 		newOp.setIsStatic(true);
 	}
@@ -361,7 +361,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 * WARNING: this only works correctly if the entire class hierarchy is known!
 	 * @param op
 	 */
-	private void setIsLeaf(final Operation op) {
+	private void setIsLeafStatic(final Operation op) {
 		final Classifier instrContext = getInstrContext();
 		if (owner.equals(instrContext)) {
 			return; //This feature is part of the contained code, and does not need to be inferred
