@@ -11,8 +11,12 @@
 package be.ac.vub.jar2uml;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
-import java.util.Stack;
+
+import junit.framework.Assert;
 
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
@@ -28,6 +32,7 @@ import org.eclipse.uml2.uml.Model;
 
 import be.ac.vub.jar2uml.cflow.AccessContextUnavailableException;
 import be.ac.vub.jar2uml.cflow.ControlFlow;
+import be.ac.vub.jar2uml.cflow.ExecutionContext;
 import be.ac.vub.jar2uml.cflow.JarToUMLExecutionVisitor;
 import be.ac.vub.jar2uml.cflow.LocalHistoryTable;
 import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
@@ -55,6 +60,8 @@ public class AddMethodOpCode extends AddToModel {
 	protected final Set<InstructionFlow> noAccessContextAvailable = new HashSet<InstructionFlow>();
 	protected int reuseCount = 0;
 	protected int copyCount = 0;
+	protected int excCopyCount = 0;
+	protected int maxQueueSize = 0;
 
 	/**
 	 * @param filter
@@ -78,13 +85,15 @@ public class AddMethodOpCode extends AddToModel {
 	 * @param method The method for which to convert the references.
 	 * @throws JarToUMLException 
 	 */
-	public void addOpCode(final Classifier instrContext, final JavaClass javaClass, final Method method) throws JarToUMLException {
+	public synchronized void addOpCode(final Classifier instrContext, final JavaClass javaClass, final Method method) throws JarToUMLException {
 		if (!isIncludeInstructionReferences() || method.getCode() == null) {
 			return;
 		}
 
 		reuseCount = 0;
 		copyCount = 0;
+		excCopyCount = 0;
+		maxQueueSize = 0;
 		globalHistory.clear();
 		noAccessContextAvailable.clear();
 		addInstructionDependencies.setInstrContext(instrContext);
@@ -96,11 +105,16 @@ public class AddMethodOpCode extends AddToModel {
 
 		JarToUML.logger.finer(method_gen.toString());
 
+		//TODO remove
+		if (method_gen.toString().startsWith("protected void initialize")) {
+			JarToUML.logger.finer("We made it to " + method_gen);
+		}
+
 		execute(cflow);
 
 		JarToUML.logger.fine(String.format(
 				JarToUMLResources.getString("AddMethodOpCode.instrCount"), 
-				reuseCount, copyCount, method_gen.toString())); //$NON-NLS-1$
+				reuseCount, copyCount, excCopyCount, maxQueueSize, method_gen.toString())); //$NON-NLS-1$
 
 		if (method_gen.getInstructionList().size() != globalHistory.size()) {
 			final InstructionHandle[] allInstr = method_gen.getInstructionList().getInstructionHandles();
@@ -116,11 +130,13 @@ public class AddMethodOpCode extends AddToModel {
 					notcovered.toString())); //$NON-NLS-1$
 			final Set<InstructionFlow> naca = new HashSet<InstructionFlow>(notcovered);
 			naca.retainAll(noAccessContextAvailable);
-			JarToUML.logger.warning(String.format(
-					JarToUMLResources.getString("AddMethodOpCode.guaranteedNPE"),
-					javaClass.getClassName(),
-					method_gen.toString(),
-					notcovered.toString())); //$NON-NLS-1$
+			if (!naca.isEmpty()) {
+				JarToUML.logger.warning(String.format(
+						JarToUMLResources.getString("AddMethodOpCode.guaranteedNPE"),
+						javaClass.getClassName(),
+						method_gen.toString(),
+						naca.toString())); //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -131,9 +147,7 @@ public class AddMethodOpCode extends AddToModel {
 	 * @param cflow
 	 */
 	protected void execute(final ControlFlow cflow) {
-		final Stack<Frame> frameStack = new Stack<Frame>();
-		final Stack<LocalHistoryTable> historyStack = new Stack<LocalHistoryTable>();
-		final Stack<InstructionFlow> iflowStack = new Stack<InstructionFlow>();
+		final List<ExecutionContext> ecQueue = new LinkedList<ExecutionContext>();
 		final int instrCount = cflow.getMethod().getInstructionList().getLength();
 
 		Frame frame = cflow.getStartFrame().getClone();
@@ -142,22 +156,22 @@ public class AddMethodOpCode extends AddToModel {
 
 		while (iflow != null && globalHistory.size() < instrCount) {
 
+			//represents a successful termination of the current execution path
+			boolean terminated = true;
+
 			try {
 				LocalHistorySet instrHistory = history.get(iflow);
-				boolean terminated = true;
 				//execute exception handlers in the context of before the covered instruction
 				if (iflow.isExceptionThrower()) {
 					for (ExceptionHandler eh : iflow.getExceptionHandlers()) {
 						InstructionFlow succ = cflow.getFlowOf(eh.getHandlerStart());
 						//create a new history for each alternative successor path
 						LocalHistoryTable newHistory = history.getClone();
-						copyCount++;
+						excCopyCount++;
 						//check if successor has ever been executed from this history by calculating new history
 						if (newHistory.get(succ).addAll(instrHistory)) {
-							//push execution context on stack
-							iflowStack.push(succ);
-							historyStack.push(newHistory);
-							frameStack.push(prepareExceptionFrame(frame, eh));
+							//add execution context to queue
+							ecQueue.add(new ExecutionContext(succ, newHistory, prepareExceptionFrame(frame, eh)));
 							//if the covered instructions terminate successfully, this exception handler also should, so don't check
 						}
 					}
@@ -182,27 +196,40 @@ public class AddMethodOpCode extends AddToModel {
 					}
 					//check if successor has ever been executed from this history by calculating new history
 					if (newHistory.get(succ[i]).addAll(instrHistory)) {
-						//push execution context on stack
-						iflowStack.push(succ[i]);
-						historyStack.push(newHistory);
-						frameStack.push(newFrame);
+						//add execution context to queue
+						ecQueue.add(new ExecutionContext(succ[i], newHistory, newFrame));
 						terminated = false;
 					}
-				}
-				if (terminated && !historyStack.isEmpty()) {
-					//copy back history of successfully terminated execution paths
-					historyStack.peek().union(history);
 				}
 			} catch (AccessContextUnavailableException e) {
 				//cut execution path and remember the reason
 				noAccessContextAvailable.add(iflow);
+				terminated = false;
 			}
 
-			if (!iflowStack.isEmpty()) {
-				//retrieve next execution context from stack
-				iflow = iflowStack.pop();
-				history = historyStack.pop();
-				frame = frameStack.pop();
+			if (!ecQueue.isEmpty()) {
+				maxQueueSize = Math.max(maxQueueSize, ecQueue.size());
+				Assert.assertTrue(maxQueueSize <= copyCount + excCopyCount + 1);
+				//cherry-pick next execution context from queue: one that preferably has not been visited before
+				Iterator<ExecutionContext> ecIterator = ecQueue.iterator();
+				ExecutionContext ec;
+				while (true) {
+					ec = ecIterator.next();
+					if (!globalHistory.contains(ec.getIflow())) {
+						ecIterator.remove();
+						break;
+					} else if (!ecIterator.hasNext()) {
+						ecIterator.remove();
+						break;
+					}
+				}
+				if (terminated) {
+					//copy back history of successfully terminated execution paths
+					ec.getHistory().union(history);
+				}
+				iflow = ec.getIflow();
+				history = ec.getHistory();
+				frame = ec.getFrame();
 			} else {
 				iflow = null;
 			}
@@ -226,6 +253,7 @@ public class AddMethodOpCode extends AddToModel {
 			addInstructionDependencies.setFrame(frame);
 			iflow.accept(addInstructionDependencies); // this will bail out with an AccessContextUnavailableException on null pointer access
 			globalHistory.add(iflow);
+			noAccessContextAvailable.remove(iflow);
 		}
 		final InstructionFlow[] succ = iflow.getSuccessors(frame);
 		//update stack
@@ -256,5 +284,5 @@ public class AddMethodOpCode extends AddToModel {
 		//return the prepared frame
 		return frameClone;
 	}
-	
+
 }

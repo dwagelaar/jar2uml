@@ -210,6 +210,7 @@ public class ControlFlow {
 				counter++;
 			}
 			this.index = counter;
+			flows[counter] = this;
 		}
 
 		/**
@@ -283,7 +284,8 @@ public class ControlFlow {
 	private final Frame startFrame;
 	private final ExceptionHandlers exceptionHandlers;
 
-	protected Map<InstructionHandle, InstructionFlow> flowOf = new HashMap<InstructionHandle, InstructionFlow>();
+	protected final Map<InstructionHandle, InstructionFlow> flowOf = new HashMap<InstructionHandle, InstructionFlow>();
+	protected final InstructionFlow[] flows;
 
 	/**
 	 * Creates a new {@link ControlFlow}.
@@ -297,6 +299,7 @@ public class ControlFlow {
 		this.startFrame = new Frame(code.getMaxLocals(), code.getMaxStack());
 		initLocalVariableTypes(startFrame);
 		exceptionHandlers = new ExceptionHandlers(method);
+		flows = new InstructionFlow[method.getInstructionList().getLength()];
 	}
 	
 	/**
@@ -349,6 +352,15 @@ public class ControlFlow {
 			flowOf[i] = getFlowOf(instr[i]);
 		}
 		return flowOf;
+	}
+
+	/**
+	 * @param index
+	 * @return the instruction flow with the given index, or <code>null</code>
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+	 */
+	public InstructionFlow getFlow(int index) {
+		return flows[index];
 	}
 
 	/**
