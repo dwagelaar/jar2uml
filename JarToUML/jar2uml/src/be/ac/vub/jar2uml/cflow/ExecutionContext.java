@@ -10,6 +10,8 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.cflow;
 
+import java.util.BitSet;
+
 import org.apache.bcel.verifier.structurals.Frame;
 
 import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
@@ -23,18 +25,21 @@ public class ExecutionContext {
 
 	private final InstructionFlow iflow;
 	private final LocalHistoryTable history;
+	private final BitSet pathHistory;
 	private final Frame frame;
 
 	/**
 	 * Creates a new {@link ExecutionContext}.
 	 * @param iflow
 	 * @param history
+	 * @param pathHistory
 	 * @param frame
 	 */
-	public ExecutionContext(InstructionFlow iflow, LocalHistoryTable history, Frame frame) {
+	public ExecutionContext(InstructionFlow iflow, LocalHistoryTable history, BitSet pathHistory, Frame frame) {
 		super();
 		this.iflow = iflow;
 		this.history = history;
+		this.pathHistory = pathHistory;
 		this.frame = frame;
 	}
 
@@ -50,6 +55,13 @@ public class ExecutionContext {
 	 */
 	public LocalHistoryTable getHistory() {
 		return history;
+	}
+
+	/**
+	 * @return the pathHistory
+	 */
+	public BitSet getPathHistory() {
+		return pathHistory;
 	}
 
 	/**
