@@ -10,6 +10,7 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.cflow;
 
+import java.io.Serializable;
 import java.util.BitSet;
 
 import junit.framework.Assert;
@@ -19,7 +20,9 @@ import junit.framework.Assert;
  * Uses a lookup table to implement the history.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class LocalHistoryTable {
+public class LocalHistoryTable implements Serializable {
+
+	private static final long serialVersionUID = 7170069224023100850L;
 
 	/**
 	 * Represents an object with an index. 
