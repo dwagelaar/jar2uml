@@ -80,8 +80,8 @@ public class ControlFlow {
 			/**
 			 * @return the successors
 			 */
-			public InstructionHandle[] getSuccessors() {
-				return successors;
+			public InstructionFlow[] getSuccessors() {
+				return getFlowOf(successors);
 			}
 
 			/**
@@ -91,25 +91,27 @@ public class ControlFlow {
 				return frame;
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitATHROW(org.apache.bcel.generic.ATHROW)
+			/**
+			 * Terminates method abnormally: no successors.
+			 * @param obj
 			 */
 			@Override
 			public void visitATHROW(ATHROW obj) {
-				//terminates method abnormally - ignores exception handlers
 				setSuccessors(EMPTY);
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitGotoInstruction(org.apache.bcel.generic.GotoInstruction)
+			/**
+			 * Goto target is set as successor.
+			 * @param obj
 			 */
 			@Override
 			public void visitGotoInstruction(GotoInstruction obj) {
 				setSuccessors(new InstructionHandle[] { obj.getTarget() });
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitIfInstruction(org.apache.bcel.generic.IfInstruction)
+			/**
+			 * Two alternative branch targets are set as successors.
+			 * @param obj
 			 */
 			@Override
 			public void visitIfInstruction(IfInstruction obj) {
@@ -126,40 +128,53 @@ public class ControlFlow {
 			 * 
 			 * It's ok to be smarter than the compiler here, as dependencies of
 			 * dead code can be ignored.
+			 * 
+			 * If a target of a jump is cut off, this may confuse the search
+			 * algorithm, as it doesn't know about the cut off branch! The search
+			 * algorithm may decide not to try this instruction anymore, as there
+			 * were "no problems" with it! Hence, an exception must be thrown to
+			 * indicate the situation!
 			 */
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitIFNONNULL(org.apache.bcel.generic.IFNONNULL)
+			/**
+			 * @see #visitIfInstruction(IfInstruction)
+			 * @throws BranchTargetUnavailableException if a branch target was cut off due to the given execution frame
 			 */
 			@Override
 			public void visitIFNONNULL(IFNONNULL obj) {
 				if (getFrame().getStack().peek().equals(Type.NULL)) {
 					//We already know which way the jump goes
 					setSuccessors(new InstructionHandle[] { getInstruction().getNext() });
+					throw new BranchTargetUnavailableException(getSuccessors());
 				} //else jump may still go either way
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitIFNULL(org.apache.bcel.generic.IFNULL)
+			/**
+			 * @see #visitIfInstruction(IfInstruction)
+			 * @throws BranchTargetUnavailableException if a branch target was cut off due to the given execution frame
 			 */
 			@Override
 			public void visitIFNULL(IFNULL obj) {
 				if (getFrame().getStack().peek().equals(Type.NULL)) {
 					//We already know which way the jump goes
 					setSuccessors(new InstructionHandle[] { obj.getTarget() });
+					throw new BranchTargetUnavailableException(getSuccessors());
 				} //else jump may still go either way
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitJsrInstruction(org.apache.bcel.generic.JsrInstruction)
+			/**
+			 * Jump target is set as successor.
+			 * @param obj
 			 */
 			@Override
 			public void visitJsrInstruction(JsrInstruction obj) {
 				setSuccessors(new InstructionHandle[] { obj.getTarget() });
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitRET(org.apache.bcel.generic.RET)
+			/**
+			 * Return target is set as successor.
+			 * @param obj
+			 * @throws ClassCastException if the given execution frame does not contain a valid return address
 			 */
 			@Override
 			public void visitRET(RET obj) {
@@ -167,27 +182,28 @@ public class ControlFlow {
 				setSuccessors(new InstructionHandle[]{ address.getTarget() });
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitReturnInstruction(org.apache.bcel.generic.ReturnInstruction)
+			/**
+			 * Terminates method normally: no successors.
+			 * @param obj
 			 */
 			@Override
 			public void visitReturnInstruction(ReturnInstruction obj) {
-				//method return
 				setSuccessors(EMPTY);
 			}
 
-			/* (non-Javadoc)
-			 * @see org.apache.bcel.generic.EmptyVisitor#visitSelect(org.apache.bcel.generic.Select)
+			/**
+			 * Sets the (unique) collection of switch targets as successors.
+			 * @param obj
 			 */
 			@Override
 			public void visitSelect(Select obj) {
 				final LinkedHashSet<InstructionHandle> uniqueTargets = new LinkedHashSet<InstructionHandle>();
+				//default target
+				uniqueTargets.add(obj.getTarget());
 				//switch targets
 				for (InstructionHandle target : obj.getTargets()) {
 					uniqueTargets.add(target);
 				}
-				//default target
-				uniqueTargets.add(obj.getTarget());
 				final InstructionHandle[] ret = new InstructionHandle[uniqueTargets.size()];
 				uniqueTargets.toArray(ret);
 				setSuccessors(ret);
@@ -231,11 +247,12 @@ public class ControlFlow {
 		/**
 		 * @param frame the execution frame BEFORE execution if this instruction
 		 * @return The possible successor instructions for this instruction
+		 * @throws BranchTargetUnavailableException if a branch target was cut off due to the given execution frame
 		 */
 		public final InstructionFlow[] getSuccessors(final Frame frame) {
 			final InstructionSuccessorVisitor successors = new InstructionSuccessorVisitor(frame);
 			accept(successors);
-			return getFlowOf(successors.getSuccessors());
+			return successors.getSuccessors();
 		}
 
 		/* (non-Javadoc)
@@ -243,7 +260,7 @@ public class ControlFlow {
 		 */
 		@Override
 		public String toString() {
-			return "InstructionFlow[ " + getInstruction().toString() + " ]"; //$NON-NLS-1$ //$NON-NLS-2$
+			return getClass().getSimpleName() + "[" + getIndex() + "]{ " + getInstruction().toString().trim() + " }"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 		
 	    /** 
@@ -325,7 +342,7 @@ public class ControlFlow {
 				argType = Type.INT;
 			}
 			localVars.set(i, argType);
-			i++;
+			i += argType.getSize();
 		}
 	}
 
@@ -396,7 +413,7 @@ public class ControlFlow {
 	 */
 	@Override
 	public String toString() {
-		return "ControlFlow[ " + getMethod().toString() + " ]"; //$NON-NLS-1$ //$NON-NLS-2$
+		return getClass().getSimpleName() + "[" + flows.length + "]{ " + getMethod().toString() + " }"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 }
