@@ -11,6 +11,7 @@
 package be.ac.vub.jar2uml.cflow;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.BitSet;
 
 import junit.framework.Assert;
@@ -93,10 +94,20 @@ public class LocalHistoryTable implements Serializable {
 		public int getIndex() {
 			return index;
 		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return getClass().getSimpleName() + table[index];
+		}
 	}
 
 	private final int capacity;
 	private final BitSet[] table;
+
+	private boolean branchTargetUnavailable;
 
 	/**
 	 * Creates a new {@link LocalHistoryTable}.
@@ -133,6 +144,9 @@ public class LocalHistoryTable implements Serializable {
 				copy.table[i] = (BitSet) table[i].clone();
 			}
 		}
+		if (hasBranchTargetUnavailable()) {
+			copy.setBranchTargetUnavailable();
+		}
 		return copy;
 	}
 
@@ -140,8 +154,9 @@ public class LocalHistoryTable implements Serializable {
 	 * Adds elements of history to this history table, resulting in a history union.
 	 * @param history
 	 */
-	public void union(LocalHistoryTable history) {
+	public void merge(LocalHistoryTable history) {
 		Assert.assertEquals(capacity, history.capacity);
+		Assert.assertFalse(history.hasBranchTargetUnavailable()); //history tables with this flag set should not be merged
 		for (int i = 0; i < capacity; i++) {
 			if (history.table[i] != null) {
 				if (table[i] != null) {
@@ -151,5 +166,27 @@ public class LocalHistoryTable implements Serializable {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Sets the branch target unavailable flag
+	 */
+	public void setBranchTargetUnavailable() {
+		this.branchTargetUnavailable = true;
+	}
+
+	/**
+	 * @return the branchTargetUnavailable flag
+	 */
+	public boolean hasBranchTargetUnavailable() {
+		return branchTargetUnavailable;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + (hasBranchTargetUnavailable() ? "(btu)" : "") + Arrays.toString(table); //$NON-NLS-1$
 	}
 }
