@@ -13,6 +13,7 @@ package be.ac.vub.jar2uml;
 import junit.framework.Assert;
 
 import org.apache.bcel.classfile.ConstantPool;
+import org.apache.bcel.generic.AALOAD;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.EmptyVisitor;
 import org.apache.bcel.generic.FieldOrMethod;
@@ -26,7 +27,6 @@ import org.apache.bcel.generic.InvokeInstruction;
 import org.apache.bcel.generic.PUTFIELD;
 import org.apache.bcel.generic.PUTSTATIC;
 import org.apache.bcel.generic.ReferenceType;
-import org.apache.bcel.verifier.structurals.Frame;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.uml2.uml.Class;
@@ -41,6 +41,7 @@ import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.VisibilityKind;
 
 import be.ac.vub.jar2uml.cflow.AccessContextUnavailableException;
+import be.ac.vub.jar2uml.cflow.SmartFrame;
 
 /**
  * Adds classifier fields/methods referenced by the switched bytecode instruction to the model.
@@ -51,7 +52,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	private Classifier instrContext;
 	private ConstantPool cp;
 	private ConstantPoolGen cpg;
-	private Frame frame;
+	private SmartFrame frame;
 
 	protected TypeToClassifierSwitch typeToClassifier = null;
 	protected AddClassifierPropertySwitch addClassifierProperty = null;
@@ -78,6 +79,14 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 		this.addClassifierOperation = addClassifierOperationSwitch;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.apache.bcel.generic.EmptyVisitor#visitAALOAD(org.apache.bcel.generic.AALOAD)
+	 */
+	@Override
+	public void visitAALOAD(AALOAD obj) {
+		typeToClassifier.doSwitch(getGetFieldAccessContext());
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.apache.bcel.generic.EmptyVisitor#visitFieldOrMethod(org.apache.bcel.generic.FieldOrMethod)
@@ -97,9 +106,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitGETFIELD(GETFIELD obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getGetFieldAccessContext());
-		if (accessContext == null) {
-			throw new AccessContextUnavailableException();
-		}
 		//Only classes have instance fields
 		Assert.assertTrue(owner instanceof Class);
 		final ConstantPoolGen cpg = getCpg();
@@ -150,9 +156,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitINVOKEINTERFACE(INVOKEINTERFACE obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
-		if (accessContext == null) {
-			throw new AccessContextUnavailableException();
-		}
 		//Can be invoked only on interfaces
 		Assert.assertTrue(owner instanceof Interface);
 		final Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
@@ -167,9 +170,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitINVOKESPECIAL(INVOKESPECIAL obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
-		if (accessContext == null) {
-			throw new AccessContextUnavailableException();
-		}
 		//Can be invoked only on classes (<init>, superclass methods and private methods)
 		Assert.assertTrue(owner instanceof Class);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
@@ -200,9 +200,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitINVOKEVIRTUAL(INVOKEVIRTUAL obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
-		if (accessContext == null) {
-			throw new AccessContextUnavailableException();
-		}
 		//Can be invoked only on classes and array types (refers to all remaining non-interface methods)
 		Assert.assertTrue(owner instanceof Class || TypeToClassifierSwitch.isArrayType(owner));
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
@@ -217,9 +214,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitPUTFIELD(PUTFIELD obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getPutFieldAccessContext());
-		if (accessContext == null) {
-			throw new AccessContextUnavailableException();
-		}
 		//Only classes have instance fields
 		Assert.assertTrue(owner instanceof Class);
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
@@ -250,28 +244,47 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 
 	/**
 	 * @param instr
-	 * @return The access context of the (dynamic) invoke instruction, if available, otherwise <code>null</code>.
+	 * @return The access context of the (dynamic) invoke instruction, if available.
+	 * @throws AccessContextUnavailableException if the access context is not available
 	 */
 	private org.apache.bcel.generic.Type getAccessContext(final InvokeInstruction instr) {
 		Assert.assertFalse(instr instanceof INVOKESTATIC);
-		final Frame frame = getFrame();
-		return (frame == null) ? null : frame.getStack().peek(addClassifierOperation.getArgumentTypes().size());
+		final SmartFrame frame = getFrame();
+		Assert.assertNotNull(frame);
+		final int stackIndex = addClassifierOperation.getArgumentTypes().size();
+		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek(stackIndex);
+		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
+			throw new AccessContextUnavailableException(frame.getResponsibleForStackEntry(stackIndex));
+		}
+		return accessContext;
 	}
 
 	/**
-	 * @return The access context of a GETFIELD instruction, if available, otherwise <code>null</code>.
+	 * @return The access context of a GETFIELD instruction, if available.
+	 * @throws AccessContextUnavailableException if the access context is not available
 	 */
 	private org.apache.bcel.generic.Type getGetFieldAccessContext() {
-		final Frame frame = getFrame();
-		return (frame == null) ? null : frame.getStack().peek();
+		final SmartFrame frame = getFrame();
+		Assert.assertNotNull(frame);
+		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek();
+		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
+			throw new AccessContextUnavailableException(frame.getResponsibleForStackTop());
+		}
+		return accessContext;
 	}
 
 	/**
-	 * @return The access context of a PUTFIELD instruction, if available, otherwise <code>null</code>.
+	 * @return The access context of a PUTFIELD instruction, if available.
+	 * @throws AccessContextUnavailableException if the access context is not available
 	 */
 	private org.apache.bcel.generic.Type getPutFieldAccessContext() {
-		final Frame frame = getFrame();
-		return (frame == null) ? null : frame.getStack().peek(1);
+		final SmartFrame frame = getFrame();
+		Assert.assertNotNull(frame);
+		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek(1);
+		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
+			throw new AccessContextUnavailableException(frame.getResponsibleForStackEntry(1));
+		}
+		return accessContext;
 	}
 
 	/**
@@ -447,14 +460,14 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	/**
 	 * @return the frame
 	 */
-	public Frame getFrame() {
+	public SmartFrame getFrame() {
 		return frame;
 	}
 
 	/**
 	 * @param frame the frame to set
 	 */
-	public void setFrame(Frame frame) {
+	public void setFrame(SmartFrame frame) {
 		this.frame = frame;
 	}
 

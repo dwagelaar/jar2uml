@@ -21,7 +21,7 @@ import junit.framework.Assert;
  * Uses a lookup table to implement the history.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class LocalHistoryTable implements Serializable {
+public class LocalHistoryTable implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 7170069224023100850L;
 
@@ -107,7 +107,7 @@ public class LocalHistoryTable implements Serializable {
 	private final int capacity;
 	private final BitSet[] table;
 
-	private boolean branchTargetUnavailable;
+	private boolean uncoveredCode;
 
 	/**
 	 * Creates a new {@link LocalHistoryTable}.
@@ -134,18 +134,19 @@ public class LocalHistoryTable implements Serializable {
 		return capacity;
 	}
 
-	/**
-	 * @return a copy of this history table
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
 	 */
-	public final LocalHistoryTable getClone() {
+	@Override
+	public Object clone() {
 		final LocalHistoryTable copy = new LocalHistoryTable(capacity);
 		for (int i = 0; i < capacity; i++) {
 			if (table[i] != null) {
 				copy.table[i] = (BitSet) table[i].clone();
 			}
 		}
-		if (hasBranchTargetUnavailable()) {
-			copy.setBranchTargetUnavailable();
+		if (hasUncoveredCode()) {
+			copy.setUncoveredCode();
 		}
 		return copy;
 	}
@@ -155,8 +156,11 @@ public class LocalHistoryTable implements Serializable {
 	 * @param history
 	 */
 	public void merge(LocalHistoryTable history) {
+		if (this == history) {
+			return;
+		}
 		Assert.assertEquals(capacity, history.capacity);
-		Assert.assertFalse(history.hasBranchTargetUnavailable()); //history tables with this flag set should not be merged
+		Assert.assertFalse(history.hasUncoveredCode()); //history tables with this flag set should not be merged
 		for (int i = 0; i < capacity; i++) {
 			if (history.table[i] != null) {
 				if (table[i] != null) {
@@ -169,17 +173,17 @@ public class LocalHistoryTable implements Serializable {
 	}
 
 	/**
-	 * Sets the branch target unavailable flag
+	 * Sets the uncovered code flag
 	 */
-	public void setBranchTargetUnavailable() {
-		this.branchTargetUnavailable = true;
+	public void setUncoveredCode() {
+		this.uncoveredCode = true;
 	}
 
 	/**
-	 * @return the branchTargetUnavailable flag
+	 * @return the uncovered code flag
 	 */
-	public boolean hasBranchTargetUnavailable() {
-		return branchTargetUnavailable;
+	public boolean hasUncoveredCode() {
+		return uncoveredCode;
 	}
 
 	/* (non-Javadoc)
@@ -187,6 +191,6 @@ public class LocalHistoryTable implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + (hasBranchTargetUnavailable() ? "(btu)" : "") + Arrays.toString(table); //$NON-NLS-1$
+		return getClass().getSimpleName() + (hasUncoveredCode() ? "(uc)" : "") + Arrays.toString(table); //$NON-NLS-1$
 	}
 }
