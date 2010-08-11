@@ -61,7 +61,7 @@ import be.ac.vub.jar2uml.cflow.LocalHistoryTable.OrderedItem;
  */
 public class ControlFlow {
 
-	private static final InstructionHandle[] EMPTY = new InstructionHandle[0];
+	private static final InstructionFlow[] EMPTY = new InstructionFlow[0];
 
 	/**
 	 * @param instr
@@ -101,14 +101,15 @@ public class ControlFlow {
 		 */
 		protected class SimpleInstructionSuccessorVisitor extends EmptyVisitor {
 			
-			private InstructionHandle[] successors = new InstructionHandle[] {
-					getInstruction().getNext()
+			private InstructionFlow[] successors = getInstruction().getNext() == null ? EMPTY :
+				new InstructionFlow[] {
+					getFlowOf(getInstruction().getNext())
 			};
 
 			/**
 			 * @param successors the successors to set
 			 */
-			protected void setSuccessors(InstructionHandle[] successors) {
+			protected void setSuccessors(InstructionFlow[] successors) {
 				this.successors = successors;
 			}
 
@@ -116,7 +117,7 @@ public class ControlFlow {
 			 * @return the successors
 			 */
 			public InstructionFlow[] getSuccessors() {
-				return getFlowOf(successors);
+				return successors;
 			}
 
 			/**
@@ -134,7 +135,7 @@ public class ControlFlow {
 			 */
 			@Override
 			public void visitGotoInstruction(GotoInstruction obj) {
-				setSuccessors(new InstructionHandle[] { obj.getTarget() });
+				setSuccessors(new InstructionFlow[] { getFlowOf(obj.getTarget()) });
 			}
 
 			/**
@@ -143,9 +144,9 @@ public class ControlFlow {
 			 */
 			@Override
 			public void visitIfInstruction(IfInstruction obj) {
-				final InstructionHandle[] ret = new InstructionHandle[2];
-				ret[0] = getInstruction().getNext();
-				ret[1] = obj.getTarget();
+				final InstructionFlow[] ret = new InstructionFlow[2];
+				ret[0] = getFlowOf(getInstruction().getNext());
+				ret[1] = getFlowOf(obj.getTarget());
 				setSuccessors(ret);
 			}
 
@@ -156,9 +157,9 @@ public class ControlFlow {
 			 */
 			@Override
 			public void visitJsrInstruction(JsrInstruction obj) {
-				final InstructionHandle[] ret = new InstructionHandle[2];
-				ret[0] = getInstruction().getNext();
-				ret[1] = obj.getTarget();
+				final InstructionFlow[] ret = new InstructionFlow[2];
+				ret[0] = getFlowOf(getInstruction().getNext());
+				ret[1] = getFlowOf(obj.getTarget());
 				setSuccessors(ret);
 			}
 
@@ -187,14 +188,14 @@ public class ControlFlow {
 			 */
 			@Override
 			public void visitSelect(Select obj) {
-				final LinkedHashSet<InstructionHandle> uniqueTargets = new LinkedHashSet<InstructionHandle>();
+				final LinkedHashSet<InstructionFlow> uniqueTargets = new LinkedHashSet<InstructionFlow>();
 				//default target
-				uniqueTargets.add(obj.getTarget());
+				uniqueTargets.add(getFlowOf(obj.getTarget()));
 				//switch targets
 				for (InstructionHandle target : obj.getTargets()) {
-					uniqueTargets.add(target);
+					uniqueTargets.add(getFlowOf(target));
 				}
-				final InstructionHandle[] ret = new InstructionHandle[uniqueTargets.size()];
+				final InstructionFlow[] ret = new InstructionFlow[uniqueTargets.size()];
 				uniqueTargets.toArray(ret);
 				setSuccessors(ret);
 			}
@@ -208,21 +209,20 @@ public class ControlFlow {
 		 */
 		protected class InstructionSuccessorVisitor extends SimpleInstructionSuccessorVisitor {
 			
-			private final SmartFrame frame;
-
-			/**
-			 * Creates a new {@link InstructionSuccessorVisitor}.
-			 * @param frame
-			 */
-			public InstructionSuccessorVisitor(final SmartFrame frame) {
-				this.frame = frame;
-			}
+			private SmartFrame frame;
 
 			/**
 			 * @return the frame
 			 */
 			public SmartFrame getFrame() {
 				return frame;
+			}
+
+			/**
+			 * @param frame the frame to set
+			 */
+			public void setFrame(SmartFrame frame) {
+				this.frame = frame;
 			}
 
 			/*
@@ -248,7 +248,7 @@ public class ControlFlow {
 			public void visitIFNONNULL(IFNONNULL obj) {
 				if (getFrame().getStack().peek().equals(Type.NULL)) {
 					//We already know which way the jump goes
-					setSuccessors(new InstructionHandle[] { getInstruction().getNext() });
+					setSuccessors(new InstructionFlow[] { getFlowOf(getInstruction().getNext()) });
 					throw new BranchTargetUnavailableException(
 							new InstructionFlow[] { getFlowOf(obj.getTarget()) }, 
 							getSuccessors(),
@@ -264,7 +264,7 @@ public class ControlFlow {
 			public void visitIFNULL(IFNULL obj) {
 				if (getFrame().getStack().peek().equals(Type.NULL)) {
 					//We already know which way the jump goes
-					setSuccessors(new InstructionHandle[] { obj.getTarget() });
+					setSuccessors(new InstructionFlow[] { getFlowOf(obj.getTarget()) });
 					throw new BranchTargetUnavailableException(
 							new InstructionFlow[] { getFlowOf(getInstruction().getNext()) }, 
 							getSuccessors(),
@@ -278,7 +278,7 @@ public class ControlFlow {
 			 */
 			@Override
 			public void visitJsrInstruction(JsrInstruction obj) {
-				setSuccessors(new InstructionHandle[] { obj.getTarget() });
+				setSuccessors(new InstructionFlow[] { getFlowOf(obj.getTarget()) });
 			}
 
 			/**
@@ -289,7 +289,7 @@ public class ControlFlow {
 			@Override
 			public void visitRET(RET obj) {
 				final ReturnaddressType address = (ReturnaddressType) getFrame().getLocals().get(obj.getIndex());
-				setSuccessors(new InstructionHandle[]{ address.getTarget() });
+				setSuccessors(new InstructionFlow[]{ getFlowOf(address.getTarget()) });
 			}
 
 		}
@@ -299,6 +299,8 @@ public class ControlFlow {
 		private final Set<InstructionFlow> predecessors = new LinkedHashSet<InstructionFlow>();
 		private final Set<InstructionFlow> successors = new LinkedHashSet<InstructionFlow>();
 		private final Set<InstructionFlow> sameLineSet = new HashSet<InstructionFlow>();
+
+		protected InstructionSuccessorVisitor successorVisitor;
 
 		/**
 		 * Creates a new {@link InstructionFlow}.
@@ -340,7 +342,7 @@ public class ControlFlow {
 		/**
 		 * @return The represented instruction
 		 */
-		public InstructionHandle getInstruction() {
+		public final InstructionHandle getInstruction() {
 			return instr;
 		}
 
@@ -350,9 +352,12 @@ public class ControlFlow {
 		 * @throws BranchTargetUnavailableException if a branch target was cut off due to the given execution frame
 		 */
 		public final InstructionFlow[] getSuccessors(final SmartFrame frame) {
-			final InstructionSuccessorVisitor successors = new InstructionSuccessorVisitor(frame);
-			accept(successors);
-			return successors.getSuccessors();
+			if (successorVisitor == null) {
+				successorVisitor = new InstructionSuccessorVisitor();
+			}
+			successorVisitor.setFrame(frame);
+			accept(successorVisitor);
+			return successorVisitor.getSuccessors();
 		}
 
 		/* (non-Javadoc)
@@ -409,7 +414,7 @@ public class ControlFlow {
 		/**
 		 * @return the list position of the contained instruction
 		 */
-		public int getIndex() {
+		public final int getIndex() {
 			return index;
 		}
 

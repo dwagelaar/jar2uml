@@ -48,7 +48,7 @@ import be.ac.vub.jar2uml.cflow.LocalHistoryTable.LocalHistorySet;
  */
 public class AddMethodOpCode extends AddToModel {
 
-	private static final int CUT_OFF = 0x10000;
+	private static final int CUT_OFF = 0x8000;
 
 	protected final AddInstructionDependenciesVisitor addInstructionDependencies = 
 		new AddInstructionDependenciesVisitor(
@@ -143,12 +143,14 @@ public class AddMethodOpCode extends AddToModel {
 			}
 			final SortedSet<InstructionFlow> allDeadCode = new TreeSet<InstructionFlow>(cflow.getDeadCode());
 			allDeadCode.addAll(deadCode);
-			JarToUML.logger.warning(String.format(
-					JarToUMLResources.getString("AddMethodOpCode.guaranteedDead"),
-					javaClass.getClassName(),
-					method_gen,
-					allDeadCode,
-					ControlFlow.getLineNumbers(allDeadCode))); //$NON-NLS-1$
+			if (!allDeadCode.isEmpty()) {
+				JarToUML.logger.warning(String.format(
+						JarToUMLResources.getString("AddMethodOpCode.guaranteedDead"),
+						javaClass.getClassName(),
+						method_gen,
+						allDeadCode,
+						ControlFlow.getLineNumbers(allDeadCode))); //$NON-NLS-1$
+			}
 			final InstructionHandle[] allInstr = method_gen.getInstructionList().getInstructionHandles();
 			final Set<InstructionFlow> notcovered = new HashSet<InstructionFlow>(allInstr.length);
 			for (InstructionHandle instr : allInstr) {
@@ -156,6 +158,7 @@ public class AddMethodOpCode extends AddToModel {
 			}
 			notcovered.removeAll(globalHistory);
 			notcovered.removeAll(allDeadCode);
+			notcovered.removeAll(noAccessContextAvailable);
 			if (!notcovered.isEmpty()) {
 				final SortedSet<InstructionFlow> nc = new TreeSet<InstructionFlow>(notcovered);
 				JarToUML.logger.warning(String.format(
@@ -242,7 +245,7 @@ public class AddMethodOpCode extends AddToModel {
 				} catch (BranchTargetUnavailableException e) {
 					succ = e.getRemainingTargets();
 					if (!checkForDeadCode(iflow, e)) {
-						history.setUncoveredCode();
+						history.setUnmergeable();
 					}
 				}
 
@@ -280,14 +283,14 @@ public class AddMethodOpCode extends AddToModel {
 					noAccessContextAvailable.add(iflow); //no previous valid access context
 				}
 				if (!checkForDeadCode(iflow, e)) {
-					history.setUncoveredCode();
+					history.setUnmergeable();
 				}
 			}
 
 			if (!ecQueue.isEmpty()) {
 				maxQueueSize = Math.max(maxQueueSize, ecQueue.size());
 				Assert.assertTrue(maxQueueSize <= copyCount + excCopyCount + 1);
-				if (terminated && !history.hasUncoveredCode()) {
+				if (terminated && !history.isUnmergeable()) {
 					//merge back history of successfully terminated and fully covered execution paths
 					ec = ecQueue.removeFirst(); //first in queue is last branch in current search path
 					Assert.assertNotSame(history, ec.getHistory());

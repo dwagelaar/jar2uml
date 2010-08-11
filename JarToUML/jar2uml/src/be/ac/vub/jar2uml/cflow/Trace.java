@@ -20,27 +20,27 @@ import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
  * Supports branching off alternative traces.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class Trace implements Iterable<TraceEntry> {
+public class Trace implements Iterable<Trace> {
 
-	private class TraceIterator implements Iterator<TraceEntry> {
+	private class TraceIterator implements Iterator<Trace> {
 
-		Trace cursor = new Trace(null, Trace.this); //put the cursor one ahead
+		Trace cursor = new Trace(null, 0, Trace.this); //put the cursor one ahead
 
 		/*
 		 * (non-Javadoc)
 		 * @see java.util.Iterator#hasNext()
 		 */
 		public boolean hasNext() {
-			return cursor.getBranchedFrom() != null && cursor.getBranchedFrom().getLastEntry() != null;
+			return cursor.getBranchedFrom() != null && cursor.getBranchedFrom().getInstruction() != null;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * @see java.util.Iterator#next()
 		 */
-		public TraceEntry next() {
+		public Trace next() {
 			cursor = cursor.getBranchedFrom();
-			return cursor.getLastEntry();
+			return cursor;
 		}
 
 		/*
@@ -53,14 +53,15 @@ public class Trace implements Iterable<TraceEntry> {
 		
 	}
 
-	private final TraceEntry entry;
+	private final InstructionFlow iflow;
+	private final int successors;
 	private final Trace branchedFrom;
 
 	/**
 	 * Creates a new {@link Trace}.
 	 */
 	public Trace() {
-		this(null, null);
+		this(null, 0, null);
 	}
 
 	/**
@@ -68,17 +69,25 @@ public class Trace implements Iterable<TraceEntry> {
 	 * @param entry the trace entry that represents the last added entry to this trace
 	 * @param branchedFrom the previous trace object
 	 */
-	protected Trace(TraceEntry entry, Trace branchedFrom) {
+	protected Trace(final InstructionFlow entry, final int successors, final Trace branchedFrom) {
 		super();
-		this.entry = entry;
+		this.iflow = entry;
+		this.successors = successors;
 		this.branchedFrom = branchedFrom;
 	}
 
 	/**
-	 * @return the last added entry.
+	 * @return the instruction
 	 */
-	public TraceEntry getLastEntry() {
-		return entry;
+	public InstructionFlow getInstruction() {
+		return iflow;
+	}
+
+	/**
+	 * @return the successors
+	 */
+	public int getSuccessors() {
+		return successors;
 	}
 
 	/**
@@ -95,23 +104,14 @@ public class Trace implements Iterable<TraceEntry> {
 	 * @return the trace object including the added entry
 	 */
 	public Trace addEntry(InstructionFlow iflow, int successors) {
-		return addEntry(new TraceEntry(iflow, successors));
-	}
-
-	/**
-	 * Adds entry to the trace.
-	 * @param entry
-	 * @return the trace object including the added entry
-	 */
-	protected Trace addEntry(TraceEntry entry) {
-		return new Trace(entry, this);
+		return new Trace(iflow, successors, this);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 * Runs from the last added entry to the first.
 	 */
-	public Iterator<TraceEntry> iterator() {
+	public Iterator<Trace> iterator() {
 		return new TraceIterator();
 	}
 
@@ -122,9 +122,11 @@ public class Trace implements Iterable<TraceEntry> {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append('[');
-		for (TraceEntry entry : this) {
-			sb.append(entry);
-			sb.append(",\n"); //$NON-NLS-1$
+		for (Trace entry : this) {
+			sb.append(entry.getInstruction());
+			sb.append("(succ="); //$NON-NLS-1$
+			sb.append(entry.getSuccessors());
+			sb.append("),\n"); //$NON-NLS-1$
 		}
 		if (sb.length() > 1) {
 			sb.deleteCharAt(sb.length()-1);
