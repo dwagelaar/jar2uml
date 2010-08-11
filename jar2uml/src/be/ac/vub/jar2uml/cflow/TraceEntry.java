@@ -13,30 +13,24 @@ package be.ac.vub.jar2uml.cflow;
 import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
 
 /**
- * Represents the combination of current instruction, instruction history,
- * and current execution frame.
+ * Entry from a trace path.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class ExecutionContext {
+public class TraceEntry {
 
 	private final InstructionFlow iflow;
-	private final LocalHistoryTable history;
-	private final SmartFrame frame;
-	private final Trace trace;
+	private final int successors;
 
 	/**
-	 * Creates a new {@link ExecutionContext}.
-	 * @param iflow
-	 * @param history
-	 * @param frame
+	 * Creates a new {@link TraceEntry}.
 	 * @param trace
+	 * @param iflow
+	 * @param successors the amount of successors for iflow
 	 */
-	public ExecutionContext(InstructionFlow iflow, LocalHistoryTable history, SmartFrame frame, Trace trace) {
+	protected TraceEntry(InstructionFlow iflow, int successors) {
 		super();
 		this.iflow = iflow;
-		this.history = history;
-		this.frame = frame;
-		this.trace = trace;
+		this.successors = successors;
 	}
 
 	/**
@@ -47,24 +41,10 @@ public class ExecutionContext {
 	}
 
 	/**
-	 * @return the history
+	 * @return the successors
 	 */
-	public LocalHistoryTable getHistory() {
-		return history;
-	}
-
-	/**
-	 * @return the frame
-	 */
-	public SmartFrame getFrame() {
-		return frame;
-	}
-
-	/**
-	 * @return the trace
-	 */
-	public Trace getTrace() {
-		return trace;
+	public int getSuccessors() {
+		return successors;
 	}
 
 	/* (non-Javadoc)
@@ -72,7 +52,7 @@ public class ExecutionContext {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "{ " + getIflow() + " }"; //$NON-NLS-1$ //$NON-NLS-2$
+		return getIflow() + " : " + getSuccessors(); //$NON-NLS-1$
 	}
 
 }

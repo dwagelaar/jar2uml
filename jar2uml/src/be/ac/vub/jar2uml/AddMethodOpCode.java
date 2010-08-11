@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import junit.framework.Assert;
 
@@ -21,11 +23,9 @@ import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ATHROW;
 import org.apache.bcel.generic.InstructionHandle;
-import org.apache.bcel.generic.LineNumberGen;
 import org.apache.bcel.generic.MethodGen;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.verifier.structurals.ExceptionHandler;
-import org.apache.bcel.verifier.structurals.Frame;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Model;
@@ -33,9 +33,12 @@ import org.eclipse.uml2.uml.Model;
 import be.ac.vub.jar2uml.cflow.AccessContextUnavailableException;
 import be.ac.vub.jar2uml.cflow.BranchTargetUnavailableException;
 import be.ac.vub.jar2uml.cflow.ControlFlow;
+import be.ac.vub.jar2uml.cflow.ControlFlowException;
 import be.ac.vub.jar2uml.cflow.ExecutionContext;
-import be.ac.vub.jar2uml.cflow.JarToUMLExecutionVisitor;
 import be.ac.vub.jar2uml.cflow.LocalHistoryTable;
+import be.ac.vub.jar2uml.cflow.SmartExecutionVisitor;
+import be.ac.vub.jar2uml.cflow.SmartFrame;
+import be.ac.vub.jar2uml.cflow.Trace;
 import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
 import be.ac.vub.jar2uml.cflow.LocalHistoryTable.LocalHistorySet;
 
@@ -45,43 +48,14 @@ import be.ac.vub.jar2uml.cflow.LocalHistoryTable.LocalHistorySet;
  */
 public class AddMethodOpCode extends AddToModel {
 
-	/**
-	 * @param lines
-	 * @return The sets of {@link LineNumberGen} that have the same source line number
-	 */
-	public static Set<Set<LineNumberGen>> findSameLineSets(final LineNumberGen[] lines) {
-		final Set<Set<LineNumberGen>> inlineSets = new HashSet<Set<LineNumberGen>>();
-	
-		outer:
-		for (LineNumberGen line1 : lines) {
-			for (Set<LineNumberGen> inlineSet : inlineSets) {
-				if (inlineSet.contains(line1)) {
-					continue outer; //line1 is already part of a complete inlineSet
-				}
-			}
-			Set<LineNumberGen> inlineSet = new HashSet<LineNumberGen>();
-			inlineSet.add(line1);
-			for (LineNumberGen line2 : lines) {
-				if (line2 != line1 && line2.getSourceLine() == line1.getSourceLine()) {
-					//found a reference to the same source line number
-					inlineSet.add(line2);
-				}
-			}
-			if (inlineSet.size() > 1) {
-				//we are only interested in sets of duplicated line numbers
-				inlineSets.add(inlineSet);
-			}
-		}
-	
-		return inlineSets;
-	}
+	private static final int CUT_OFF = 0x10000;
 
 	protected final AddInstructionDependenciesVisitor addInstructionDependencies = 
 		new AddInstructionDependenciesVisitor(
 				typeToClassifier,
 				addClassifierProperty,
 				addClassifierOperation);
-	protected final JarToUMLExecutionVisitor execution = new JarToUMLExecutionVisitor();
+	protected final SmartExecutionVisitor execution = new SmartExecutionVisitor();
 	/**
 	 * The global history of all successfully executed instructions.
 	 */
@@ -90,6 +64,10 @@ public class AddMethodOpCode extends AddToModel {
 	 * All instructions which have terminated at least one with an {@link AccessContextUnavailableException}.
 	 */
 	protected final Set<InstructionFlow> noAccessContextAvailable = new HashSet<InstructionFlow>();
+	/**
+	 * All instructions which are guaranteed by the stack simulation algorithm to be unreachable.
+	 */
+	protected final Set<InstructionFlow> deadCode = new HashSet<InstructionFlow>();
 	protected int reuseCount = 0;
 	protected int copyCount = 0;
 	protected int excCopyCount = 0;
@@ -127,43 +105,65 @@ public class AddMethodOpCode extends AddToModel {
 		execution.setConstantPoolGen(addInstructionDependencies.getCpg());
 
 		final MethodGen method_gen = new MethodGen(method, javaClass.getClassName(), addInstructionDependencies.getCpg());
-		final int instrCount = method_gen.getInstructionList().size();
 		final ControlFlow cflow = new ControlFlow(method_gen);
+		final int instrCount = cflow.getFlowCount();
+		final int liveInstrCount = instrCount - cflow.getDeadCode().size();
 
 		JarToUML.logger.finer(method_gen.toString());
 
 		//try first with simplified algorithm
 		executeSimple(cflow);
-		if (!noAccessContextAvailable.isEmpty() || instrCount != globalHistory.size()) {
-			//fall back to full algorithm if not all access context could be found or instructions were skipped
+		JarToUML.logger.fine(String.format(
+				JarToUMLResources.getString("AddMethodOpCode.instrCount"), 
+				reuseCount, copyCount, excCopyCount, maxQueueSize, method_gen)); //$NON-NLS-1$
+
+		if (liveInstrCount > globalHistory.size() + deadCode.size()) {
+			//fall back to full algorithm if instructions were skipped without being proved unreachable
 			JarToUML.logger.fine(String.format(
 					JarToUMLResources.getString("AddMethodOpCode.fallback"), 
 					method_gen.toString())); //$NON-NLS-1$
 			execute(cflow);
+			JarToUML.logger.fine(String.format(
+					JarToUMLResources.getString("AddMethodOpCode.instrCount"), 
+					reuseCount, copyCount, excCopyCount, maxQueueSize, method_gen)); //$NON-NLS-1$
 		}
 
-		JarToUML.logger.fine(String.format(
-				JarToUMLResources.getString("AddMethodOpCode.instrCount"), 
-				reuseCount, copyCount, excCopyCount, maxQueueSize, method_gen.toString())); //$NON-NLS-1$
+		assert noAccessContextAvailable.isEmpty() || instrCount > globalHistory.size();
 
-		if (instrCount != globalHistory.size()) {
+		if (instrCount > globalHistory.size()) {
+			//no all instructions were covered -> report why
+			if (!noAccessContextAvailable.isEmpty()) {
+				final SortedSet<InstructionFlow> naca = new TreeSet<InstructionFlow>(noAccessContextAvailable);
+				JarToUML.logger.warning(String.format(
+						JarToUMLResources.getString("AddMethodOpCode.guaranteedNPE"),
+						javaClass.getClassName(),
+						method_gen,
+						naca,
+						ControlFlow.getLineNumbers(naca))); //$NON-NLS-1$
+			}
+			final SortedSet<InstructionFlow> allDeadCode = new TreeSet<InstructionFlow>(cflow.getDeadCode());
+			allDeadCode.addAll(deadCode);
+			JarToUML.logger.warning(String.format(
+					JarToUMLResources.getString("AddMethodOpCode.guaranteedDead"),
+					javaClass.getClassName(),
+					method_gen,
+					allDeadCode,
+					ControlFlow.getLineNumbers(allDeadCode))); //$NON-NLS-1$
 			final InstructionHandle[] allInstr = method_gen.getInstructionList().getInstructionHandles();
 			final Set<InstructionFlow> notcovered = new HashSet<InstructionFlow>(allInstr.length);
 			for (InstructionHandle instr : allInstr) {
 				notcovered.add(cflow.getFlowOf(instr));
 			}
 			notcovered.removeAll(globalHistory);
-			JarToUML.logger.warning(String.format(
-					JarToUMLResources.getString("AddMethodOpCode.notCovered"),
-					javaClass.getClassName(),
-					method_gen.toString(),
-					notcovered.toString())); //$NON-NLS-1$
-			if (!noAccessContextAvailable.isEmpty()) {
+			notcovered.removeAll(allDeadCode);
+			if (!notcovered.isEmpty()) {
+				final SortedSet<InstructionFlow> nc = new TreeSet<InstructionFlow>(notcovered);
 				JarToUML.logger.warning(String.format(
-						JarToUMLResources.getString("AddMethodOpCode.guaranteedNPE"),
+						JarToUMLResources.getString("AddMethodOpCode.notCovered"),
 						javaClass.getClassName(),
-						method_gen.toString(),
-						noAccessContextAvailable.toString())); //$NON-NLS-1$
+						method_gen,
+						nc,
+						ControlFlow.getLineNumbers(nc))); //$NON-NLS-1$
 			}
 		}
 	}
@@ -178,6 +178,7 @@ public class AddMethodOpCode extends AddToModel {
 		maxQueueSize = 0;
 		globalHistory.clear();
 		noAccessContextAvailable.clear();
+		deadCode.clear();
 	}
 
 	/**
@@ -187,18 +188,27 @@ public class AddMethodOpCode extends AddToModel {
 	 * @param cflow
 	 */
 	protected void execute(final ControlFlow cflow) {
-		//TODO this algorithm does not scale sufficiently when unreachable code exists
 		final LinkedList<ExecutionContext> ecQueue = new LinkedList<ExecutionContext>();
-		final int instrCount = cflow.getMethod().getInstructionList().getLength();
+		final int instrCount = cflow.getFlowCount();
+		final int liveInstrCount = instrCount - cflow.getDeadCode().size();
 
-		Frame frame = cflow.getStartFrame().getClone();
+		SmartFrame frame = (SmartFrame) cflow.getStartFrame().clone();
 		InstructionFlow iflow = cflow.getStartInstruction();
 		LocalHistoryTable history = new LocalHistoryTable(instrCount);
-		ExecutionContext ec = new ExecutionContext(iflow, history, frame);
+		Trace trace = new Trace();
+		ExecutionContext ec = new ExecutionContext(iflow, history, frame, trace);
 
 		resetGlobals();
 
-		while (iflow != null && globalHistory.size() < instrCount) {
+		while (iflow != null //done searching
+				&& globalHistory.size() + deadCode.size() < liveInstrCount) { //all live instructions covered 
+
+			if (copyCount + excCopyCount > CUT_OFF) {
+				JarToUML.logger.fine(String.format(
+						JarToUMLResources.getString("AddMethodOpCode.cutoff"),
+						cflow)); //$NON-NLS-1$
+				break;
+			}
 
 			//represents a successful termination of the current execution path
 			boolean terminated = true;
@@ -210,7 +220,7 @@ public class AddMethodOpCode extends AddToModel {
 					for (ExceptionHandler eh : iflow.getExceptionHandlers()) {
 						InstructionFlow succ = cflow.getFlowOf(eh.getHandlerStart());
 						//create a new history for each alternative successor path
-						LocalHistoryTable newHistory = history.getClone();
+						LocalHistoryTable newHistory = (LocalHistoryTable) history.clone();
 						excCopyCount++;
 						//check if successor has ever been executed from this history by calculating new history
 						if (newHistory.get(succ).addAll(instrHistory)) {
@@ -218,7 +228,8 @@ public class AddMethodOpCode extends AddToModel {
 							ecQueue.addLast(new ExecutionContext(
 									succ, 
 									newHistory, 
-									prepareExceptionFrame(frame, eh)));
+									prepareExceptionFrame(frame, eh),
+									trace));
 							//if the covered instructions terminate successfully, this exception handler also should, so don't check
 						}
 					}
@@ -230,23 +241,26 @@ public class AddMethodOpCode extends AddToModel {
 					succ = executeInstr(frame, iflow);
 				} catch (BranchTargetUnavailableException e) {
 					succ = e.getRemainingTargets();
-					history.setBranchTargetUnavailable();
+					if (!checkForDeadCode(iflow, e)) {
+						history.setUncoveredCode();
+					}
 				}
 
 				//update history
 				instrHistory.add(iflow);
+				trace = trace.addEntry(iflow, succ.length);
 				//prepare successor execution context
 				for (int i = succ.length-1; i >= 0; i--) {
-					//create a new history/frame for each alternative successor path, except first path
+					//create a new trace/history/frame for each alternative successor path, except first path
 					LocalHistoryTable newHistory;
-					Frame newFrame;
+					SmartFrame newFrame;
 					if (i == 0) {
 						newHistory = history;
 						newFrame = frame;
 						reuseCount++;
 					} else {
-						newHistory = history.getClone();
-						newFrame = frame.getClone();
+						newHistory = (LocalHistoryTable) history.clone();
+						newFrame = (SmartFrame) frame.clone();
 						copyCount++;
 					}
 					//check if successor has ever been executed from this history by calculating new history
@@ -255,20 +269,25 @@ public class AddMethodOpCode extends AddToModel {
 						ecQueue.addFirst(new ExecutionContext(
 								succ[i], 
 								newHistory, 
-								newFrame));
+								newFrame,
+								trace));
 						terminated = false;
 					}
 				}
 			} catch (AccessContextUnavailableException e) {
-				//cut execution path and remember the reason
-				noAccessContextAvailable.add(iflow);
-				terminated = false;
+				//cut execution path
+				if (!globalHistory.contains(iflow)) {
+					noAccessContextAvailable.add(iflow); //no previous valid access context
+				}
+				if (!checkForDeadCode(iflow, e)) {
+					history.setUncoveredCode();
+				}
 			}
 
 			if (!ecQueue.isEmpty()) {
 				maxQueueSize = Math.max(maxQueueSize, ecQueue.size());
 				Assert.assertTrue(maxQueueSize <= copyCount + excCopyCount + 1);
-				if (terminated && !history.hasBranchTargetUnavailable()) {
+				if (terminated && !history.hasUncoveredCode()) {
 					//merge back history of successfully terminated and fully covered execution paths
 					ec = ecQueue.removeFirst(); //first in queue is last branch in current search path
 					Assert.assertNotSame(history, ec.getHistory());
@@ -279,8 +298,14 @@ public class AddMethodOpCode extends AddToModel {
 				iflow = ec.getIflow();
 				history = ec.getHistory();
 				frame = ec.getFrame();
+				trace = ec.getTrace();
 			} else {
 				iflow = null;
+				//any code not covered now is guaranteed to be dead
+				final Set<InstructionFlow> notcovered = new HashSet<InstructionFlow>(cflow.getFlows());
+				notcovered.removeAll(globalHistory);
+				notcovered.removeAll(noAccessContextAvailable);
+				deadCode.addAll(notcovered);
 			}
 
 			checkCancelled();
@@ -299,16 +324,18 @@ public class AddMethodOpCode extends AddToModel {
 	 */
 	protected void executeSimple(final ControlFlow cflow) {
 		final LinkedList<ExecutionContext> ecQueue = new LinkedList<ExecutionContext>();
-		final int instrCount = cflow.getMethod().getInstructionList().getLength();
+		final int instrCount = cflow.getFlowCount();
+		final int liveInstrCount = instrCount - cflow.getDeadCode().size();
 
-		Frame frame = cflow.getStartFrame().getClone();
+		SmartFrame frame = (SmartFrame) cflow.getStartFrame().clone();
 		InstructionFlow iflow = cflow.getStartInstruction();
 		LocalHistoryTable history = new LocalHistoryTable(instrCount);
-		ExecutionContext ec = new ExecutionContext(iflow, history, frame);
+		Trace trace = new Trace();
+		ExecutionContext ec = new ExecutionContext(iflow, history, frame, trace);
 
 		resetGlobals();
 
-		while (iflow != null && globalHistory.size() < instrCount) {
+		while (iflow != null && globalHistory.size() + deadCode.size() < liveInstrCount) {
 
 			try {
 				LocalHistorySet instrHistory = history.get(iflow);
@@ -323,7 +350,8 @@ public class AddMethodOpCode extends AddToModel {
 							ecQueue.addLast(new ExecutionContext(
 									succ, 
 									history, 
-									prepareExceptionFrame(frame, eh)));
+									prepareExceptionFrame(frame, eh),
+									trace));
 							//if the covered instructions terminate successfully, this exception handler also should, so don't check
 						}
 					}
@@ -335,21 +363,21 @@ public class AddMethodOpCode extends AddToModel {
 					succ = executeInstr(frame, iflow);
 				} catch (BranchTargetUnavailableException e) {
 					succ = e.getRemainingTargets();
-					history.setBranchTargetUnavailable();
-					//we can't do anything with this, using this algorithm
+					checkForDeadCode(iflow, e);
 				}
 
 				//update history
 				instrHistory.add(iflow);
+				trace = trace.addEntry(iflow, succ.length);
 				//prepare successor execution context
 				for (int i = succ.length-1; i >= 0; i--) {
-					//create a new history/frame for each alternative successor path, except first path
-					Frame newFrame;
+					//create a new trace/frame for each alternative successor path, except first path
+					SmartFrame newFrame;
 					if (i == 0) {
 						newFrame = frame;
 						reuseCount++;
 					} else {
-						newFrame = frame.getClone();
+						newFrame = (SmartFrame) frame.clone();
 						copyCount++;
 					}
 					//check if successor has ever been executed from this history by calculating new history
@@ -358,12 +386,16 @@ public class AddMethodOpCode extends AddToModel {
 						ecQueue.addFirst(new ExecutionContext(
 								succ[i], 
 								history, 
-								newFrame));
+								newFrame,
+								trace));
 					}
 				}
 			} catch (AccessContextUnavailableException e) {
-				//cut execution path and remember the reason
-				noAccessContextAvailable.add(iflow);
+				//cut execution path
+				if (!globalHistory.contains(iflow)) {
+					noAccessContextAvailable.add(iflow); //no previous valid access context
+				}
+				checkForDeadCode(iflow, e);
 			}
 
 			if (!ecQueue.isEmpty()) {
@@ -373,6 +405,7 @@ public class AddMethodOpCode extends AddToModel {
 				iflow = ec.getIflow();
 				history = ec.getHistory();
 				frame = ec.getFrame();
+				trace = ec.getTrace();
 			} else {
 				iflow = null;
 			}
@@ -390,15 +423,17 @@ public class AddMethodOpCode extends AddToModel {
 	 * @throws AccessContextUnavailableException if iflow retrieves a <code>null</code> access context
 	 * @throws BranchTargetUnavailableException if a branch target was cut off due to the given execution frame
 	 */
-	protected InstructionFlow[] executeInstr(final Frame frame, final InstructionFlow iflow) {
+	protected InstructionFlow[] executeInstr(final SmartFrame frame, final InstructionFlow iflow) {
 		//TODO only one valid access context is covered, which may lead to optimistic conclusions w.r.t. protected/public
 		//check if instr has already been successfully visited
 		if (!globalHistory.contains(iflow)) {
 			//add dependencies
 			addInstructionDependencies.setFrame(frame);
-			iflow.accept(addInstructionDependencies); // this will bail out with an AccessContextUnavailableException on null pointer access
-			globalHistory.add(iflow);
-			noAccessContextAvailable.remove(iflow);
+			iflow.accept(addInstructionDependencies); //this will bail out with an AccessContextUnavailableException on null pointer access
+			final Set<InstructionFlow> sameLineSet = iflow.getSameLineSet();
+			globalHistory.addAll(sameLineSet); //add all instructions that were inlined from the same source code 
+			noAccessContextAvailable.removeAll(sameLineSet);
+			deadCode.removeAll(sameLineSet);
 		}
 		try {
 			//Expect BranchTargetUnavailableException
@@ -406,6 +441,7 @@ public class AddMethodOpCode extends AddToModel {
 		} finally {
 			//update stack
 			execution.setFrame(frame);
+			execution.setIflow(iflow);
 			iflow.accept(execution);
 		}
 	}
@@ -415,9 +451,9 @@ public class AddMethodOpCode extends AddToModel {
 	 * @param eh
 	 * @return The prepared frame after throwing the exception type for eh
 	 */
-	protected Frame prepareExceptionFrame(final Frame frame, final ExceptionHandler eh) {
+	protected SmartFrame prepareExceptionFrame(final SmartFrame frame, final ExceptionHandler eh) {
 		//Use frame copy for each exception handler
-		final Frame frameClone = frame.getClone();
+		final SmartFrame frameClone = (SmartFrame) frame.clone();
 		//clear the stack, as there may not be enough room for the exception type
 		frameClone.getStack().clear();
 		//simulate throwing the exception, resulting in a correct stack
@@ -466,17 +502,32 @@ public class AddMethodOpCode extends AddToModel {
 		return ec;
 	}
 
-	//TODO detect inlined code
-//	protected InstructionFlow[] findInlinedDuplicates(ControlFlow cflow, InstructionFlow iflow) {
-//		final LineNumberGen[] lines = cflow.getMethod().getLineNumbers();
-//		final Set<Set<LineNumberGen>> inlineSets = findSameLineSets(lines);
-//
-//		for (Set<LineNumberGen> inlineSet : inlineSets) {
-//			
-//		}
-//
-//		iflow.getInstruction().getPosition();
-//	}
+	/**
+	 * Checks if iflow and its successor set are dead (unreachable) code, and updates {@link #deadCode}.
+	 * @param iflow
+	 * @param e
+	 * @return <code>true</code> iff iflow and its successor set are dead code
+	 */
+	protected final boolean checkForDeadCode(final InstructionFlow iflow, final ControlFlowException e) {
+		if (globalHistory.contains(iflow)) {
+			return false; //we managed to get here before - or to one of its inlined siblings
+		}
+		if (iflow.getPredecessorRun().contains(e.getCausingInstruction())) {
+			//the root cause instruction is contained within the run guaranteed to precede this instruction -> dead code
+			if (e instanceof BranchTargetUnavailableException) {
+				//instructions in the unavailable branches are dead
+				for (InstructionFlow unavailable : ((BranchTargetUnavailableException) e).getUnavailableTargets()) {
+					unavailable.findSuccessorSet(deadCode);
+				}
+			} else {
+				//instructions after this instruction - without other incoming paths - are dead
+				iflow.findSuccessorSet(deadCode);
+				deadCode.remove(iflow);
+			}
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * @return the globalHistory

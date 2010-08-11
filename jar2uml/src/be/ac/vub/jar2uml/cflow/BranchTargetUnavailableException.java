@@ -22,50 +22,70 @@ import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
  * were unavailable within the given {@link Frame}.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class BranchTargetUnavailableException extends RuntimeException {
+public class BranchTargetUnavailableException extends ControlFlowException {
 
 	private static final long serialVersionUID = -2302822625940595508L;
 
-	private final InstructionFlow[] remainingTargets;
+	private transient final InstructionFlow[] unavailableTargets;
+	private transient final InstructionFlow[] remainingTargets;
 
 	/**
 	 * Creates a new {@link BranchTargetUnavailableException}.
+	 * @param unavailableTargets the branch targets that are not available
 	 * @param remainingTargets the branch targets that are still available
+	 * @param causingInstruction the instruction that caused the branch target to become unavailable
 	 */
-	public BranchTargetUnavailableException(InstructionFlow[] remainingTargets) {
-		super();
+	public BranchTargetUnavailableException(InstructionFlow[] unavailableTargets, InstructionFlow[] remainingTargets, InstructionFlow causingInstruction) {
+		super(causingInstruction);
+		this.unavailableTargets = unavailableTargets;
 		this.remainingTargets = remainingTargets;
 	}
 
 	/**
 	 * Creates a new {@link BranchTargetUnavailableException}.
+	 * @param unavailableTargets the branch targets that are not available
 	 * @param remainingTargets the branch targets that are still available
+	 * @param causingInstruction the instruction that caused the branch target to become unavailable
 	 * @param message
 	 */
-	public BranchTargetUnavailableException(InstructionFlow[] remainingTargets, String message) {
-		super(message);
+	public BranchTargetUnavailableException(InstructionFlow[] unavailableTargets, InstructionFlow[] remainingTargets, InstructionFlow causingInstruction, String message) {
+		super(causingInstruction, message);
+		this.unavailableTargets = unavailableTargets;
 		this.remainingTargets = remainingTargets;
 	}
 
 	/**
 	 * Creates a new {@link BranchTargetUnavailableException}.
+	 * @param unavailableTargets the branch targets that are not available
 	 * @param remainingTargets the branch targets that are still available
+	 * @param causingInstruction the instruction that caused the branch target to become unavailable
 	 * @param cause
 	 */
-	public BranchTargetUnavailableException(InstructionFlow[] remainingTargets, Throwable cause) {
-		super(cause);
+	public BranchTargetUnavailableException(InstructionFlow[] unavailableTargets, InstructionFlow[] remainingTargets, InstructionFlow causingInstruction, Throwable cause) {
+		super(causingInstruction, cause);
+		this.unavailableTargets = unavailableTargets;
 		this.remainingTargets = remainingTargets;
 	}
 
 	/**
 	 * Creates a new {@link BranchTargetUnavailableException}.
+	 * @param unavailableTargets the branch targets that are not available
 	 * @param remainingTargets the branch targets that are still available
+	 * @param causingInstruction the instruction that caused the branch target to become unavailable
 	 * @param message
 	 * @param cause
 	 */
-	public BranchTargetUnavailableException(InstructionFlow[] remainingTargets, String message, Throwable cause) {
-		super(message, cause);
+	public BranchTargetUnavailableException(InstructionFlow[] unavailableTargets, InstructionFlow[] remainingTargets, InstructionFlow causingInstruction, String message, Throwable cause) {
+		super(causingInstruction, message, cause);
+		this.unavailableTargets = unavailableTargets;
 		this.remainingTargets = remainingTargets;
+	}
+
+	/**
+	 * @return the unavailableTargets
+	 */
+	public InstructionFlow[] getUnavailableTargets() {
+		return unavailableTargets;
 	}
 
 	/**
