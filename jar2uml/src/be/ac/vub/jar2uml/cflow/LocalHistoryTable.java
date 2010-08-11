@@ -14,8 +14,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.BitSet;
 
-import junit.framework.Assert;
-
 /**
  * Per-item history utility class for ordered items.
  * Uses a lookup table to implement the history.
@@ -72,9 +70,12 @@ public class LocalHistoryTable implements Serializable, Cloneable {
 		 * @return <code>true</code> iff this set changed as a result
 		 */
 		public boolean add(final OrderedItem item) {
-			final boolean changed = !table[index].get(item.getIndex());
-			table[index].set(item.getIndex());
-			return changed;
+			final int i = item.getIndex();
+			if (table[index].get(i)) {
+				return false;
+			}
+			table[index].set(i);
+			return true;
 		}
 
 		/**
@@ -106,8 +107,9 @@ public class LocalHistoryTable implements Serializable, Cloneable {
 
 	private final int capacity;
 	private final BitSet[] table;
+	private final transient LocalHistorySet[] localHistorySetCache;
 
-	private boolean uncoveredCode;
+	private boolean unmergeable;
 
 	/**
 	 * Creates a new {@link LocalHistoryTable}.
@@ -117,14 +119,19 @@ public class LocalHistoryTable implements Serializable, Cloneable {
 		super();
 		this.capacity = capacity;
 		this.table = new BitSet[capacity];
+		this.localHistorySetCache = new LocalHistorySet[capacity];
 	}
 
 	/**
 	 * @param item
 	 * @return the local history of item
 	 */
-	public LocalHistorySet get(OrderedItem item) {
-		return new LocalHistorySet(item.getIndex());
+	public LocalHistorySet get(final OrderedItem item) {
+		final int i = item.getIndex();
+		if (localHistorySetCache[i] == null) {
+			localHistorySetCache[i] = new LocalHistorySet(i);
+		}
+		return localHistorySetCache[i];
 	}
 
 	/**
@@ -145,22 +152,27 @@ public class LocalHistoryTable implements Serializable, Cloneable {
 				copy.table[i] = (BitSet) table[i].clone();
 			}
 		}
-		if (hasUncoveredCode()) {
-			copy.setUncoveredCode();
+		if (isUnmergeable()) {
+			copy.setUnmergeable();
 		}
 		return copy;
 	}
 
 	/**
 	 * Adds elements of history to this history table, resulting in a history union.
-	 * @param history
+	 * @param history history table to merge
+	 * @throws IllegalArgumentException if history does not have the same capacity, or history is unmergeable
 	 */
 	public void merge(LocalHistoryTable history) {
 		if (this == history) {
 			return;
 		}
-		Assert.assertEquals(capacity, history.capacity);
-		Assert.assertFalse(history.hasUncoveredCode()); //history tables with this flag set should not be merged
+		if (capacity != history.capacity) {
+			throw new IllegalArgumentException();
+		}
+		if (history.isUnmergeable()) {
+			throw new IllegalArgumentException();
+		}
 		for (int i = 0; i < capacity; i++) {
 			if (history.table[i] != null) {
 				if (table[i] != null) {
@@ -173,17 +185,19 @@ public class LocalHistoryTable implements Serializable, Cloneable {
 	}
 
 	/**
-	 * Sets the uncovered code flag
+	 * Sets the unmergeable flag
+	 * @see #merge(LocalHistoryTable)
 	 */
-	public void setUncoveredCode() {
-		this.uncoveredCode = true;
+	public void setUnmergeable() {
+		this.unmergeable = true;
 	}
 
 	/**
-	 * @return the uncovered code flag
+	 * @return the unmergeable flag
+	 * @see #merge(LocalHistoryTable)
 	 */
-	public boolean hasUncoveredCode() {
-		return uncoveredCode;
+	public boolean isUnmergeable() {
+		return unmergeable;
 	}
 
 	/* (non-Javadoc)
@@ -191,6 +205,6 @@ public class LocalHistoryTable implements Serializable, Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + (hasUncoveredCode() ? "(uc)" : "") + Arrays.toString(table); //$NON-NLS-1$
+		return getClass().getSimpleName() + (isUnmergeable() ? "(u)" : "") + Arrays.toString(table); //$NON-NLS-1$
 	}
 }
