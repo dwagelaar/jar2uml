@@ -17,8 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
@@ -129,7 +127,7 @@ public class AddClassifiers extends AddToModel {
 					getModel(), className, javaClass.isInterface() ? 
 							UMLPackage.eINSTANCE.getInterface() : UMLPackage.eINSTANCE.getClass_());
 		}
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		// replace by instance of correct meta-class, if necessary
 		fixClassifier.setJavaClass(javaClass);
 		classifier = fixClassifier.doSwitch(classifier);
@@ -196,12 +194,12 @@ public class AddClassifiers extends AddToModel {
 	 * @param javaClass The Java class file to convert.
 	 */
 	public void addInterfaceRealizations(Classifier classifier, JavaClass javaClass) {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		String interfaces[] = javaClass.getInterfaceNames();
 		for (int i = 0; i < interfaces.length; i++) {
 			Classifier iface = findContainedClassifier.findClassifier(
 					getModel(), interfaces[i], null);
-			Assert.assertTrue(iface instanceof Interface);
+			assert iface instanceof Interface;
 			addClassifierInterface.setIface((Interface) iface);
 			addClassifierInterface.doSwitch(classifier);
 		}
@@ -214,7 +212,7 @@ public class AddClassifiers extends AddToModel {
 	 * @param javaClass The Java class file to convert.
 	 */
 	public void addGeneralizations(Classifier classifier, JavaClass javaClass) {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		if (classifier instanceof Interface) {
 			return;
 		}
@@ -222,7 +220,7 @@ public class AddClassifiers extends AddToModel {
 			Classifier superClass = findContainedClassifier.findClassifier(
 					getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
 			if (superClass != null) {
-				Assert.assertTrue(superClass instanceof Class);
+				assert superClass instanceof Class;
 				classifier.createGeneralization(superClass);
 			}
 		}
@@ -235,7 +233,7 @@ public class AddClassifiers extends AddToModel {
 	 * @throws JarToUMLException 
 	 */
 	public void addPropertyTypes(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		Field[] fields = javaClass.getFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (!filter(fields[i])) {
@@ -261,7 +259,7 @@ public class AddClassifiers extends AddToModel {
 	 * @throws JarToUMLException 
 	 */
 	public void addOperationReferences(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (getFilter() != null) {
@@ -284,7 +282,7 @@ public class AddClassifiers extends AddToModel {
 	 * @param javaClass The Java class file to convert.
 	 */
 	public void addOpCodeReferences(Classifier classifier, JavaClass javaClass) {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (getFilter() != null) {

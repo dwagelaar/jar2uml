@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.uml2.uml.Class;
@@ -43,7 +41,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	 * @param typeToClassifier
 	 */
 	public AddClassifierOperationSwitch(TypeToClassifierSwitch typeToClassifier) {
-		Assert.assertNotNull(typeToClassifier);
+		assert typeToClassifier != null;
 		this.typeToClassifier = typeToClassifier;
 	}
 
@@ -111,7 +109,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	 */
 	protected void prepareArgs() {
 		EList<Type> args = getArgumentTypes();
-		Assert.assertNotNull(args);
+		assert args != null;
 		argNames = toUMLArgNames(args);
 		allArgNames = new BasicEList<String>(argNames);
 		allArgTypes = new BasicEList<Type>(args);
@@ -128,7 +126,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	@Override
 	public Operation caseClass(Class object) {
 		String name = getOperationName();
-		Assert.assertNotNull(name);
+		assert name != null;
 		prepareArgs();
 		// names may not be null in getOwnedOperation, but return parameter name is always null?!
 		Operation op = object.getOwnedOperation(name, allArgNames, allArgTypes);
@@ -151,7 +149,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	@Override
 	public Operation caseInterface(Interface object) {
 		String name = getOperationName();
-		Assert.assertNotNull(name);
+		assert name != null;
 		prepareArgs();
 		Operation op = object.getOwnedOperation(name, allArgNames, allArgTypes);
 		if (op == null) {
@@ -173,7 +171,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	@Override
 	public Operation caseDataType(DataType object) {
 		String name = getOperationName();
-		Assert.assertNotNull(name);
+		assert name != null;
 		prepareArgs();
 		Operation op = object.getOwnedOperation(name, allArgNames, allArgTypes);
 		if (op == null) {

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.DirectedRelationship;
 import org.eclipse.uml2.uml.Interface;
@@ -46,7 +44,7 @@ public class AddClassifierInterfaceSwitch extends UMLSwitch<DirectedRelationship
 	@Override
 	public DirectedRelationship caseClass(Class umlClass) {
 		Interface iface = getIface();
-		Assert.assertNotNull(iface);
+		assert iface != null;
 		return umlClass.createInterfaceRealization(null, (Interface) iface);
 	}
 
@@ -57,7 +55,7 @@ public class AddClassifierInterfaceSwitch extends UMLSwitch<DirectedRelationship
 	@Override
 	public DirectedRelationship caseInterface(Interface umlIface) {
 		Interface iface = getIface();
-		Assert.assertNotNull(iface);
+		assert iface != null;
 		return umlIface.createGeneralization(iface);
 	}
 

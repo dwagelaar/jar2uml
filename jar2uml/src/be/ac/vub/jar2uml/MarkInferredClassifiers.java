@@ -16,8 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uml2.uml.Classifier;
@@ -36,17 +34,17 @@ public class MarkInferredClassifiers extends ChangeModel {
 	 * @return All classifiers that are derivatives (i.e. array types) of classifier.
 	 */
 	public static Collection<Classifier> findDerivedClassifiers(Classifier classifier) {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		final String name = classifier.getName();
-		Assert.assertNotNull(name);
+		assert name != null;
 		final List<Classifier> derived = new ArrayList<Classifier>();
 		final Element owner = classifier.getOwner();
-		Assert.assertNotNull(owner);
+		assert owner != null;
 		for (Element e : owner.getOwnedElements()) {
 			if ((e instanceof Classifier) && (e != classifier)) {
 				Classifier c = (Classifier) e;
 				String cname = c.getName();
-				Assert.assertNotNull(cname);
+				assert cname != null;
 				if (cname.startsWith(name)) {
 					cname = cname.substring(name.length());
 					cname = cname.replace('[', ' ');

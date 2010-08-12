@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import junit.framework.Assert;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Element;
@@ -71,7 +69,7 @@ public class RemoveFromModel extends ChangeModel {
 	 * @param classifier
 	 */
 	public void removeClassifier(Classifier classifier) {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		final Element owner = classifier.getOwner();
 		if (owner != null) {
 			// null owner means already removed
@@ -85,7 +83,7 @@ public class RemoveFromModel extends ChangeModel {
 	 * @param classifier
 	 */
 	public void removeProperties(Classifier classifier) {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		removeClassifierProperties.doSwitch(classifier);
 	}
 

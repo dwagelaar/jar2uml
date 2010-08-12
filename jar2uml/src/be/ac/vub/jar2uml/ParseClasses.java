@@ -21,8 +21,6 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.core.resources.IContainer;
@@ -86,7 +84,7 @@ public class ParseClasses extends JarToUMLOperation {
 	 */
 	public void parseClasses(JarFile jar, Collection<JavaClass> parsedClasses, 
 			Collection<JavaClass> parsedCpClasses) throws IOException {
-		Assert.assertNotNull(jar);
+		assert jar != null;
 		for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
 			JarEntry entry = entries.nextElement();
 			String name = entry.getName();
@@ -121,7 +119,7 @@ public class ParseClasses extends JarToUMLOperation {
 	 */
 	public void parseClasses(JarInputStream jar, Collection<JavaClass> parsedClasses, 
 			Collection<JavaClass> parsedCpClasses) throws IOException {
-		Assert.assertNotNull(jar);
+		assert jar != null;
 		for (JarEntry entry = jar.getNextJarEntry(); entry != null; entry = jar.getNextJarEntry()) {
 			String name = entry.getName();
 			if (classFileName.matcher(name).matches()) {
@@ -152,7 +150,7 @@ public class ParseClasses extends JarToUMLOperation {
 	 * @throws CoreException
 	 */
 	public void parseClasses(IContainer container, Collection<JavaClass> parsedClasses) throws IOException, CoreException {
-		Assert.assertNotNull(container);
+		assert container != null;
 		List<IFile> classFiles = new ArrayList<IFile>();
 		findClassFilesIn(container, classFiles);
 		for (IFile classFile : classFiles) {

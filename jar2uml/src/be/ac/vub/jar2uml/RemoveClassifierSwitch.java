@@ -12,8 +12,6 @@ package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
 
-import junit.framework.Assert;
-
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Element;
@@ -77,7 +75,7 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	@Override
 	public Classifier caseClass(Class umlClass) {
 		final Classifier classifier = getClassifier();
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		logRemoving(classifier);
 		removeNested.doSwitch(classifier);
 		umlClass.getNestedClassifiers().remove(classifier);
@@ -91,7 +89,7 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	@Override
 	public Classifier caseInterface(Interface umlIface) {
 		final Classifier classifier = getClassifier();
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		logRemoving(classifier);
 		removeNested.doSwitch(classifier);
 		umlIface.getNestedClassifiers().remove(classifier);
@@ -105,7 +103,7 @@ public class RemoveClassifierSwitch extends UMLSwitch<Classifier> {
 	@Override
 	public Classifier casePackage(Package pack) {
 		final Classifier classifier = getClassifier();
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		logRemoving(classifier);
 		removeNested.doSwitch(classifier);
 		pack.getPackagedElements().remove(classifier);

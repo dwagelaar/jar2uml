@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.DataType;
 import org.eclipse.uml2.uml.Interface;
@@ -34,7 +32,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	 * @param typeToClassifier
 	 */
 	public AddClassifierPropertySwitch(TypeToClassifierSwitch typeToClassifier) {
-		Assert.assertNotNull(typeToClassifier);
+		assert typeToClassifier != null;
 		this.typeToClassifier = typeToClassifier;
 	}
 
@@ -84,7 +82,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	public Property caseClass(Class umlClass) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
-		Assert.assertNotNull(name);
+		assert name != null;
 		Property ownedAtt = umlClass.getOwnedAttribute(name, type);
 		if (ownedAtt == null) {
 			ownedAtt = umlClass.createOwnedAttribute(name, type);
@@ -102,7 +100,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	public Property caseInterface(Interface umlIface) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
-		Assert.assertNotNull(name);
+		assert name != null;
 		Property ownedAtt = umlIface.getOwnedAttribute(name, type);
 		if (ownedAtt == null) {
 			ownedAtt = umlIface.createOwnedAttribute(name, type);
@@ -120,7 +118,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	public Property caseDataType(DataType umlDataType) {
 		String name = getPropertyName();
 		Type type = getPropertyType();
-		Assert.assertNotNull(name);
+		assert name != null;
 		Property ownedAtt = umlDataType.getOwnedAttribute(name, type);
 		if (ownedAtt == null) {
 			ownedAtt = umlDataType.createOwnedAttribute(name, type);
