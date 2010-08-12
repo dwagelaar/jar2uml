@@ -17,9 +17,12 @@ import org.apache.bcel.classfile.ConstantFloat;
 import org.apache.bcel.classfile.ConstantInteger;
 import org.apache.bcel.classfile.ConstantLong;
 import org.apache.bcel.classfile.ConstantString;
+import org.apache.bcel.classfile.LocalVariable;
+import org.apache.bcel.classfile.LocalVariableTable;
 import org.apache.bcel.generic.*;
 import org.apache.bcel.verifier.structurals.ExecutionVisitor;
 import org.apache.bcel.verifier.structurals.Frame;
+import org.apache.bcel.verifier.structurals.LocalVariables;
 import org.apache.bcel.verifier.structurals.OperandStack;
 
 import be.ac.vub.jar2uml.JarToUMLResources;
@@ -28,6 +31,12 @@ import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
 /**
  * Keeps track of {@link Type#NULL} origins in a {@link SmartFrame} 
  * and works around the bugs in {@link ExecutionVisitor}.
+ * 
+ * Using the {@link #setTrackNull(boolean)} option, one can choose
+ * to ignore the types in the local variable table in case a NULL
+ * is being written into a local variable. This allows one to find
+ * dead code caused by guaranteed NULLs.
+ * 
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class SmartExecutionVisitor extends ExecutionVisitor {
@@ -35,6 +44,8 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 	private ConstantPoolGen cpg;
 	private SmartFrame frame;
 	private InstructionFlow iflow;
+	private LocalVariableTable localVarTable;
+	private boolean trackNull;
 
 	/* (non-Javadoc)
 	 * @see org.apache.bcel.verifier.structurals.ExecutionVisitor#visitAALOAD(org.apache.bcel.generic.AALOAD)
@@ -86,9 +97,28 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 	 */
 	@Override
 	public void visitASTORE(ASTORE o) {
-		final InstructionFlow iflow1 = frame.getResponsibleForStackTop();
-		super.visitASTORE(o);
-		frame.setResponsibleForLocalVariable(iflow1, o.getIndex());
+		final OperandStack stack = frame.getStack();
+		final LocalVariables locals = frame.getLocals();
+		final int index = o.getIndex();
+		assert iflow != null;
+		//not all methods have a local variable table
+		final LocalVariable lv = localVarTable == null ? null : localVarTable.getLocalVariable(index, iflow.getPosition()+o.getLength());
+		/*
+		 * Downcast object types stored in local variables.
+		 * If this is not done, method calls on the same local variable may
+		 * look like method calls on different (sub-)types.
+		 * 
+		 * N.B. finally blocks store the "any" exception in an untyped local var!
+		 */
+		if (lv == null || (isTrackNull() && stack.peek().equals(Type.NULL))) {
+			final InstructionFlow iflow1 = frame.getResponsibleForStackTop();
+			locals.set(index, stack.pop());
+			frame.setResponsibleForLocalVariable(iflow1, index);
+		} else {
+			locals.set(index, Type.getType(lv.getSignature()));
+			stack.pop();
+			frame.setResponsibleForLocalVariable(iflow, index);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -319,7 +349,7 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 		final InstructionFlow iflow1 = frame.getResponsibleForStackTop();
 		super.visitDUP(o);
 		frame.setResponsibleForStackTop(iflow1);
-		frame.setResponsibleForStackTop(iflow1);
+		frame.setResponsibleForStackEntry(iflow1, 1);
 	}
 
 	/* (non-Javadoc)
@@ -928,7 +958,7 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 	 */
 	@Override
 	public void visitLDC(LDC o) {
-		final OperandStack stack = getFrame().getStack();
+		final OperandStack stack = frame.getStack();
 		final Constant c = cpg.getConstant(o.getIndex());
 		if (c instanceof ConstantInteger){
 			stack.push(Type.INT);
@@ -1191,6 +1221,39 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 	 */
 	public InstructionFlow getIflow() {
 		return iflow;
+	}
+
+	/**
+	 * If NULL objects are tracked in the local variable table,
+	 * they are not "downcasted" to the local variable type. This
+	 * allows for accurate dead code detection based on NULL pointers.
+	 * @return whether to track NULL objects in the local variable table
+	 * Defaults to <code>false</code>.
+	 */
+	public boolean isTrackNull() {
+		return trackNull;
+	}
+
+	/**
+	 * Sets whether to track NULL objects in the local variable table.
+	 * @param trackNull the trackNull to set
+	 */
+	public void setTrackNull(boolean trackNull) {
+		this.trackNull = trackNull;
+	}
+
+	/**
+	 * @return the localVarTable
+	 */
+	public LocalVariableTable getLocalVarTable() {
+		return localVarTable;
+	}
+
+	/**
+	 * @param localVarTable the localVarTable to set
+	 */
+	public void setLocalVarTable(LocalVariableTable localVarTable) {
+		this.localVarTable = localVarTable;
 	}
 
 }

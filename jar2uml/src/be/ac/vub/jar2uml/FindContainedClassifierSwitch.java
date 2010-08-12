@@ -123,8 +123,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		if (isCreate()) {
 			setCreated(true);
 			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
-			child.setIsAbstract(true);
-			child.setIsLeaf(true);
+			child.setIsAbstract(true);	//abstract
+			child.setIsLeaf(true);		//final
 			return child;
 		}
 		return super.caseClass(parent);
@@ -148,8 +148,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		if (isCreate()) {
 			setCreated(true);
 			Classifier child = parent.createNestedClassifier(localClassName, getMetaClass());
-			child.setIsAbstract(true);
-			child.setIsLeaf(true);
+			child.setIsAbstract(true);	//abstract
+			child.setIsLeaf(true);		//final
 			return child;
 		}
 		return super.caseInterface(parent);
@@ -176,8 +176,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		if (isCreate()) {
 			setCreated(true);
 			Classifier child = (Classifier) parent.createPackagedElement(localClassName, getMetaClass());
-			child.setIsAbstract(true);
-			child.setIsLeaf(true);
+			child.setIsAbstract(true);	//abstract
+			child.setIsLeaf(true);		//final
 			return child;
 		}
 		return super.casePackage(parent);
@@ -193,7 +193,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		if (isCreate()) {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-			JarToUML.logger.info(String.format(
+			JarToUML.logger.fine(String.format(
 					JarToUMLResources.getString("FindContainedClassifierSwitch.replacingByClass"), 
 					JarToUML.qualifiedName(parent),
 					parent.eClass().getName())); //$NON-NLS-1$
@@ -204,16 +204,20 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	}
 
 	/**
-	 * @param parent The parent element to search at, e.g. "java.lang.Class".
+	 * @param container The container element to search at, e.g. "java.lang.Class".
 	 * @param localClassName The local classifier name (e.g. "Inner")
 	 * @param createAs If not null and classifier is not found, an instance of this meta-class is created.
 	 * @return A {@link Classifier} with name localClassName. If createAs is not null
 	 * and the classifier was not found, a new instance of the createAs meta-class is
 	 * created and returned.
 	 */
-	public Classifier findLocalClassifier(Element parent, String localClassName, EClass createAs) {
-		assert parent != null;
+	public Classifier findLocalClassifier(Element container, String localClassName, EClass createAs) {
+		assert container != null;
 		assert localClassName != null;
+		//TODO remove
+		if (localClassName.equals("BasicExtendedMetaData")) {
+			JarToUML.logger.fine("someone asked for " + localClassName);
+		}
 		setClassifierName(localClassName);
 		if (createAs != null) {
 			setMetaClass(createAs);
@@ -221,7 +225,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		} else {
 			setCreate(false);
 		}
-		return doSwitch(parent);
+		return doSwitch(container);
 	}
 
 	/**
@@ -234,29 +238,34 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	public Classifier findClassifier(Package root, String className, EClass createAs) {
 		assert className != null;
+		//TODO remove
+		if (className.equals("org.eclipse.emf.common.util.BasicEMap")) {
+			JarToUML.logger.fine("someone asked for " + className);
+		}
 		String localClassName = className;
-		Package parent = root;
-		String tail = className.substring(className.lastIndexOf('.') + 1);
+		Classifier containerClass = null;
+		String tail = className.substring(className.lastIndexOf('$') + 1);
 		if (tail.length() < className.length()) {
 			String parentName = className.substring(0, className.length() - tail.length() - 1);
-			parent = findPackage(root, parentName, createAs != null);
+			//create new container classifiers as DataTypes, which will be converted later with log messages
+			containerClass = findClassifier(root, parentName, createAs != null ? UMLPackage.eINSTANCE.getDataType() : null);
+			localClassName = tail;
+			if (containerClass == null) {
+				return null;
+			}
+			return findLocalClassifier(containerClass, localClassName, createAs);
+		}
+		Package container = root;
+		tail = className.substring(className.lastIndexOf('.') + 1);
+		if (tail.length() < className.length()) {
+			String parentName = className.substring(0, className.length() - tail.length() - 1);
+			container = findPackage(root, parentName, createAs != null);
 			localClassName = tail;
 		}
-		if (parent == null) {
+		if (container == null) {
 			return null;
 		}
-		Classifier parentClass = null;
-		tail = className.substring(className.lastIndexOf('$') + 1);
-		if (tail.length() < className.length()) {
-			String parentName = className.substring(0, className.length() - tail.length() - 1);
-			parentClass = findClassifier(root, parentName, createAs);
-			localClassName = tail;
-		}
-		if (parentClass != null) {
-			return findLocalClassifier(parentClass, localClassName, createAs);
-		} else {
-			return findLocalClassifier(parent, localClassName, createAs);
-		}
+		return findLocalClassifier(container, localClassName, createAs);
 	}
 
 	/**

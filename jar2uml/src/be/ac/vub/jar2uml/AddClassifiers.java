@@ -19,9 +19,12 @@ import java.util.Set;
 
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.LocalVariable;
+import org.apache.bcel.classfile.LocalVariableTable;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.InstructionList;
+import org.apache.bcel.generic.Type;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
@@ -184,6 +187,7 @@ public class AddClassifiers extends AddToModel {
 				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 				replaceByClassifier.doSwitch(superClass.getOwner());
 			}
+			superClass.setIsLeaf(false);
 		}
 	}
 
@@ -304,6 +308,13 @@ public class AddClassifiers extends AddToModel {
 	public void addOpCodeRefs(Classifier instrContext, Method method) {
 		if (method.getCode() == null) {
 			return;
+		}
+		//types in the local variable table should be added to the model
+		final LocalVariableTable lvt = method.getLocalVariableTable();
+		if (lvt != null) {
+			for (LocalVariable local : lvt.getLocalVariableTable()) {
+				typeToClassifier.doSwitch(Type.getType(local.getSignature()));
+			}
 		}
 		addInstructionReferences.setCp(method.getConstantPool());
 		InstructionList instrList = new InstructionList(method.getCode().getCode());
