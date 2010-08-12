@@ -17,8 +17,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ATHROW;
@@ -289,11 +287,11 @@ public class AddMethodOpCode extends AddToModel {
 
 			if (!ecQueue.isEmpty()) {
 				maxQueueSize = Math.max(maxQueueSize, ecQueue.size());
-				Assert.assertTrue(maxQueueSize <= copyCount + excCopyCount + 1);
+				assert maxQueueSize <= copyCount + excCopyCount + 1;
 				if (terminated && !history.isUnmergeable()) {
 					//merge back history of successfully terminated and fully covered execution paths
 					ec = ecQueue.removeFirst(); //first in queue is last branch in current search path
-					Assert.assertNotSame(history, ec.getHistory());
+					assert history != ec.getHistory();
 					ec.getHistory().merge(history);
 				} else {
 					ec = pickBestFromQueue(ec, ecQueue);
@@ -403,7 +401,7 @@ public class AddMethodOpCode extends AddToModel {
 
 			if (!ecQueue.isEmpty()) {
 				maxQueueSize = Math.max(maxQueueSize, ecQueue.size());
-				Assert.assertTrue(maxQueueSize <= copyCount + excCopyCount + 1);
+				assert maxQueueSize <= copyCount + excCopyCount + 1;
 				ec = ecQueue.removeFirst();
 				iflow = ec.getIflow();
 				history = ec.getHistory();
@@ -478,7 +476,7 @@ public class AddMethodOpCode extends AddToModel {
 	 * @return the best execution context candidate to process next
 	 */
 	protected ExecutionContext pickBestFromQueue(final ExecutionContext current, final LinkedList<ExecutionContext> ecQueue) {
-		Assert.assertFalse(ecQueue.isEmpty());
+		assert !ecQueue.isEmpty();
 		ExecutionContext ec = null;
 
 		//cherry-pick next execution context from queue: one that preferably has not been visited before
@@ -501,7 +499,7 @@ public class AddMethodOpCode extends AddToModel {
 			ecQueue.remove(ec);
 		}
 
-		Assert.assertNotNull(ec);
+		assert ec != null;
 		return ec;
 	}
 

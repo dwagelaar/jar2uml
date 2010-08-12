@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.generic.ArrayType;
 import org.apache.bcel.generic.BasicType;
 import org.apache.bcel.generic.ObjectType;
@@ -45,7 +43,7 @@ public class TypeToClassifierSwitch extends TypeSwitch<Classifier> {
 	@Override
 	public Classifier caseArrayType(ArrayType type) {
 		final Classifier inner = doSwitch(type.getElementType());
-		Assert.assertNotNull(inner);
+		assert inner != null;
 		return findContainedClassifier.findLocalClassifier(
 				inner.getOwner(), 
 				inner.getName() + "[]", 
@@ -59,7 +57,7 @@ public class TypeToClassifierSwitch extends TypeSwitch<Classifier> {
 	@Override
 	public Classifier caseBasicType(BasicType type) {
 		final Package root = getRoot();
-		Assert.assertNotNull(root);
+		assert root != null;
 		if (BasicType.BOOLEAN.equals(type)) {
 			return findContainedClassifier.findPrimitiveType(root, "java.lang.boolean", true); //$NON-NLS-1$
 		} else if (BasicType.BYTE.equals(type)) {
@@ -92,7 +90,7 @@ public class TypeToClassifierSwitch extends TypeSwitch<Classifier> {
 	@Override
 	public Classifier caseObjectType(ObjectType type) {
 		final Package root = getRoot();
-		Assert.assertNotNull(root);
+		assert root != null;
 		return findContainedClassifier.findClassifier(root, type.getClassName(), UMLPackage.eINSTANCE.getDataType());
 	}
 

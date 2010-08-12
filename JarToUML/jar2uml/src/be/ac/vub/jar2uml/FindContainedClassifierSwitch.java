@@ -12,8 +12,6 @@ package be.ac.vub.jar2uml;
 
 import java.util.Iterator;
 
-import junit.framework.Assert;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
@@ -87,8 +85,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 * @param metaClass
 	 */
 	public void setMetaClass(EClass metaClass) {
-		Assert.assertNotNull(metaClass);
-		Assert.assertEquals(true, UMLPackage.eINSTANCE.getClassifier().isSuperTypeOf(metaClass));
+		assert metaClass != null;
+		assert UMLPackage.eINSTANCE.getClassifier().isSuperTypeOf(metaClass);
 		this.metaClass = metaClass;
 	}
 
@@ -115,7 +113,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	public Classifier caseClass(Class parent) {
 		setCreated(false);
 		final String localClassName = getClassifierName();
-		Assert.assertNotNull(localClassName);
+		assert localClassName != null;
 		for (Iterator<Classifier> it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
 			Classifier cl = it.next();
 			if (localClassName.equals(cl.getName())) {
@@ -140,7 +138,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	public Classifier caseInterface(Interface parent) {
 		setCreated(false);
 		final String localClassName = getClassifierName();
-		Assert.assertNotNull(localClassName);
+		assert localClassName != null;
 		for (Iterator<Classifier> it = parent.getNestedClassifiers().iterator(); it.hasNext();) {
 			Classifier cl = (Classifier) it.next();
 			if (localClassName.equals(cl.getName())) {
@@ -165,7 +163,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	public Classifier casePackage(Package parent) {
 		setCreated(false);
 		final String localClassName = getClassifierName();
-		Assert.assertNotNull(localClassName);
+		assert localClassName != null;
 		for (Iterator<PackageableElement> it = parent.getPackagedElements().iterator(); it.hasNext();) {
 			PackageableElement element = it.next();
 			if (element instanceof Classifier) {
@@ -214,8 +212,8 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 * created and returned.
 	 */
 	public Classifier findLocalClassifier(Element parent, String localClassName, EClass createAs) {
-		Assert.assertNotNull(parent);
-		Assert.assertNotNull(localClassName);
+		assert parent != null;
+		assert localClassName != null;
 		setClassifierName(localClassName);
 		if (createAs != null) {
 			setMetaClass(createAs);
@@ -235,7 +233,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 * created and returned.
 	 */
 	public Classifier findClassifier(Package root, String className, EClass createAs) {
-		Assert.assertNotNull(className);
+		assert className != null;
 		String localClassName = className;
 		Package parent = root;
 		String tail = className.substring(className.lastIndexOf('.') + 1);
@@ -270,7 +268,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	public Package findPackage(Package root, String packageName, boolean create) {
 		setCreated(false);
-		Assert.assertNotNull(packageName);
+		assert packageName != null;
 		Package parent = root;
 		final String tail = packageName.substring(packageName.lastIndexOf('.') + 1);
 		if (tail.length() < packageName.length()) {
@@ -306,7 +304,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	public PrimitiveType findPrimitiveType(Package root, String typeName, boolean create) {
 		setCreated(false);
-		Assert.assertNotNull(typeName);
+		assert typeName != null;
 		String localTypeName = typeName;
 		Package parent = root;
 		String tail = typeName.substring(typeName.lastIndexOf('.') + 1);

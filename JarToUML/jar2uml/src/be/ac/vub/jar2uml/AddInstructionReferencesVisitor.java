@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.EmptyVisitor;
@@ -51,7 +49,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	 */
 	public AddInstructionReferencesVisitor(
 			TypeToClassifierSwitch typeToClassifierSwitch) {
-		Assert.assertNotNull(typeToClassifierSwitch);
+		assert typeToClassifierSwitch != null;
 		this.typeToClassifier = typeToClassifierSwitch;
 	}
 
@@ -61,8 +59,8 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	 */
 	@Override
 	public void visitFieldOrMethod(FieldOrMethod obj) {
-		Assert.assertNotNull(cpg);
-		Assert.assertNotNull(typeToClassifier);
+		assert cpg != null;
+		assert typeToClassifier != null;
 		ReferenceType fieldOwner = obj.getReferenceType(cpg);
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
 	}
@@ -82,7 +80,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 			replaceByClassifier.setClassifier(owner);
 			owner = (Classifier) replaceByClassifier.doSwitch(owner.getOwner());
 		}
-		Assert.assertTrue(owner instanceof Class);
+		assert owner instanceof Class;
 	}
 
 	/**
@@ -100,7 +98,7 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 			replaceByClassifier.setClassifier(owner);
 			owner = (Classifier) replaceByClassifier.doSwitch(owner.getOwner());
 		}
-		Assert.assertTrue(owner instanceof Interface);
+		assert owner instanceof Interface;
 	}
 
 	/*
@@ -171,8 +169,8 @@ public class AddInstructionReferencesVisitor extends EmptyVisitor {
 	 */
 	@Override
 	public void visitNEW(NEW obj) {
-		Assert.assertNotNull(cpg);
-		Assert.assertNotNull(typeToClassifier);
+		assert cpg != null;
+		assert typeToClassifier != null;
 		ObjectType fieldOwner = obj.getLoadClassType(cpg);;
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
 		changeOwnerToClass();

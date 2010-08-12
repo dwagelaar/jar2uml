@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.generic.AALOAD;
 import org.apache.bcel.generic.ConstantPoolGen;
@@ -71,9 +69,9 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 			AddClassifierPropertySwitch addClassifierPropertySwitch,
 			AddClassifierOperationSwitch addClassifierOperationSwitch) {
 		super();
-		Assert.assertNotNull(typeToClassifierSwitch);
-		Assert.assertNotNull(addClassifierPropertySwitch);
-		Assert.assertNotNull(addClassifierOperationSwitch);
+		assert typeToClassifierSwitch != null;
+		assert addClassifierPropertySwitch != null;
+		assert addClassifierOperationSwitch != null;
 		this.typeToClassifier = typeToClassifierSwitch;
 		this.addClassifierProperty = addClassifierPropertySwitch;
 		this.addClassifierOperation = addClassifierOperationSwitch;
@@ -94,7 +92,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitFieldOrMethod(FieldOrMethod obj) {
 		final ConstantPoolGen cpg = getCpg();
-		Assert.assertNotNull(cpg);
+		assert cpg != null;
 		final ReferenceType fieldOwner = obj.getReferenceType(cpg);
 		owner = (Classifier) typeToClassifier.doSwitch(fieldOwner);
 	}
@@ -107,7 +105,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitGETFIELD(GETFIELD obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getGetFieldAccessContext());
 		//Only classes have instance fields
-		Assert.assertTrue(owner instanceof Class);
+		assert owner instanceof Class;
 		final ConstantPoolGen cpg = getCpg();
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
@@ -123,7 +121,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitGETSTATIC(GETSTATIC obj) {
 		//Can be invoked on interfaces as well as classes (static final) -> allow DataType
-		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
+		assert (owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType);
 		final ConstantPoolGen cpg = getCpg();
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
@@ -157,7 +155,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitINVOKEINTERFACE(INVOKEINTERFACE obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
 		//Can be invoked only on interfaces
-		Assert.assertTrue(owner instanceof Interface);
+		assert owner instanceof Interface;
 		final Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
 		setVisibility(newOp, accessContext);
 		setIsLeaf(newOp, accessContext);
@@ -171,7 +169,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitINVOKESPECIAL(INVOKESPECIAL obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
 		//Can be invoked only on classes (<init>, superclass methods and private methods)
-		Assert.assertTrue(owner instanceof Class);
+		assert owner instanceof Class;
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
 		setVisibility(newOp, accessContext);
 		setIsLeaf(newOp, accessContext);
@@ -185,7 +183,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitINVOKESTATIC(INVOKESTATIC obj) {
 		//Can be invoked only on classes (interfaces cannot contain static method headers)
-		Assert.assertTrue(owner instanceof Class);
+		assert owner instanceof Class;
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
 		setVisibilityStatic(newOp);
 		setIsLeafStatic(newOp);
@@ -201,7 +199,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitINVOKEVIRTUAL(INVOKEVIRTUAL obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getAccessContext(obj));
 		//Can be invoked only on classes and array types (refers to all remaining non-interface methods)
-		Assert.assertTrue(owner instanceof Class || TypeToClassifierSwitch.isArrayType(owner));
+		assert owner instanceof Class || TypeToClassifierSwitch.isArrayType(owner);
 		Operation newOp = (Operation) addClassifierOperation.doSwitch(owner);
 		setVisibility(newOp, accessContext);
 		setIsLeaf(newOp, accessContext);
@@ -215,7 +213,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	public void visitPUTFIELD(PUTFIELD obj) {
 		final Classifier accessContext = typeToClassifier.doSwitch(getPutFieldAccessContext());
 		//Only classes have instance fields
-		Assert.assertTrue(owner instanceof Class);
+		assert owner instanceof Class;
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
 		final Property att = (Property) addClassifierProperty.doSwitch(owner);
@@ -232,7 +230,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	@Override
 	public void visitPUTSTATIC(PUTSTATIC obj) {
 		//Can be invoked on interfaces as well as classes (static final) -> allow DataType
-		Assert.assertTrue((owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType));
+		assert (owner instanceof Class) || (owner instanceof Interface) || (owner instanceof DataType);
 		addClassifierProperty.setPropertyName(obj.getFieldName(cpg));
 		addClassifierProperty.setBCELPropertyType(obj.getFieldType(cpg));
 		final Property att = (Property) addClassifierProperty.doSwitch(owner);
@@ -248,9 +246,9 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 * @throws AccessContextUnavailableException if the access context is not available
 	 */
 	private org.apache.bcel.generic.Type getAccessContext(final InvokeInstruction instr) {
-		Assert.assertFalse(instr instanceof INVOKESTATIC);
+		assert !(instr instanceof INVOKESTATIC);
 		final SmartFrame frame = getFrame();
-		Assert.assertNotNull(frame);
+		assert frame != null;
 		final int stackIndex = addClassifierOperation.getArgumentTypes().size();
 		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek(stackIndex);
 		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
@@ -265,7 +263,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	private org.apache.bcel.generic.Type getGetFieldAccessContext() {
 		final SmartFrame frame = getFrame();
-		Assert.assertNotNull(frame);
+		assert frame != null;
 		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek();
 		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
 			throw new AccessContextUnavailableException(frame.getResponsibleForStackTop());
@@ -279,7 +277,7 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	private org.apache.bcel.generic.Type getPutFieldAccessContext() {
 		final SmartFrame frame = getFrame();
-		Assert.assertNotNull(frame);
+		assert frame != null;
 		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek(1);
 		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
 			throw new AccessContextUnavailableException(frame.getResponsibleForStackEntry(1));

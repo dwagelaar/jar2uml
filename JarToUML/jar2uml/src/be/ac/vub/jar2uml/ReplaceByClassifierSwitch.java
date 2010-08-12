@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.uml2.uml.Class;
@@ -211,8 +209,8 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 	 * @param metaClass
 	 */
 	public void setMetaClass(EClass metaClass) {
-		Assert.assertNotNull(metaClass);
-		Assert.assertEquals(true, UMLPackage.eINSTANCE.getClassifier().isSuperTypeOf(metaClass));
+		assert metaClass != null;
+		assert UMLPackage.eINSTANCE.getClassifier().isSuperTypeOf(metaClass);
 		this.metaClass = metaClass;
 	}
 

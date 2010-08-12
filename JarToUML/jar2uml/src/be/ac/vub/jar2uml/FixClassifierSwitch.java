@@ -10,8 +10,6 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.uml2.uml.Class;
 import org.eclipse.uml2.uml.Classifier;
@@ -40,9 +38,9 @@ public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 	}
 
 	public Classifier caseClass(Class umlClass) {
-		Assert.assertNotNull(umlClass);
+		assert umlClass != null;
 		JavaClass javaClass = getJavaClass();
-		Assert.assertNotNull(javaClass);
+		assert javaClass != null;
 		if (javaClass.isInterface()) {
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getInterface());
 			replaceByClassifierSwitch.setClassifier(umlClass);
@@ -54,9 +52,9 @@ public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 	}
 
 	public Classifier caseInterface(Interface umlIface) {
-		Assert.assertNotNull(umlIface);
+		assert umlIface != null;
 		JavaClass javaClass = getJavaClass();
-		Assert.assertNotNull(javaClass);
+		assert javaClass != null;
 		if (!javaClass.isInterface()) {
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
 			replaceByClassifierSwitch.setClassifier(umlIface);
@@ -68,9 +66,9 @@ public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 	}
 
 	public Classifier caseDataType(DataType datatype) {
-		Assert.assertNotNull(datatype);
+		assert datatype != null;
 		JavaClass javaClass = getJavaClass();
-		Assert.assertNotNull(javaClass);
+		assert javaClass != null;
 		if (javaClass.isInterface()) {
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getInterface());
 			replaceByClassifierSwitch.setClassifier(datatype);
@@ -85,9 +83,9 @@ public class FixClassifierSwitch extends UMLSwitch<Classifier> {
 	}
 
 	public Classifier caseClassifier(Classifier classifier) {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		JavaClass javaClass = getJavaClass();
-		Assert.assertNotNull(javaClass);
+		assert javaClass != null;
 		classifier.setIsAbstract(javaClass.isAbstract());
 		classifier.setVisibility(JarToUML.toUMLVisibility(javaClass));
 		classifier.setIsLeaf(javaClass.isFinal());

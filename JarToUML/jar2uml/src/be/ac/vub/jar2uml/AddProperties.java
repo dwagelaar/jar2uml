@@ -13,8 +13,6 @@ package be.ac.vub.jar2uml;
 import java.io.IOException;
 import java.util.Collection;
 
-import junit.framework.Assert;
-
 import org.apache.bcel.classfile.Attribute;
 import org.apache.bcel.classfile.Code;
 import org.apache.bcel.classfile.Field;
@@ -110,7 +108,7 @@ public class AddProperties extends AddToModel {
 	 * @throws JarToUMLException 
 	 */
 	public void addProperties(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		Field[] fields = javaClass.getFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (!filter(fields[i])) {
@@ -141,7 +139,7 @@ public class AddProperties extends AddToModel {
 	 * @throws JarToUMLException 
 	 */
 	public void addOperations(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
-		Assert.assertNotNull(classifier);
+		assert classifier != null;
 		Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (getFilter() != null) {
