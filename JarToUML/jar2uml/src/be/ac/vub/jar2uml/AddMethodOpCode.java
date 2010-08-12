@@ -97,10 +97,14 @@ public class AddMethodOpCode extends AddToModel {
 		if (!isIncludeInstructionReferences() || method.getCode() == null) {
 			return;
 		}
+		//TODO non-determinism issue running jaxb-osgi.jar:
+		//TODO - constructors of org.apache.tools.ant.BuildException change order
+		//TODO - java.lang.ExceptionInInitializerError appears/disappears
 
 		addInstructionDependencies.setInstrContext(instrContext);
 		addInstructionDependencies.setCp(method.getConstantPool());
 		execution.setConstantPoolGen(addInstructionDependencies.getCpg());
+		execution.setLocalVarTable(method.getLocalVariableTable());
 
 		final MethodGen method_gen = new MethodGen(method, javaClass.getClassName(), addInstructionDependencies.getCpg());
 		final ControlFlow cflow = new ControlFlow(method_gen);
@@ -109,6 +113,11 @@ public class AddMethodOpCode extends AddToModel {
 
 		JarToUML.logger.finer(method_gen.toString());
 
+		//TODO remove
+		if (method_gen.toString().equals("public static Object create(java.lang.reflect.Method method)")) {
+			JarToUML.logger.fine(method_gen.toString());
+		}
+
 		//try first with simplified algorithm
 		executeSimple(cflow);
 		JarToUML.logger.fine(String.format(
@@ -116,7 +125,13 @@ public class AddMethodOpCode extends AddToModel {
 				reuseCount, copyCount, excCopyCount, maxQueueSize, method_gen)); //$NON-NLS-1$
 
 		if (liveInstrCount > globalHistory.size() + deadCode.size()) {
-			//fall back to full algorithm if instructions were skipped without being proved unreachable
+			/*
+			 * Fall back to full algorithm if instructions were skipped without being proved unreachable.
+			 * 
+			 * Since we check the types in the local variable table, we can avoid most unreachable code
+			 * situations. Some methods do not have a local variable table, however, so we must retain
+			 * the full algorithm.
+			 */
 			JarToUML.logger.fine(String.format(
 					JarToUMLResources.getString("AddMethodOpCode.fallback"), 
 					method_gen.toString())); //$NON-NLS-1$
@@ -124,6 +139,11 @@ public class AddMethodOpCode extends AddToModel {
 			JarToUML.logger.fine(String.format(
 					JarToUMLResources.getString("AddMethodOpCode.instrCount"), 
 					reuseCount, copyCount, excCopyCount, maxQueueSize, method_gen)); //$NON-NLS-1$
+		}
+
+		//TODO remove
+		if (method_gen.toString().equals("public static Object create(java.lang.reflect.Method method)")) {
+			JarToUML.logger.fine(method_gen.toString());
 		}
 
 		assert noAccessContextAvailable.isEmpty() || instrCount > globalHistory.size();
@@ -173,10 +193,6 @@ public class AddMethodOpCode extends AddToModel {
 	 * Resets object-wide fields.
 	 */
 	protected void resetGlobals() {
-		reuseCount = 0;
-		copyCount = 0;
-		excCopyCount = 0;
-		maxQueueSize = 0;
 		globalHistory.clear();
 		noAccessContextAvailable.clear();
 		deadCode.clear();
@@ -198,6 +214,10 @@ public class AddMethodOpCode extends AddToModel {
 		LocalHistoryTable history = new LocalHistoryTable(instrCount);
 		Trace trace = new Trace();
 		ExecutionContext ec = new ExecutionContext(iflow, history, frame, trace);
+		int reuseCount = 0;
+		int copyCount = 0;
+		int excCopyCount = 0;
+		int maxQueueSize = 0;
 
 		resetGlobals();
 
@@ -218,6 +238,7 @@ public class AddMethodOpCode extends AddToModel {
 				LocalHistorySet instrHistory = history.get(iflow);
 				//execute exception handlers in the context of before the covered instruction
 				if (iflow.isExceptionThrower()) {
+					//TODO visiting order is not deterministic: Exception handlers are stored in a Set!!!
 					for (ExceptionHandler eh : iflow.getExceptionHandlers()) {
 						InstructionFlow succ = cflow.getFlowOf(eh.getHandlerStart());
 						//create a new history for each alternative successor path
@@ -312,6 +333,12 @@ public class AddMethodOpCode extends AddToModel {
 			checkCancelled();
 
 		}
+
+		//store stats
+		this.reuseCount = reuseCount;
+		this.copyCount = copyCount;
+		this.excCopyCount = excCopyCount;
+		this.maxQueueSize = maxQueueSize;
 	}
 
 	/**
@@ -333,6 +360,10 @@ public class AddMethodOpCode extends AddToModel {
 		LocalHistoryTable history = new LocalHistoryTable(instrCount);
 		Trace trace = new Trace();
 		ExecutionContext ec = new ExecutionContext(iflow, history, frame, trace);
+		int reuseCount = 0;
+		int copyCount = 0;
+		int excCopyCount = 0;
+		int maxQueueSize = 0;
 
 		resetGlobals();
 
@@ -342,6 +373,7 @@ public class AddMethodOpCode extends AddToModel {
 				LocalHistorySet instrHistory = history.get(iflow);
 				//execute exception handlers in the context of before the covered instruction
 				if (iflow.isExceptionThrower()) {
+					//TODO visiting order is not deterministic: Exception handlers are stored in a Set!!!
 					for (ExceptionHandler eh : iflow.getExceptionHandlers()) {
 						InstructionFlow succ = cflow.getFlowOf(eh.getHandlerStart());
 						//check if successor has ever been executed from this history by calculating new history
@@ -414,6 +446,12 @@ public class AddMethodOpCode extends AddToModel {
 			checkCancelled();
 
 		}
+
+		//store stats
+		this.reuseCount = reuseCount;
+		this.copyCount = copyCount;
+		this.excCopyCount = excCopyCount;
+		this.maxQueueSize = maxQueueSize;
 	}
 
 	/**
@@ -425,7 +463,6 @@ public class AddMethodOpCode extends AddToModel {
 	 * @throws BranchTargetUnavailableException if a branch target was cut off due to the given execution frame
 	 */
 	protected InstructionFlow[] executeInstr(final SmartFrame frame, final InstructionFlow iflow) {
-		//TODO only one valid access context is covered, which may lead to optimistic conclusions w.r.t. protected/public
 		//check if instr has already been successfully visited
 		if (!globalHistory.contains(iflow)) {
 			//add dependencies
@@ -465,6 +502,7 @@ public class AddMethodOpCode extends AddToModel {
 			frameClone.getStack().push(Type.THROWABLE);
 		}
 		execution.setFrame(frameClone);
+		execution.setIflow(null);
 		new ATHROW().accept(execution);
 		//return the prepared frame
 		return frameClone;

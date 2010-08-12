@@ -376,6 +376,9 @@ public class ControlFlow {
 			sb.append(getSuccessors().size());
 			sb.append(",l#="); //$NON-NLS-1$
 			sb.append(getLineNumber());
+			if (getSameLineSet().size() > 1) {
+				sb.append(",sl"); //$NON-NLS-1$
+			}
 			sb.append(")"); //$NON-NLS-1$
 			return sb.toString();
 		}
