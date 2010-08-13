@@ -104,4 +104,24 @@ public class SmartStack extends OperandStack {
 		return sb.toString();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.apache.bcel.verifier.structurals.OperandStack#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof SmartStack)) {
+            return false;
+        }
+		SmartStack s = (SmartStack) o;
+		return frame.equals(s.frame) && super.equals(o);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.apache.bcel.verifier.structurals.OperandStack#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return super.hashCode() ^ frame.hashCode();
+	}
+
 }

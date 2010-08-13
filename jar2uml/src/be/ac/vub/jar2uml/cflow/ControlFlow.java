@@ -51,7 +51,6 @@ import org.apache.bcel.verifier.structurals.LocalVariables;
 import org.apache.bcel.verifier.structurals.UninitializedObjectType;
 
 import be.ac.vub.jar2uml.JarToUMLResources;
-import be.ac.vub.jar2uml.cflow.LocalHistoryTable.OrderedItem;
 
 /**
  * A control flow simulator for BCEL {@link MethodGen} code. 
@@ -90,7 +89,7 @@ public class ControlFlow {
 	 * Represents the control flow information of an {@link InstructionHandle}. 
 	 * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
 	 */
-	public class InstructionFlow implements OrderedItem, Comparable<InstructionFlow> {
+	public class InstructionFlow implements OrderedItem {
 
 		/**
 		 * Simplified instruction successor determination algorithm,
@@ -318,7 +317,6 @@ public class ControlFlow {
 		/**
 		 * Creates a new {@link InstructionFlow}.
 		 * @param instr
-		 * @param exceptionHandlers
 		 */
 		protected InstructionFlow(InstructionHandle instr) {
 			this(instr, getIndexOf(instr));
@@ -537,19 +535,6 @@ public class ControlFlow {
 			return -1;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * @see java.lang.Comparable#compareTo(java.lang.Object)
-		 */
-		public int compareTo(InstructionFlow o) {
-			if (!getFlows().contains(o)) {
-				throw new IllegalArgumentException(String.format(
-						JarToUMLResources.getString("ControlFlow.illegalInstr"),
-						o));
-			}
-			return Integer.valueOf(getIndex()).compareTo(Integer.valueOf(o.getIndex()));
-		}
-
 	}
 
 	private final MethodGen method;
@@ -721,7 +706,7 @@ public class ControlFlow {
 	/**
 	 * @param index
 	 * @return the instruction flow with the given index, or <code>null</code>
-     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @throws IndexOutOfBoundsException
 	 */
 	public InstructionFlow getFlow(int index) {
 		return flows[index];

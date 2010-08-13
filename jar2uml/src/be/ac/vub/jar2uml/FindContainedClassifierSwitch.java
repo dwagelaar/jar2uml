@@ -214,10 +214,6 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	public Classifier findLocalClassifier(Element container, String localClassName, EClass createAs) {
 		assert container != null;
 		assert localClassName != null;
-		//TODO remove
-		if (localClassName.equals("BasicExtendedMetaData")) {
-			JarToUML.logger.fine("someone asked for " + localClassName);
-		}
 		setClassifierName(localClassName);
 		if (createAs != null) {
 			setMetaClass(createAs);
@@ -238,10 +234,6 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 	 */
 	public Classifier findClassifier(Package root, String className, EClass createAs) {
 		assert className != null;
-		//TODO remove
-		if (className.equals("org.eclipse.emf.common.util.BasicEMap")) {
-			JarToUML.logger.fine("someone asked for " + className);
-		}
 		String localClassName = className;
 		Classifier containerClass = null;
 		String tail = className.substring(className.lastIndexOf('$') + 1);
