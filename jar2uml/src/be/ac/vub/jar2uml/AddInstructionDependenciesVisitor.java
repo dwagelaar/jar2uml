@@ -10,10 +10,8 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
-import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.generic.AALOAD;
 import org.apache.bcel.generic.ConstantPoolGen;
-import org.apache.bcel.generic.EmptyVisitor;
 import org.apache.bcel.generic.FieldOrMethod;
 import org.apache.bcel.generic.GETFIELD;
 import org.apache.bcel.generic.GETSTATIC;
@@ -38,20 +36,13 @@ import org.eclipse.uml2.uml.Property;
 import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.VisibilityKind;
 
-import be.ac.vub.jar2uml.cflow.AccessContextUnavailableException;
-import be.ac.vub.jar2uml.cflow.SmartFrame;
-
 /**
  * Adds classifier fields/methods referenced by the switched bytecode instruction to the model.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class AddInstructionDependenciesVisitor extends EmptyVisitor {
+public class AddInstructionDependenciesVisitor extends AccessContextVisitor {
 
 	private Classifier instrContext;
-	private ConstantPool cp;
-	private ConstantPoolGen cpg;
-	private SmartFrame frame;
-
 	protected TypeToClassifierSwitch typeToClassifier = null;
 	protected AddClassifierPropertySwitch addClassifierProperty = null;
 	protected AddClassifierOperationSwitch addClassifierOperation = null;
@@ -241,51 +232,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	}
 
 	/**
-	 * @param instr
-	 * @return The access context of the (dynamic) invoke instruction, if available.
-	 * @throws AccessContextUnavailableException if the access context is not available
-	 */
-	private org.apache.bcel.generic.Type getAccessContext(final InvokeInstruction instr) {
-		assert !(instr instanceof INVOKESTATIC);
-		final SmartFrame frame = getFrame();
-		assert frame != null;
-		final int stackIndex = addClassifierOperation.getArgumentTypes().size();
-		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek(stackIndex);
-		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
-			throw new AccessContextUnavailableException(frame.getResponsibleForStackEntry(stackIndex));
-		}
-		return accessContext;
-	}
-
-	/**
-	 * @return The access context of a GETFIELD instruction, if available.
-	 * @throws AccessContextUnavailableException if the access context is not available
-	 */
-	private org.apache.bcel.generic.Type getGetFieldAccessContext() {
-		final SmartFrame frame = getFrame();
-		assert frame != null;
-		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek();
-		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
-			throw new AccessContextUnavailableException(frame.getResponsibleForStackTop());
-		}
-		return accessContext;
-	}
-
-	/**
-	 * @return The access context of a PUTFIELD instruction, if available.
-	 * @throws AccessContextUnavailableException if the access context is not available
-	 */
-	private org.apache.bcel.generic.Type getPutFieldAccessContext() {
-		final SmartFrame frame = getFrame();
-		assert frame != null;
-		final org.apache.bcel.generic.Type accessContext = frame.getStack().peek(1);
-		if (accessContext.equals(org.apache.bcel.generic.Type.NULL)) {
-			throw new AccessContextUnavailableException(frame.getResponsibleForStackEntry(1));
-		}
-		return accessContext;
-	}
-
-	/**
 	 * Sets the visibility of feature, given the access context.
 	 * @param feature
 	 * @param accessContext
@@ -414,33 +360,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	}
 
 	/**
-	 * @return The {@link ConstantPool} to use for the instructions.
-	 */
-	public ConstantPool getCp() {
-		return cp;
-	}
-
-	/**
-	 * Sets the {@link ConstantPool} to use for the instructions.
-	 * @param cp
-	 */
-	public void setCp(ConstantPool cp) {
-		this.cp = cp;
-		if (cp == null) {
-			this.cpg = null;
-		} else {
-			this.cpg = new ConstantPoolGen(cp);
-		}
-	}
-
-	/**
-	 * @return The {@link ConstantPoolGen} for {@link #getCp()}.
-	 */
-	public ConstantPoolGen getCpg() {
-		return cpg;
-	}
-
-	/**
 	 * @return The context in which the instructions run.
 	 */
 	public Classifier getInstrContext() {
@@ -453,20 +372,6 @@ public class AddInstructionDependenciesVisitor extends EmptyVisitor {
 	 */
 	public void setInstrContext(Classifier instrContext) {
 		this.instrContext = instrContext;
-	}
-
-	/**
-	 * @return the frame
-	 */
-	public SmartFrame getFrame() {
-		return frame;
-	}
-
-	/**
-	 * @param frame the frame to set
-	 */
-	public void setFrame(SmartFrame frame) {
-		this.frame = frame;
 	}
 
 }
