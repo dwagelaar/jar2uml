@@ -84,46 +84,6 @@ public final class AddPropertiesTest extends J2UTestCase {
 			JarToUMLTest.handle(e);
 		}
 	}
-	
-	/**
-	 * Test method for {@link AddProperties#addAllProperties(java.util.Collection)}.
-	 */
-	public void testAddAllProperties() {
-		//TODO implement
-		fail("Not yet implemented");
-	}
-	
-	/**
-	 * Test method for {@link AddProperties#addClassifierProperties(JavaClass)}.
-	 */
-	public void testAddClassifierProperties() {
-		//TODO implement
-		fail("Not yet implemented");
-	}
-	
-	/**
-	 * Test method for {@link AddProperties#addProperties(org.eclipse.uml2.uml.Classifier, JavaClass)}.
-	 */
-	public void testAddProperties() {
-		//TODO implement
-		fail("Not yet implemented");
-	}
-
-	/**
-	 * Test method for {@link AddProperties#addOperations(org.eclipse.uml2.uml.Classifier, JavaClass)}.
-	 */
-	public void testAddOperations() {
-		//TODO implement
-		fail("Not yet implemented");
-	}
-
-	/**
-	 * Test method for {@link AddProperties#addOpCode(org.eclipse.uml2.uml.Classifier, Method)}.
-	 */
-	public void testAddOpCode() {
-		//TODO implement
-		fail("Not yet implemented");
-	}
 
 	/* (non-Javadoc)
 	 * @see be.ac.vub.jar2uml.test.J2UTestCase#setUp()

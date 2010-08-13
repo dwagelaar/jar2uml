@@ -54,6 +54,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	public static final String PLUGIN_URI = "platform:/plugin/" + PLUGIN_ID;
 
 	public static final Bundle bundle = Platform.getBundle(PLUGIN_ID);
+	public static final Bundle dataBundle = Platform.getBundle(PLUGIN_ID + ".data");
 
 	public static final String pkServletDepsUri = PLUGIN_URI + "/resources/platformkitservlet.deps.uml";
 	public static final String pkServletWar = "resources/platformkitservlet.war";
@@ -101,7 +102,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @throws IOException
 	 */
 	public static IFile copyClassToJavaProject(Class<?> clazz, IProject project)
-	throws CoreException {
+	throws CoreException, IOException {
 		String path = classFilePath(clazz);
 		JarToUML.logger.info("copying class file: " + path);
 		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
@@ -111,13 +112,27 @@ public abstract class J2UTestCase extends EMFTestCase {
 		IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
 		if (!classFile.exists()) {
 			createPath((IFolder) classFile.getParent());
-			InputStream input = clazz.getResourceAsStream(path.substring(path.lastIndexOf('/') + 1));
-			classFile.create(input, true, null);
+			classFile.create(getClassContents(clazz), true, null);
 			JarToUML.logger.info("created file: " + classFile);
 		}
 		return classFile;
 	}
-	
+
+	/**
+	 * @param clazz
+	 * @return the contents of clazz as an {@link InputStream}
+	 * @throws IOException
+	 */
+	public static InputStream getClassContents(Class<?> clazz) throws IOException {
+		String path = classFilePath(clazz);
+		URL classURL = bundle.getResource(path);
+		if (classURL == null) {
+			dataBundle.getResource(path);
+		}
+		Assert.assertNotNull(classURL);
+		return classURL.openStream();
+	}
+
 	/**
 	 * @param clazz
 	 * @return The file path of clazz relative to the classpath root.

@@ -17,4 +17,5 @@ Require-Bundle: be.ac.vub.jar2uml;bundle-version="1.1.3",
  org.eclipse.ui.console,
  org.eclipse.jdt.core,
  org.eclipse.emf.compare.match;bundle-version="1.0.1",
- org.eclipse.emf.compare.diff;bundle-version="1.0.1"
+ org.eclipse.emf.compare.diff;bundle-version="1.0.1",
+ be.ac.vub.jar2uml.test.data;bundle-version="1.1.7"

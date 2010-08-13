@@ -68,6 +68,8 @@ public class ParseClassesTest extends J2UTestCase {
 			handle(e);
 		} catch (CoreException e) {
 			handle(e);
+		} catch (IOException e) {
+			handle(e);
 		}
 	}
 
