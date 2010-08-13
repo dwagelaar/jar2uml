@@ -1,0 +1,17 @@
+<project name="jar2uml-test-data" default="disassemble">
+	<property name="src.dir"     value="src"/>
+	<property name="classes.dir" value="bin"/>
+	<property name="javap.dir"   value="javap"/>
+	<property name="dump.dir"    value="dump"/>
+
+	<taskdef name="javap" classname="myomi.ant.taskdefs.Javap" 
+		classpath="lib/myomitask.jar"/>
+	<taskdef name="dump" classname="myomi.ant.taskdefs.Dump" 
+		classpath="lib/myomitask.jar"/>
+
+	<target name="disassemble">
+		<delete dir="${javap.dir}"/>
+	    <mkdir dir="${javap.dir}"/>
+		<javap verbose="true" classdir="${classes.dir}" destdir="${javap.dir}"/>
+	</target>
+</project>
