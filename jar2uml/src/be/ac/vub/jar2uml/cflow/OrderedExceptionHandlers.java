@@ -31,7 +31,7 @@ import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
  */
 public class OrderedExceptionHandlers {
 
-	protected static final List<ExceptionHandler> EMPTY = Collections.EMPTY_LIST;
+	protected static final List<ExceptionHandler> EMPTY = Collections.emptyList();
 
 	protected final Map<InstructionFlow, List<ExceptionHandler>> exceptionHandlers = new HashMap<InstructionFlow, List<ExceptionHandler>>();
 
