@@ -46,8 +46,6 @@ import org.apache.bcel.generic.ReturnaddressType;
 import org.apache.bcel.generic.Select;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.generic.Visitor;
-import org.apache.bcel.verifier.structurals.ExceptionHandler;
-import org.apache.bcel.verifier.structurals.ExceptionHandlers;
 import org.apache.bcel.verifier.structurals.Frame;
 import org.apache.bcel.verifier.structurals.LocalVariables;
 import org.apache.bcel.verifier.structurals.UninitializedObjectType;
@@ -300,11 +298,14 @@ public class ControlFlow {
 		private final Set<InstructionFlow> successors = new LinkedHashSet<InstructionFlow>();
 		private final Set<InstructionFlow> sameLineSet = new HashSet<InstructionFlow>();
 
+		private List<ExceptionHandler> exceptionHandlers;
+
 		protected InstructionSuccessorVisitor successorVisitor;
 
 		/**
 		 * Creates a new {@link InstructionFlow}.
 		 * @param instr
+		 * @param index
 		 */
 		protected InstructionFlow(InstructionHandle instr, int index) {
 			this.instr = instr;
@@ -317,6 +318,7 @@ public class ControlFlow {
 		/**
 		 * Creates a new {@link InstructionFlow}.
 		 * @param instr
+		 * @param exceptionHandlers
 		 */
 		protected InstructionFlow(InstructionHandle instr) {
 			this(instr, getIndexOf(instr));
@@ -333,10 +335,12 @@ public class ControlFlow {
 
 		/**
 		 * @return The exception handlers that protect this instruction
-		 * @see ExceptionHandlers#getExceptionHandlers(InstructionHandle)
 		 */
-		public final ExceptionHandler[] getExceptionHandlers() {
-			return getExceptionHandlersObject().getExceptionHandlers(getInstruction());
+		public final List<ExceptionHandler> getExceptionHandlers() {
+			if (exceptionHandlers == null) {
+				exceptionHandlers = getExceptionHandlersObject().getExceptionHandlers(this);
+			}
+			return exceptionHandlers;
 		}
 
 		/**
@@ -551,7 +555,7 @@ public class ControlFlow {
 	private final MethodGen method;
 	private final LineNumberTable lines;
 	private final SmartFrame startFrame;
-	private final ExceptionHandlers exceptionHandlers;
+	private final OrderedExceptionHandlers exceptionHandlers;
 	private final int flowCount;
 
 	protected final Map<InstructionHandle, InstructionFlow> flowOf = new HashMap<InstructionHandle, InstructionFlow>();
@@ -570,10 +574,10 @@ public class ControlFlow {
 		final Code code = m.getCode();
 		this.startFrame = new SmartFrame(code.getMaxLocals(), code.getMaxStack());
 		initLocalVariableTypes(startFrame);
-		exceptionHandlers = new ExceptionHandlers(method);
 		this.flowCount = method.getInstructionList().getLength();
 		flows = new InstructionFlow[flowCount];
 		createInstructionFlows();
+		exceptionHandlers = new OrderedExceptionHandlers(this);
 		addAllSuccessors();
 		findDeadCode();
 		if (lines != null) {
@@ -622,11 +626,11 @@ public class ControlFlow {
 	 * Adds the successor information to the control flow graph.
 	 */
 	private void addAllSuccessors() {
-		final ExceptionHandlers ehs = getExceptionHandlersObject();
+		final OrderedExceptionHandlers ehs = getExceptionHandlersObject();
 		for (InstructionFlow iflow : flows) {
 			iflow.initSuccessors();
-			for (ExceptionHandler eh : ehs.getExceptionHandlers(iflow.getInstruction())) {
-				iflow.addSuccessor(getFlowOf(eh.getHandlerStart()));
+			for (ExceptionHandler eh : ehs.getExceptionHandlers(iflow)) {
+				iflow.addSuccessor(eh.getHandlerStart());
 			}
 		}
 	}
@@ -775,7 +779,7 @@ public class ControlFlow {
 	/**
 	 * @return the exceptionHandlers
 	 */
-	public ExceptionHandlers getExceptionHandlersObject() {
+	public OrderedExceptionHandlers getExceptionHandlersObject() {
 		return exceptionHandlers;
 	}
 

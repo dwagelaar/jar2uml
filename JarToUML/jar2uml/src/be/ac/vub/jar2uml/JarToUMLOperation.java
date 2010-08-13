@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
  * Introduces functionality for general {@link JarToUML} operations. 
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public abstract class JarToUMLOperation {
+public abstract class JarToUMLOperation implements Cancellable {
 
 	private Filter filter;
 	private IProgressMonitor monitor;
@@ -81,7 +81,7 @@ public abstract class JarToUMLOperation {
 	 * Handles cancelled progress monitor
 	 * @throws OperationCanceledException
 	 */
-	protected void checkCancelled() throws OperationCanceledException {
+	public void checkCancelled() throws OperationCanceledException {
 		final IProgressMonitor monitor = getMonitor();
 		if ((monitor != null) && monitor.isCanceled()) {
 			throw new OperationCanceledException(JarToUMLResources.getString("operationCancelledByUser")); //$NON-NLS-1$
