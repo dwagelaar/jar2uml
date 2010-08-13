@@ -10,41 +10,31 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml.test.data;
 
-import be.ac.vub.jar2uml.JarToUML;
-import be.ac.vub.jar2uml.test.JarToUMLTest;
 
 /**
- * {@link JarToUMLTest} test class. This class is imported,
- * and its references are to be inferred by {@link JarToUML}.
+ * Jar2UML test class. This class is not imported,
+ * but is meant to be inferred by Jar2UML.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class B {
+public class A {
 	
-	public class BB {
+	public class AA {
 		
 	}
-	
-	private A.AA aaField;
-	private String[] arrayField = new String[1];
+
+	private B.BB bbField;
 
 	/**
-	 * @return the aaField
+	 * @return the bbField
 	 */
-	public A.AA getAaField() {
-		return aaField;
+	public B.BB getBbField() {
+		return bbField;
 	}
 
 	/**
-	 * @param aaField the aaField to set
+	 * @param bbField the bbField to set
 	 */
-	public void setAaField(A.AA aaField) {
-		this.aaField = aaField;
-	}
-	
-	public B() {
-		super();
-		A a = new A();
-		a.setBbField(new BB());
-		System.out.println(arrayField.length);
+	public void setBbField(B.BB bbField) {
+		this.bbField = bbField;
 	}
 }
