@@ -1187,10 +1187,13 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 
 	/**
 	 * {@inheritDoc}
-	 * @throws ClassCastException if f is not a {@link SmartFrame}
+	 * @throws IllegalArgumentException if f is not a {@link SmartFrame}
 	 */
 	@Override
 	public void setFrame(Frame f) {
+		if (!(f instanceof SmartFrame)) {
+			throw new IllegalArgumentException();
+		}
 		super.setFrame(f);
 		this.frame = (SmartFrame) f;
 	}

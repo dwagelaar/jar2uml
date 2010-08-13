@@ -23,7 +23,7 @@ import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
  * Execution {@link Frame} that keeps track of extra metadata.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class SmartFrame extends Frame implements Cloneable {
+public class SmartFrame extends Frame {
 
 	protected final InstructionFlow[] localVariableResponsibles;
 	protected final ArrayList<InstructionFlow> stackEntryResponsibles = new ArrayList<InstructionFlow>();
@@ -100,10 +100,18 @@ public class SmartFrame extends Frame implements Cloneable {
 	}
 
 	/**
-	 * @return a deep copy of this frame, with {@link InstructionFlow} and {@link Type} references left original
+	 * Clone operation not supported.
+	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	public Object clone() {
+	protected Object clone() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * @return a deep copy of this frame, with {@link InstructionFlow} and {@link Type} references left original
+	 */
+	public final SmartFrame getCopy() {
 		final SmartStack stack = (SmartStack) getStack();
 		final SmartStack newstack = new SmartStack(stack.maxStack());
 		final SmartFrame frame = new SmartFrame(getLocals().getClone(), newstack);
@@ -138,6 +146,33 @@ public class SmartFrame extends Frame implements Cloneable {
 		sb.append(":\n");
 		sb.append(getStack());
 		return sb.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.apache.bcel.verifier.structurals.Frame#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof SmartFrame)) {
+            return false; // implies "null" is non-equal.
+        }
+		SmartFrame f = (SmartFrame) o;
+		return localVariableResponsibles == f.localVariableResponsibles
+			&& stackEntryResponsibles.equals(f.stackEntryResponsibles)
+			&& super.equals(o);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.apache.bcel.verifier.structurals.Frame#hashCode()
+	 * @see java.util.List#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		int lvrHashCode = 1;
+		for (InstructionFlow iflow : localVariableResponsibles) {
+			lvrHashCode = 31 * lvrHashCode + (iflow == null ? 0 : iflow.hashCode());
+		}
+		return super.hashCode() ^ lvrHashCode ^ stackEntryResponsibles.hashCode();
 	}
 
 }

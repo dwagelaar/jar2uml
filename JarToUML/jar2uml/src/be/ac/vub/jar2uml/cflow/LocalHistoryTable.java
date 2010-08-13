@@ -17,30 +17,18 @@ import java.util.BitSet;
 /**
  * Per-item history utility class for ordered items.
  * Uses a lookup table to implement the history.
+ * Meant to be fast, not to be sub-classed.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class LocalHistoryTable implements Serializable, Cloneable {
+public final class LocalHistoryTable implements Serializable {
 
 	private static final long serialVersionUID = 7170069224023100850L;
-
-	/**
-	 * Represents an object with an index. 
-	 * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
-	 */
-	public interface OrderedItem {
-
-		/**
-		 * @return the (unique) index of the item between 0 and {@link LocalHistoryTable#getCapacity()}.
-		 */
-		public int getIndex();
-
-	}
 
 	/**
 	 * Utility class for accessing the per-item history.
 	 * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
 	 */
-	public class LocalHistorySet {
+	public final class LocalHistorySet {
 		
 		private final int index;
 
@@ -141,19 +129,15 @@ public class LocalHistoryTable implements Serializable, Cloneable {
 		return capacity;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#clone()
+	/**
+	 * @return a deep copy of this
 	 */
-	@Override
-	public Object clone() {
-		final LocalHistoryTable copy = new LocalHistoryTable(capacity);
+	public LocalHistoryTable getCopy() {
+		LocalHistoryTable copy = new LocalHistoryTable(capacity);
 		for (int i = 0; i < capacity; i++) {
 			if (table[i] != null) {
 				copy.table[i] = (BitSet) table[i].clone();
 			}
-		}
-		if (isUnmergeable()) {
-			copy.setUnmergeable();
 		}
 		return copy;
 	}

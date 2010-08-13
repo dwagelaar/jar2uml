@@ -97,7 +97,7 @@ public class FrameSimulator {
 		//try first with simplified algorithm
 		executeSimple(cflow);
 		JarToUML.logger.finer(String.format(
-				JarToUMLResources.getString("AddMethodOpCode.instrCount"), 
+				JarToUMLResources.getString("FrameSimulator.instrCount"), 
 				reuseCount, copyCount, excCopyCount, maxQueueSize, method)); //$NON-NLS-1$
 
 		if (liveInstrCount > globalHistory.size() + deadCode.size()) {
@@ -109,11 +109,11 @@ public class FrameSimulator {
 			 * the full algorithm.
 			 */
 			JarToUML.logger.fine(String.format(
-					JarToUMLResources.getString("AddMethodOpCode.fallback"), 
+					JarToUMLResources.getString("FrameSimulator.fallback"), 
 					method.toString())); //$NON-NLS-1$
 			executeFull(cflow);
 			JarToUML.logger.finer(String.format(
-					JarToUMLResources.getString("AddMethodOpCode.instrCount"), 
+					JarToUMLResources.getString("FrameSimulator.instrCount"), 
 					reuseCount, copyCount, excCopyCount, maxQueueSize, method)); //$NON-NLS-1$
 		}
 
@@ -122,19 +122,21 @@ public class FrameSimulator {
 		if (instrCount > globalHistory.size()) {
 			//no all instructions were covered -> report why
 			if (!noAccessContextAvailable.isEmpty()) {
-				final SortedSet<InstructionFlow> naca = new TreeSet<InstructionFlow>(noAccessContextAvailable);
+				final SortedSet<InstructionFlow> naca = new TreeSet<InstructionFlow>(OrderedItemComparator.INSTANCE);
+				naca.addAll(noAccessContextAvailable);
 				JarToUML.logger.info(String.format(
-						JarToUMLResources.getString("AddMethodOpCode.guaranteedNPE"),
+						JarToUMLResources.getString("FrameSimulator.guaranteedNPE"),
 						method.getClassName(),
 						method,
 						naca,
 						ControlFlow.getLineNumbers(naca))); //$NON-NLS-1$
 			}
-			final SortedSet<InstructionFlow> allDeadCode = new TreeSet<InstructionFlow>(cflow.getDeadCode());
+			final SortedSet<InstructionFlow> allDeadCode = new TreeSet<InstructionFlow>(OrderedItemComparator.INSTANCE);
+			allDeadCode.addAll(cflow.getDeadCode());
 			allDeadCode.addAll(deadCode);
 			if (!allDeadCode.isEmpty()) {
 				JarToUML.logger.info(String.format(
-						JarToUMLResources.getString("AddMethodOpCode.guaranteedDead"),
+						JarToUMLResources.getString("FrameSimulator.guaranteedDead"),
 						method.getClassName(),
 						method,
 						allDeadCode,
@@ -147,7 +149,7 @@ public class FrameSimulator {
 			if (!notCovered.isEmpty()) {
 				final SortedSet<InstructionFlow> nc = new TreeSet<InstructionFlow>(notCovered);
 				JarToUML.logger.warning(String.format(
-						JarToUMLResources.getString("AddMethodOpCode.notCovered"),
+						JarToUMLResources.getString("FrameSimulator.notCovered"),
 						method.getClassName(),
 						method,
 						nc,
@@ -167,7 +169,7 @@ public class FrameSimulator {
 		final int instrCount = cflow.getFlowCount();
 		final int liveInstrCount = instrCount - cflow.getDeadCode().size();
 
-		SmartFrame frame = (SmartFrame) cflow.getStartFrame().clone();
+		SmartFrame frame = cflow.getStartFrame().getCopy();
 		InstructionFlow iflow = cflow.getStartInstruction();
 		LocalHistoryTable history = new LocalHistoryTable(instrCount);
 		Trace trace = new Trace();
@@ -185,7 +187,7 @@ public class FrameSimulator {
 			if (copyCount + excCopyCount > CUT_OFF) {
 				setCutOff(true);
 				JarToUML.logger.fine(String.format(
-						JarToUMLResources.getString("AddMethodOpCode.cutoff"),
+						JarToUMLResources.getString("FrameSimulator.cutoff"),
 						cflow)); //$NON-NLS-1$
 				break;
 			}
@@ -200,7 +202,7 @@ public class FrameSimulator {
 					for (ExceptionHandler eh : iflow.getExceptionHandlers()) {
 						InstructionFlow succ = eh.getHandlerStart();
 						//create a new history for each alternative successor path
-						LocalHistoryTable newHistory = (LocalHistoryTable) history.clone();
+						LocalHistoryTable newHistory = history.getCopy();
 						excCopyCount++;
 						//check if successor has ever been executed from this history by calculating new history
 						if (newHistory.get(succ).addAll(instrHistory)) {
@@ -237,7 +239,7 @@ public class FrameSimulator {
 						newHistory = history;
 						reuseCount++;
 					} else {
-						newHistory = (LocalHistoryTable) history.clone();
+						newHistory = history.getCopy();
 						copyCount++;
 					}
 					//check if successor has ever been executed from this history by calculating new history
@@ -246,7 +248,7 @@ public class FrameSimulator {
 						ecQueue.addFirst(new ExecutionContext(
 								succ[i], 
 								newHistory, 
-								i == 0 ? frame : (SmartFrame) frame.clone(),
+								i == 0 ? frame : frame.getCopy(),
 								trace));
 						terminated = false;
 					}
@@ -310,11 +312,10 @@ public class FrameSimulator {
 		final int instrCount = cflow.getFlowCount();
 		final int liveInstrCount = instrCount - cflow.getDeadCode().size();
 
-		SmartFrame frame = (SmartFrame) cflow.getStartFrame().clone();
+		SmartFrame frame = cflow.getStartFrame().getCopy();
 		InstructionFlow iflow = cflow.getStartInstruction();
 		LocalHistoryTable history = new LocalHistoryTable(instrCount);
 		Trace trace = new Trace();
-		ExecutionContext ec = new ExecutionContext(iflow, history, frame, trace);
 		int reuseCount = 0;
 		int copyCount = 0;
 		int excCopyCount = 0;
@@ -358,17 +359,17 @@ public class FrameSimulator {
 				trace = trace.addEntry(iflow, succ.length);
 				//prepare successor execution context
 				for (int i = succ.length-1; i >= 0; i--) {
-					//create a new trace/frame for each alternative successor path, except first path
-					SmartFrame newFrame;
-					if (i == 0) {
-						newFrame = frame;
-						reuseCount++;
-					} else {
-						newFrame = (SmartFrame) frame.clone();
-						copyCount++;
-					}
 					//check if successor has ever been executed from this history by calculating new history
 					if (history.get(succ[i]).addAll(instrHistory)) {
+						//create a new trace/frame for each alternative successor path, except first path
+						SmartFrame newFrame;
+						if (i == 0) {
+							newFrame = frame;
+							reuseCount++;
+						} else {
+							newFrame = frame.getCopy();
+							copyCount++;
+						}
 						//add execution context to front of queue
 						ecQueue.addFirst(new ExecutionContext(
 								succ[i], 
@@ -388,7 +389,7 @@ public class FrameSimulator {
 			if (!ecQueue.isEmpty()) {
 				maxQueueSize = Math.max(maxQueueSize, ecQueue.size());
 				assert maxQueueSize <= copyCount + excCopyCount + 1;
-				ec = ecQueue.removeFirst();
+				ExecutionContext ec = ecQueue.removeFirst();
 				iflow = ec.getIflow();
 				history = ec.getHistory();
 				frame = ec.getFrame();
@@ -456,7 +457,7 @@ public class FrameSimulator {
 	 */
 	protected SmartFrame prepareExceptionFrame(final SmartFrame frame, final ExceptionHandler eh) {
 		//Use frame copy for each exception handler
-		final SmartFrame frameClone = (SmartFrame) frame.clone();
+		final SmartFrame frameClone = frame.getCopy();
 		//clear the stack, as there may not be enough room for the exception type
 		frameClone.getStack().clear();
 		//simulate throwing the exception, resulting in a correct stack
