@@ -162,6 +162,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 						getContainer().getShell(),
 						JarToUMLResources.getString("AbstractImportWizardPage.creationProblems"),
 						body.toString()); //$NON-NLS-1$
+				JarToUMLPlugin.getPlugin().log(body.toString(), IStatus.ERROR, e);
 			}
 			return null;
 		}
