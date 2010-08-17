@@ -15,7 +15,6 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.apache.bcel.classfile.ClassFormatException;
-import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
@@ -40,7 +39,7 @@ public class FrameSimulatorTest extends J2UTestCase {
 	 * @throws ClassFormatException 
 	 */
 	public void testExecute() throws ClassFormatException, IOException {
-		final JavaClass testClass = getTestClass();
+		final JavaClass testClass = getTestClass(B.class);
 		final AccessContextVisitor acv = new AccessContextVisitor();
 		final FrameSimulator simulator = new FrameSimulator(new SmartExecutionVisitor(), acv);
 		for (Method m : testClass.getMethods()) {
@@ -67,17 +66,6 @@ public class FrameSimulatorTest extends J2UTestCase {
 		simulator.getExecution().setTrackNull(true);
 		simulator.execute(cflow);
 		Assert.assertTrue(simulator.getNotCovered().isEmpty() || simulator.isCutOff());
-	}
-
-	/**
-	 * @return the parsed test class
-	 * @throws ClassFormatException
-	 * @throws IOException
-	 */
-	protected JavaClass getTestClass() throws ClassFormatException, IOException {
-		final ClassParser parser = new ClassParser(
-				getClassContents(B.class), classFilePath(B.class));
-		return parser.parse();
 	}
 
 }

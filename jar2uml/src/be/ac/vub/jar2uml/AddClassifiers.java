@@ -272,9 +272,8 @@ public class AddClassifiers extends AddToModel {
 				}
 			}
 			JarToUML.logger.finest(methods[i].getSignature());
-			org.apache.bcel.generic.Type[] types = methods[i].getArgumentTypes();
-			addClassifierOperation.setOperationName(methods[i].getName());
-			addClassifierOperation.setBCELArgumentTypes(types);
+			//set only types to trigger UML element creation
+			addClassifierOperation.setBCELArgumentTypes(methods[i].getArgumentTypes());
 			addClassifierOperation.setBCELReturnType(methods[i].getReturnType());
 		}
 	}

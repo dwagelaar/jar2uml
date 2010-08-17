@@ -112,38 +112,35 @@ public final class JarToUMLTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link be.ac.vub.jar2uml.JarToUML#findJavaProjectReferences(org.eclipse.jdt.core.IJavaProject, java.util.Set)}.
+	 * @throws JavaModelException 
 	 */
-	public void testFindJavaProjectReferences() {
-		try {
-			//
-			// Retrieve Java project
-			//
-			IProject project = getProject(javatestProject);
-			IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
-			//
-			// Retrieve another Java project and add it to the classpath of the first project
-			//
-			IProject projectref = getProject(javatestReferredProject);
-			IClasspathEntry[] cp = jproject.getResolvedClasspath(true);
-			List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-			for (IClasspathEntry entry : cp) {
-				entries.add(entry);
-			}
-			entries.add(JavaCore.newProjectEntry(projectref.getFullPath()));
-			jproject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
-			JarToUML.logger.info("Java project classpath entries: " + entries);
-			IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
-			//
-			// Find references of the first project
-			//
-			Set<IJavaProject> refs = new HashSet<IJavaProject>();
-			JarToUML.findJavaProjectReferences(jproject, refs);
-			JarToUML.logger.info("Java project references: " + refs);
-			assertFalse(refs.isEmpty());
-			assertTrue(refs.contains(jprojectref));
-		} catch (CoreException e) {
-			handle(e);
+	public void testFindJavaProjectReferences() throws JavaModelException {
+		//
+		// Retrieve Java project
+		//
+		IProject project = getProject(javatestProject);
+		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+		//
+		// Retrieve another Java project and add it to the classpath of the first project
+		//
+		IProject projectref = getProject(javatestReferredProject);
+		IClasspathEntry[] cp = jproject.getResolvedClasspath(true);
+		List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+		for (IClasspathEntry entry : cp) {
+			entries.add(entry);
 		}
+		entries.add(JavaCore.newProjectEntry(projectref.getFullPath()));
+		jproject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
+		JarToUML.logger.info("Java project classpath entries: " + entries);
+		IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
+		//
+		// Find references of the first project
+		//
+		Set<IJavaProject> refs = new HashSet<IJavaProject>();
+		JarToUML.findJavaProjectReferences(jproject, refs);
+		JarToUML.logger.info("Java project references: " + refs);
+		assertFalse(refs.isEmpty());
+		assertTrue(refs.contains(jprojectref));
 	}
 
 	/**
@@ -183,28 +180,25 @@ public final class JarToUMLTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link be.ac.vub.jar2uml.JarToUML#isNamedClass(org.apache.bcel.classfile.JavaClass)}.
+	 * @throws IOException 
 	 */
-	public void testIsNamedClass() {
-		try {
-			//
-			// Test this class
-			//
-			String thisClassFile = classFilePath(JarToUMLTest.class);
-			URL thisClassUrl = bundle.getResource(thisClassFile);
-			ClassParser parser = new ClassParser(thisClassUrl.openStream(), thisClassFile);
-			JavaClass javaClass = parser.parse();
-			assertTrue(JarToUML.isNamedClass(javaClass));
-			//
-			// Test an anonymous nested class
-			//
-			String anoClassFile = thisClassFile.replace(".class", "$1.class");
-			URL anoClassUrl = bundle.getResource(anoClassFile);
-			parser = new ClassParser(anoClassUrl.openStream(), anoClassFile);
-			javaClass = parser.parse();
-			assertFalse(JarToUML.isNamedClass(javaClass));
-		} catch (IOException e) {
-			handle(e);
-		}
+	public void testIsNamedClass() throws IOException {
+		//
+		// Test this class
+		//
+		String thisClassFile = classFilePath(JarToUMLTest.class);
+		URL thisClassUrl = bundle.getResource(thisClassFile);
+		ClassParser parser = new ClassParser(thisClassUrl.openStream(), thisClassFile);
+		JavaClass javaClass = parser.parse();
+		assertTrue(JarToUML.isNamedClass(javaClass));
+		//
+		// Test an anonymous nested class
+		//
+		String anoClassFile = thisClassFile.replace(".class", "$1.class");
+		URL anoClassUrl = bundle.getResource(anoClassFile);
+		parser = new ClassParser(anoClassUrl.openStream(), anoClassFile);
+		javaClass = parser.parse();
+		assertFalse(JarToUML.isNamedClass(javaClass));
 	}
 
 	/**
@@ -340,8 +334,10 @@ public final class JarToUMLTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link JarToUML#addPaths(IJavaProject, boolean)}.
+	 * @throws IOException 
+	 * @throws JavaModelException 
 	 */
-	public void testAddPaths() {
+	public void testAddPaths() throws JavaModelException, IOException {
 		//
 		// Retrieve Java projects
 		//
@@ -349,127 +345,116 @@ public final class JarToUMLTest extends J2UTestCase {
 		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 		IProject projectref = getProject(javatestReferredProject);
 		IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
-		try {
-			//
-			// Retrieve output locations for Java projects
-			//
-			IResource projectOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
-					jproject.getOutputLocation());
-			IResource projectrefOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
-					jprojectref.getOutputLocation());
-			//
-			// Test without workspace references
-			//
-			JarToUML jar2uml = new JarToUML();
-			jar2uml.addPaths(jproject, false);
-			jar2uml.addPaths(jproject, false); //try to break stuff
-			List<IContainer> paths = jar2uml.getPaths();
-			assertFalse(paths.isEmpty());
-			assertTrue(paths.contains(projectOutput));
-			assertFalse(paths.contains(projectrefOutput));
-			assertTrue(hasUniqueEntries(paths));
-			assertTrue(jar2uml.getJars().isEmpty());
-			assertTrue(jar2uml.getCpJars().isEmpty());
-			assertTrue(jar2uml.getCpPaths().isEmpty());
-			assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
-			//
-			// Test with workspace references
-			//
-			jar2uml = new JarToUML();
-			jar2uml.addPaths(jproject, true);
-			jar2uml.addPaths(jproject, true); //try to break stuff
-			paths = jar2uml.getPaths();
-			assertFalse(paths.isEmpty());
-			assertTrue(paths.contains(projectOutput));
-			assertTrue(paths.contains(projectrefOutput));
-			assertTrue(hasUniqueEntries(paths));
-			assertTrue(jar2uml.getJars().isEmpty());
-			assertTrue(jar2uml.getCpJars().isEmpty());
-			assertTrue(jar2uml.getCpPaths().isEmpty());
-			assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
-		} catch (JavaModelException e) {
-			handle(e);
-		} catch (IOException e) {
-			handle(e);
-		}
+		//
+		// Retrieve output locations for Java projects
+		//
+		IResource projectOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
+				jproject.getOutputLocation());
+		IResource projectrefOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
+				jprojectref.getOutputLocation());
+		//
+		// Test without workspace references
+		//
+		JarToUML jar2uml = new JarToUML();
+		jar2uml.addPaths(jproject, false);
+		jar2uml.addPaths(jproject, false); //try to break stuff
+		List<IContainer> paths = jar2uml.getPaths();
+		assertFalse(paths.isEmpty());
+		assertTrue(paths.contains(projectOutput));
+		assertFalse(paths.contains(projectrefOutput));
+		assertTrue(hasUniqueEntries(paths));
+		assertTrue(jar2uml.getJars().isEmpty());
+		assertTrue(jar2uml.getCpJars().isEmpty());
+		assertTrue(jar2uml.getCpPaths().isEmpty());
+		assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
+		//
+		// Test with workspace references
+		//
+		jar2uml = new JarToUML();
+		jar2uml.addPaths(jproject, true);
+		jar2uml.addPaths(jproject, true); //try to break stuff
+		paths = jar2uml.getPaths();
+		assertFalse(paths.isEmpty());
+		assertTrue(paths.contains(projectOutput));
+		assertTrue(paths.contains(projectrefOutput));
+		assertTrue(hasUniqueEntries(paths));
+		assertTrue(jar2uml.getJars().isEmpty());
+		assertTrue(jar2uml.getCpJars().isEmpty());
+		assertTrue(jar2uml.getCpPaths().isEmpty());
+		assertTrue(intersection(jar2uml.getPaths(), jar2uml.getCpPaths()).isEmpty());
 	}
 
 	/**
 	 * Test method for {@link be.ac.vub.jar2uml.JarToUML#run()}.
+	 * @throws IOException 
+	 * @throws CoreException 
+	 * @throws InterruptedException 
 	 */
-	public void testRun() {
-		try {
-			//
-			// Create ambienttalk jars in Java test project
-			//
-			final IProject project = getProject(javatestProject);
-			final IFile atFile = copyFileToProject(atJar, project);
-			final IFile antlrFile = copyFileToProject(antlrJar, project);
-			final IFile getoptFile = copyFileToProject(getoptJar, project);
-			//
-			// Create platformkit servlet war in Java test project
-			//
-			final IFile pksFile = copyFileToProject(pkServletWar, project);
-			//
-			// Create jaxb-osgi.jar in Java test project
-			//
-			final IFile jaxbOsgiFile = copyFileToProject(jaxbOsgiJar, project);
-			//
-			// Create j2ee.jar in Java test project
-			//
-			final IFile j2eeFile = copyFileToProject(j2eeJar, project);
-			//
-			// Copy B and B.BB test classes (cyclic dependency + contained type test)
-			//
-			copyClassToJavaProject(B.class, project);
-			copyClassToJavaProject(B.BB.class, project);
-			//
-			// test run on Java test project
-			//
-			testRunProject(false);
-			testRunProject(true);
-			//
-			// test run on ambienttalk jars
-			//
-			final Model atModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
-			final Model atRefModel = loadModelFromUri(atModelUri);
-			assertEquals(atModel.eResource(), atRefModel.eResource());
-			final Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
-			final Model atRefDepsModel = loadModelFromUri(atDepsModelUri);
-			JarToUML.logger.info(atDepsModel.eResource().getContents().toString());
-			JarToUML.logger.info(atRefDepsModel.eResource().getContents().toString());
-			assertEquals(atDepsModel.eResource(), atRefDepsModel.eResource());
-			//
-			// test run on platformkit servlet war
-			//
-			final Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{});
-			final Model pksRefDepsModel = loadModelFromUri(pkServletDepsUri);
-			JarToUML.logger.info(pksDepsModel.eResource().getContents().toString());
-			JarToUML.logger.info(pksRefDepsModel.eResource().getContents().toString());
-			assertEquals(pksDepsModel.eResource(), pksRefDepsModel.eResource());
-			//
-			// test run on jaxb-osgi.jar
-			//
-			final Model jaxbOsgiDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{});
-			final Model jaxbOsgiRefDepsModel = loadModelFromUri(jaxbOsgiDepsUri);
-			JarToUML.logger.info(jaxbOsgiDepsModel.eResource().getContents().toString());
-			JarToUML.logger.info(jaxbOsgiRefDepsModel.eResource().getContents().toString());
-			assertEquals(jaxbOsgiDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
-			//
-			// test run on j2ee.jar
-			//
-			final Model j2eeDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{});
-			final Model j2eeRefDepsModel = loadModelFromUri(j2eeDepsUri);
-			JarToUML.logger.info(j2eeDepsModel.eResource().getContents().toString());
-			JarToUML.logger.info(j2eeRefDepsModel.eResource().getContents().toString());
-			assertEquals(j2eeDepsModel.eResource(), j2eeRefDepsModel.eResource());
-		} catch (CoreException e) {
-			handle(e);
-		} catch (IOException e) {
-			handle(e);
-		} catch (InterruptedException e) {
-			handle(e);
-		}
+	public void testRun() throws CoreException, IOException, InterruptedException {
+		//
+		// Create ambienttalk jars in Java test project
+		//
+		final IProject project = getProject(javatestProject);
+		final IFile atFile = copyFileToProject(atJar, project);
+		final IFile antlrFile = copyFileToProject(antlrJar, project);
+		final IFile getoptFile = copyFileToProject(getoptJar, project);
+		//
+		// Create platformkit servlet war in Java test project
+		//
+		final IFile pksFile = copyFileToProject(pkServletWar, project);
+		//
+		// Create jaxb-osgi.jar in Java test project
+		//
+		final IFile jaxbOsgiFile = copyFileToProject(jaxbOsgiJar, project);
+		//
+		// Create j2ee.jar in Java test project
+		//
+		final IFile j2eeFile = copyFileToProject(j2eeJar, project);
+		//
+		// Copy B and B.BB test classes (cyclic dependency + contained type test)
+		//
+		copyClassToJavaProject(B.class, project);
+		copyClassToJavaProject(B.BB.class, project);
+		//
+		// test run on Java test project
+		//
+		testRunProject(false);
+		testRunProject(true);
+		//
+		// test run on ambienttalk jars
+		//
+		final Model atModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+		final Model atRefModel = loadModelFromUri(atModelUri);
+		assertEquals(atModel.eResource(), atRefModel.eResource());
+		final Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+		final Model atRefDepsModel = loadModelFromUri(atDepsModelUri);
+		JarToUML.logger.info(atDepsModel.eResource().getContents().toString());
+		JarToUML.logger.info(atRefDepsModel.eResource().getContents().toString());
+		assertEquals(atDepsModel.eResource(), atRefDepsModel.eResource());
+		//
+		// test run on platformkit servlet war
+		//
+		final Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{});
+		final Model pksRefDepsModel = loadModelFromUri(pkServletDepsUri);
+		JarToUML.logger.info(pksDepsModel.eResource().getContents().toString());
+		JarToUML.logger.info(pksRefDepsModel.eResource().getContents().toString());
+		assertEquals(pksDepsModel.eResource(), pksRefDepsModel.eResource());
+		//
+		// test run on jaxb-osgi.jar
+		//
+		final Model jaxbOsgiDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{});
+		final Model jaxbOsgiRefDepsModel = loadModelFromUri(jaxbOsgiDepsUri);
+		JarToUML.logger.info(jaxbOsgiDepsModel.eResource().getContents().toString());
+		JarToUML.logger.info(jaxbOsgiRefDepsModel.eResource().getContents().toString());
+		assertEquals(jaxbOsgiDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
+		//
+		// test run on j2ee.jar
+		//
+		final Model j2eeDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{});
+		final Model j2eeRefDepsModel = loadModelFromUri(j2eeDepsUri);
+		JarToUML.logger.info(j2eeDepsModel.eResource().getContents().toString());
+		JarToUML.logger.info(j2eeRefDepsModel.eResource().getContents().toString());
+		assertEquals(j2eeDepsModel.eResource(), j2eeRefDepsModel.eResource());
 	}
 
 	/**

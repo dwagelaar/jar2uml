@@ -22,7 +22,6 @@ import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.JavaModelException;
 
 import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.ParseClasses;
@@ -45,143 +44,125 @@ public class ParseClassesTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link be.ac.vub.jar2uml.ParseClasses#findClassFilesIn(org.eclipse.core.resources.IContainer, java.util.List)}.
+	 * @throws IOException 
+	 * @throws CoreException 
 	 */
-	public void testFindClassFilesIn() {
-		try {
-			//
-			// Retrieve Java test project
-			//
-			final IProject project = getProject(javatestProject);
-			//
-			// Copy "JarToUMLTest.class" into Java project
-			//
-			final IFile classFile = copyClassToJavaProject(ParseClassesTest.class, project);
-			//
-			// Find the copied class file
-			//
-			final List<IFile> cfs = new ArrayList<IFile>();
-			ParseClasses.findClassFilesIn(project, cfs);
-			JarToUML.logger.info("Class files in project: " + cfs);
-			assertFalse(cfs.isEmpty());
-			assertTrue(cfs.contains(classFile));
-		} catch (JavaModelException e) {
-			handle(e);
-		} catch (CoreException e) {
-			handle(e);
-		} catch (IOException e) {
-			handle(e);
-		}
+	public void testFindClassFilesIn() throws CoreException, IOException {
+		//
+		// Retrieve Java test project
+		//
+		final IProject project = getProject(javatestProject);
+		//
+		// Copy "JarToUMLTest.class" into Java project
+		//
+		final IFile classFile = copyClassToJavaProject(ParseClassesTest.class, project);
+		//
+		// Find the copied class file
+		//
+		final List<IFile> cfs = new ArrayList<IFile>();
+		ParseClasses.findClassFilesIn(project, cfs);
+		JarToUML.logger.info("Class files in project: " + cfs);
+		assertFalse(cfs.isEmpty());
+		assertTrue(cfs.contains(classFile));
 	}
 
 	/**
 	 * Test method for {@link be.ac.vub.jar2uml.ParseClasses#parseClasses(java.util.jar.JarFile, java.util.Collection, java.util.Collection)}.
+	 * @throws IOException 
+	 * @throws CoreException 
 	 */
-	public void testParseClassesJarFileCollectionOfJavaClassCollectionOfJavaClass() {
-		try {
-			//
-			// Retrieve Java test project
-			//
-			final IProject project = getProject(javatestProject);
-			//
-			// Create jar files in project
-			//
-			final IFile file = copyFileToProject(jaxbOsgiJar, project);
-			final JarFile jar = jarFile(file);
-			//
-			// Parse classes in jar
-			//
-			final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
-			final List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
-			final ParseClasses pc = new ParseClasses(null, null);
-			pc.parseClasses(jar, parsedClasses, parsedCpClasses);
-			assertFalse(parsedClasses.isEmpty());
-			assertTrue(parsedCpClasses.isEmpty());
-			//
-			// Check for duplicate class names
-			//
-			Set<String> classNames = new HashSet<String>();
-			for (JavaClass javaClass : parsedClasses) {
-				classNames.add(javaClass.getClassName());
-			}
-			assertEquals(parsedClasses.size(), classNames.size());
-		} catch (IOException e) {
-			handle(e);
-		} catch (CoreException e) {
-			handle(e);
+	public void testParseClassesJarFileCollectionOfJavaClassCollectionOfJavaClass() throws CoreException, IOException {
+		//
+		// Retrieve Java test project
+		//
+		final IProject project = getProject(javatestProject);
+		//
+		// Create jar files in project
+		//
+		final IFile file = copyFileToProject(jaxbOsgiJar, project);
+		final JarFile jar = jarFile(file);
+		//
+		// Parse classes in jar
+		//
+		final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
+		final List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
+		final ParseClasses pc = new ParseClasses(null, null);
+		pc.parseClasses(jar, parsedClasses, parsedCpClasses);
+		assertFalse(parsedClasses.isEmpty());
+		assertTrue(parsedCpClasses.isEmpty());
+		//
+		// Check for duplicate class names
+		//
+		Set<String> classNames = new HashSet<String>();
+		for (JavaClass javaClass : parsedClasses) {
+			classNames.add(javaClass.getClassName());
 		}
+		assertEquals(parsedClasses.size(), classNames.size());
 	}
 
 	/**
 	 * Test method for {@link be.ac.vub.jar2uml.ParseClasses#parseClasses(java.util.jar.JarInputStream, java.util.Collection, java.util.Collection)}.
+	 * @throws IOException 
+	 * @throws CoreException 
 	 */
-	public void testParseClassesJarInputStreamCollectionOfJavaClassCollectionOfJavaClass() {
-		try {
-			//
-			// Retrieve Java test project
-			//
-			final IProject project = getProject(javatestProject);
-			//
-			// Create jar files in project
-			//
-			final IFile file = copyFileToProject(jaxbOsgiJar, project);
-			final JarInputStream jar = jarInputStream(file);
-			//
-			// Parse classes in jar
-			//
-			final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
-			final List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
-			final ParseClasses pc = new ParseClasses(null, null);
-			pc.parseClasses(jar, parsedClasses, parsedCpClasses);
-			assertFalse(parsedClasses.isEmpty());
-			assertTrue(parsedCpClasses.isEmpty());
-			//
-			// Check for duplicate class names
-			//
-			Set<String> classNames = new HashSet<String>();
-			for (JavaClass javaClass : parsedClasses) {
-				classNames.add(javaClass.getClassName());
-			}
-			assertEquals(parsedClasses.size(), classNames.size());
-		} catch (IOException e) {
-			handle(e);
-		} catch (CoreException e) {
-			handle(e);
+	public void testParseClassesJarInputStreamCollectionOfJavaClassCollectionOfJavaClass() throws CoreException, IOException {
+		//
+		// Retrieve Java test project
+		//
+		final IProject project = getProject(javatestProject);
+		//
+		// Create jar files in project
+		//
+		final IFile file = copyFileToProject(jaxbOsgiJar, project);
+		final JarInputStream jar = jarInputStream(file);
+		//
+		// Parse classes in jar
+		//
+		final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
+		final List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
+		final ParseClasses pc = new ParseClasses(null, null);
+		pc.parseClasses(jar, parsedClasses, parsedCpClasses);
+		assertFalse(parsedClasses.isEmpty());
+		assertTrue(parsedCpClasses.isEmpty());
+		//
+		// Check for duplicate class names
+		//
+		Set<String> classNames = new HashSet<String>();
+		for (JavaClass javaClass : parsedClasses) {
+			classNames.add(javaClass.getClassName());
 		}
+		assertEquals(parsedClasses.size(), classNames.size());
 	}
 
 	/**
 	 * Test method for {@link be.ac.vub.jar2uml.ParseClasses#parseClasses(org.eclipse.core.resources.IContainer, java.util.Collection)}.
+	 * @throws IOException 
+	 * @throws CoreException 
 	 */
-	public void testParseClassesIContainerCollectionOfJavaClass() {
-		try {
-			//
-			// Retrieve Java test project
-			//
-			final IProject project = getProject(javatestProject);
-			//
-			// Copy "JarToUMLTest.class" into Java project
-			//
-			copyClassToJavaProject(ParseClassesTest.class, project);
-			//
-			// Parse classes in project
-			//
-			final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
-			final ParseClasses pc = new ParseClasses(null, null);
-			pc.parseClasses(project, parsedClasses);
-			assertFalse(parsedClasses.isEmpty());
-			//
-			// Check for duplicate class names
-			//
-			Set<String> classNames = new HashSet<String>();
-			for (JavaClass javaClass : parsedClasses) {
-				classNames.add(javaClass.getClassName());
-			}
-			assertEquals(parsedClasses.size(), classNames.size());
-		} catch (IOException e) {
-			handle(e);
-		} catch (CoreException e) {
-			handle(e);
+	public void testParseClassesIContainerCollectionOfJavaClass() throws CoreException, IOException {
+		//
+		// Retrieve Java test project
+		//
+		final IProject project = getProject(javatestProject);
+		//
+		// Copy "JarToUMLTest.class" into Java project
+		//
+		copyClassToJavaProject(ParseClassesTest.class, project);
+		//
+		// Parse classes in project
+		//
+		final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
+		final ParseClasses pc = new ParseClasses(null, null);
+		pc.parseClasses(project, parsedClasses);
+		assertFalse(parsedClasses.isEmpty());
+		//
+		// Check for duplicate class names
+		//
+		Set<String> classNames = new HashSet<String>();
+		for (JavaClass javaClass : parsedClasses) {
+			classNames.add(javaClass.getClassName());
 		}
+		assertEquals(parsedClasses.size(), classNames.size());
 	}
 
 	/* (non-Javadoc)

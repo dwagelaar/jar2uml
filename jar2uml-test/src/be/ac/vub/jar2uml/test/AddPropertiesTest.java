@@ -35,54 +35,50 @@ public final class AddPropertiesTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link AddProperties#isPreverified(org.apache.bcel.classfile.Code)}
+	 * @throws IOException 
+	 * @throws CoreException 
 	 */
-	public void testIsPreverifiedCode() {
-		try {
-			//
-			// Retrieve Java test project
-			//
-			final IProject project = getProject(javatestProject);
-			//
-			// Copy instant messenger jar to Java test project
-			//
-			IFile file = JarToUMLTest.copyFileToProject(instantmessengerJar, project);
-			JarFile jar = JarToUMLTest.jarFile(file);
-			//
-			// Run with preverified code
-			//
-			ParseClasses parseClasses = new ParseClasses(null, null);
-			List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
-			parseClasses.parseClasses(jar, parsedClasses, parsedClasses);
-			boolean preverified = false;
-			for (JavaClass javaClass : parsedClasses) {
-				for (Method method : javaClass.getMethods()) {
-					Code code = method.getCode();
-					preverified |= AddProperties.isPreverified(code);
-				}
+	public void testIsPreverifiedCode() throws CoreException, IOException {
+		//
+		// Retrieve Java test project
+		//
+		final IProject project = getProject(javatestProject);
+		//
+		// Copy instant messenger jar to Java test project
+		//
+		IFile file = JarToUMLTest.copyFileToProject(instantmessengerJar, project);
+		JarFile jar = JarToUMLTest.jarFile(file);
+		//
+		// Run with preverified code
+		//
+		ParseClasses parseClasses = new ParseClasses(null, null);
+		List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
+		parseClasses.parseClasses(jar, parsedClasses, parsedClasses);
+		boolean preverified = false;
+		for (JavaClass javaClass : parsedClasses) {
+			for (Method method : javaClass.getMethods()) {
+				Code code = method.getCode();
+				preverified |= AddProperties.isPreverified(code);
 			}
-			assertTrue(preverified);
-			//
-			// Copy "AddPropertiesTest.class" into Java project
-			//
-			copyClassToJavaProject(AddPropertiesTest.class, project);
-			//
-			// Run without preverified code
-			//
-			parsedClasses.clear();
-			parseClasses.parseClasses(project, parsedClasses);
-			preverified = false;
-			for (JavaClass javaClass : parsedClasses) {
-				for (Method method : javaClass.getMethods()) {
-					Code code = method.getCode();
-					preverified |= AddProperties.isPreverified(code);
-				}
-			}
-			assertFalse(preverified);
-		} catch (IOException e) {
-			JarToUMLTest.handle(e);
-		} catch (CoreException e) {
-			JarToUMLTest.handle(e);
 		}
+		assertTrue(preverified);
+		//
+		// Copy "AddPropertiesTest.class" into Java project
+		//
+		copyClassToJavaProject(AddPropertiesTest.class, project);
+		//
+		// Run without preverified code
+		//
+		parsedClasses.clear();
+		parseClasses.parseClasses(project, parsedClasses);
+		preverified = false;
+		for (JavaClass javaClass : parsedClasses) {
+			for (Method method : javaClass.getMethods()) {
+				Code code = method.getCode();
+				preverified |= AddProperties.isPreverified(code);
+			}
+		}
+		assertFalse(preverified);
 	}
 
 	/* (non-Javadoc)

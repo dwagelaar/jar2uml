@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmi:id="_vEaUoanTEd-_eNeM-oxilQ" name="jar2uml-test-data">
+  <eAnnotations xmi:id="_vVgEoanTEd-_eNeM-oxilQ" source="Jar2UML">
+    <details xmi:id="_vVgrsKnTEd-_eNeM-oxilQ" key="majorBytecodeFormatVersion" value="49"/>
+    <details xmi:id="_vVgrsanTEd-_eNeM-oxilQ" key="minorBytecodeFormatVersion" value="0"/>
+    <details xmi:id="_vVgrsqnTEd-_eNeM-oxilQ" key="preverified" value="false"/>
+  </eAnnotations>
+  <packagedElement xmi:type="uml:Package" xmi:id="_vF9MwKnTEd-_eNeM-oxilQ" name="be">
+    <packagedElement xmi:type="uml:Package" xmi:id="_vGLPMKnTEd-_eNeM-oxilQ" name="ac">
+      <packagedElement xmi:type="uml:Package" xmi:id="_vGL2QKnTEd-_eNeM-oxilQ" name="vub">
+        <packagedElement xmi:type="uml:Package" xmi:id="_vGL2QanTEd-_eNeM-oxilQ" name="jar2uml">
+          <packagedElement xmi:type="uml:Package" xmi:id="_vGL2QqnTEd-_eNeM-oxilQ" name="test">
+            <packagedElement xmi:type="uml:Package" xmi:id="_vGL2Q6nTEd-_eNeM-oxilQ" name="data">
+              <packagedElement xmi:type="uml:Class" xmi:id="_vGW1YKnTEd-_eNeM-oxilQ" name="A">
+                <generalization xmi:id="_vGq-cKnTEd-_eNeM-oxilQ" general="_vGYDganTEd-_eNeM-oxilQ"/>
+                <ownedAttribute xmi:id="_vJlvkKnTEd-_eNeM-oxilQ" name="bbField" visibility="private" type="_vGszoKnTEd-_eNeM-oxilQ"/>
+                <nestedClassifier xmi:type="uml:Class" xmi:id="_vGXccKnTEd-_eNeM-oxilQ" name="AA">
+                  <generalization xmi:id="_vGZRoKnTEd-_eNeM-oxilQ" general="_vGYDganTEd-_eNeM-oxilQ"/>
+                  <ownedAttribute xmi:id="_vJV38KnTEd-_eNeM-oxilQ" name="this$0" visibility="package" isLeaf="true" type="_vGW1YKnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                  <ownedOperation xmi:id="_vJZiUKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public">
+                    <ownedParameter xmi:id="_vJb-kKnTEd-_eNeM-oxilQ" name="arg0" type="_vGW1YKnTEd-_eNeM-oxilQ"/>
+                  </ownedOperation>
+                </nestedClassifier>
+                <ownedOperation xmi:id="_vJlvkanTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public"/>
+                <ownedOperation xmi:id="_vJm9sKnTEd-_eNeM-oxilQ" name="getBbField" visibility="public">
+                  <ownedParameter xmi:id="_vJnkwKnTEd-_eNeM-oxilQ" name="return" type="_vGszoKnTEd-_eNeM-oxilQ" direction="return"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vJoL0KnTEd-_eNeM-oxilQ" name="setBbField" visibility="public">
+                  <ownedParameter xmi:id="_vJoL0anTEd-_eNeM-oxilQ" name="bbField" type="_vGszoKnTEd-_eNeM-oxilQ"/>
+                </ownedOperation>
+              </packagedElement>
+              <packagedElement xmi:type="uml:Class" xmi:id="_vGrlganTEd-_eNeM-oxilQ" name="B">
+                <generalization xmi:id="_vG6PAKnTEd-_eNeM-oxilQ" general="_vGYDganTEd-_eNeM-oxilQ"/>
+                <ownedAttribute xmi:id="_vJqoEKnTEd-_eNeM-oxilQ" name="aaField" visibility="private" type="_vGXccKnTEd-_eNeM-oxilQ"/>
+                <ownedAttribute xmi:id="_vJrPIKnTEd-_eNeM-oxilQ" name="arrayField" visibility="private" type="_vG7dIKnTEd-_eNeM-oxilQ"/>
+                <nestedClassifier xmi:type="uml:Class" xmi:id="_vGszoKnTEd-_eNeM-oxilQ" name="BB">
+                  <generalization xmi:id="_vGtasKnTEd-_eNeM-oxilQ" general="_vGYDganTEd-_eNeM-oxilQ"/>
+                  <ownedAttribute xmi:id="_vJoy4KnTEd-_eNeM-oxilQ" name="this$0" visibility="package" isLeaf="true" type="_vGrlganTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                  <ownedOperation xmi:id="_vJpZ8KnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public">
+                    <ownedParameter xmi:id="_vJpZ8anTEd-_eNeM-oxilQ" name="arg0" type="_vGrlganTEd-_eNeM-oxilQ"/>
+                  </ownedOperation>
+                </nestedClassifier>
+                <nestedClassifier xmi:type="uml:Interface" xmi:id="_vG4Z0KnTEd-_eNeM-oxilQ" name="IPublic" isAbstract="true">
+                  <nestedClassifier xmi:type="uml:Class" xmi:id="_vGzhUanTEd-_eNeM-oxilQ" name="IPublicNested">
+                    <generalization xmi:id="_vG0IYKnTEd-_eNeM-oxilQ" general="_vGYDganTEd-_eNeM-oxilQ"/>
+                    <ownedOperation xmi:id="_vJqBAKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public"/>
+                  </nestedClassifier>
+                </nestedClassifier>
+                <nestedClassifier xmi:type="uml:Interface" xmi:id="_vG5n8KnTEd-_eNeM-oxilQ" name="IPublicAbstract" isAbstract="true"/>
+                <ownedOperation xmi:id="_vJrPIanTEd-_eNeM-oxilQ" name="&lt;clinit>" visibility="package" isStatic="true"/>
+                <ownedOperation xmi:id="_vJr2MKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public"/>
+                <ownedOperation xmi:id="_vJr2ManTEd-_eNeM-oxilQ" name="getAaField" visibility="public">
+                  <ownedParameter xmi:id="_vJr2MqnTEd-_eNeM-oxilQ" name="return" type="_vGXccKnTEd-_eNeM-oxilQ" direction="return"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vJsdQKnTEd-_eNeM-oxilQ" name="setAaField" visibility="public">
+                  <ownedParameter xmi:id="_vJtEUKnTEd-_eNeM-oxilQ" name="aaField" type="_vGXccKnTEd-_eNeM-oxilQ"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vJwHoKnTEd-_eNeM-oxilQ" name="testStackSimulationTorture" visibility="public" isStatic="true">
+                  <ownedParameter xmi:id="_vJwHoanTEd-_eNeM-oxilQ" name="bogus" type="_vG8rQKnTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vJwHoqnTEd-_eNeM-oxilQ" name="outside" type="_vGYDganTEd-_eNeM-oxilQ"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vTG38KnTEd-_eNeM-oxilQ" name="testStaticProtected" visibility="protected" isStatic="true"/>
+                <ownedOperation xmi:id="_vTHfAKnTEd-_eNeM-oxilQ" name="testProtected" visibility="protected"/>
+                <ownedOperation xmi:id="_vTIGEKnTEd-_eNeM-oxilQ" name="testLocalVariableType" visibility="public"/>
+                <ownedOperation xmi:id="_vTKiUKnTEd-_eNeM-oxilQ" name="testLocalVariableTable" visibility="public">
+                  <ownedParameter xmi:id="_vTKiUanTEd-_eNeM-oxilQ" name="arg0" type="_vG8rQanTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vTLJYKnTEd-_eNeM-oxilQ" name="arg1" type="_vGYDganTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vTLJYanTEd-_eNeM-oxilQ" name="arg2" type="_vHqc8KnTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vTLJYqnTEd-_eNeM-oxilQ" name="return" type="_vG95YKnTEd-_eNeM-oxilQ" direction="return"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vTMXgqnTEd-_eNeM-oxilQ" name="testUnreachableCode" visibility="public">
+                  <ownedParameter xmi:id="_vTM-kKnTEd-_eNeM-oxilQ" name="bogus" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vTOMsanTEd-_eNeM-oxilQ" name="testExceptionHandler" visibility="public"/>
+                <ownedOperation xmi:id="_vTQo8KnTEd-_eNeM-oxilQ" name="testMaskedNullAccess" visibility="public">
+                  <ownedParameter xmi:id="_vTQo8anTEd-_eNeM-oxilQ" name="outside" type="_vGYDganTEd-_eNeM-oxilQ"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vTR3EKnTEd-_eNeM-oxilQ" name="testSemiDeadCode" visibility="public">
+                  <ownedParameter xmi:id="_vTR3EanTEd-_eNeM-oxilQ" name="outside" type="_vGYDganTEd-_eNeM-oxilQ"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vTTFMKnTEd-_eNeM-oxilQ" name="normalize" visibility="public">
+                  <ownedParameter xmi:id="_vTTFManTEd-_eNeM-oxilQ" name="text" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vTTsQKnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vTUTUKnTEd-_eNeM-oxilQ" name="decode" visibility="public" isStatic="true">
+                  <ownedParameter xmi:id="_vTUTUanTEd-_eNeM-oxilQ" name="text" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vTUTUqnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+                </ownedOperation>
+                <ownedOperation xmi:id="_vTU6YKnTEd-_eNeM-oxilQ" name="testNullObjects" visibility="public">
+                  <ownedParameter xmi:id="_vTU6YanTEd-_eNeM-oxilQ" name="first" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vTU6YqnTEd-_eNeM-oxilQ" name="second" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                  <ownedParameter xmi:id="_vTU6Y6nTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+                </ownedOperation>
+              </packagedElement>
+              <packagedElement xmi:type="uml:Package" xmi:id="_vHv8gKnTEd-_eNeM-oxilQ" name="antlr">
+                <packagedElement xmi:type="uml:Class" xmi:id="_vHv8ganTEd-_eNeM-oxilQ" name="BaseAST" isAbstract="true">
+                  <generalization xmi:id="_vHwjkKnTEd-_eNeM-oxilQ" general="_vGYDganTEd-_eNeM-oxilQ"/>
+                  <ownedOperation xmi:id="_vTYkwKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public"/>
+                  <ownedOperation xmi:id="_vTZy4KnTEd-_eNeM-oxilQ" name="decode" visibility="public" isStatic="true">
+                    <ownedParameter xmi:id="_vTZy4anTEd-_eNeM-oxilQ" name="text" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vTZy4qnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                </packagedElement>
+              </packagedElement>
+              <packagedElement xmi:type="uml:Package" xmi:id="_vHy_0KnTEd-_eNeM-oxilQ" name="emf">
+                <packagedElement xmi:type="uml:Class" xmi:id="_vHzm4KnTEd-_eNeM-oxilQ" name="ArchiveURLConnection">
+                  <generalization xmi:id="_vIAbMKnTEd-_eNeM-oxilQ" general="_vH_0IanTEd-_eNeM-oxilQ"/>
+                  <ownedAttribute xmi:id="_vT3F4KnTEd-_eNeM-oxilQ" name="urlString" visibility="protected" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                  <ownedAttribute xmi:id="_vT8lcKnTEd-_eNeM-oxilQ" name="connected" isLeaf="true" type="_vG95YKnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                  <nestedClassifier xmi:type="uml:Class" xmi:id="_vH01AKnTEd-_eNeM-oxilQ" name="1" visibility="package">
+                    <generalization xmi:id="_vH1cEanTEd-_eNeM-oxilQ" general="_vH1cEKnTEd-_eNeM-oxilQ"/>
+                    <ownedAttribute xmi:id="_vTiVwKnTEd-_eNeM-oxilQ" name="this$0" visibility="package" isLeaf="true" type="_vHzm4KnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                    <ownedAttribute xmi:id="_vTiVwanTEd-_eNeM-oxilQ" name="val$zipFile" visibility="private" isLeaf="true" type="_vH2qMKnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                    <ownedOperation xmi:id="_vTiVwqnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="package">
+                      <ownedParameter xmi:id="_vTi80KnTEd-_eNeM-oxilQ" name="arg0" type="_vHzm4KnTEd-_eNeM-oxilQ"/>
+                      <ownedParameter xmi:id="_vTi80anTEd-_eNeM-oxilQ" name="$anonymous0" type="_vH_NEanTEd-_eNeM-oxilQ"/>
+                      <ownedParameter xmi:id="_vTi80qnTEd-_eNeM-oxilQ" name="arg2" type="_vH2qMKnTEd-_eNeM-oxilQ"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:id="_vTkK8qnTEd-_eNeM-oxilQ" name="close" visibility="public"/>
+                  </nestedClassifier>
+                  <nestedClassifier xmi:type="uml:Class" xmi:id="_vH3RQKnTEd-_eNeM-oxilQ" name="2" visibility="package">
+                    <generalization xmi:id="_vH3RQqnTEd-_eNeM-oxilQ" general="_vH3RQanTEd-_eNeM-oxilQ"/>
+                    <ownedAttribute xmi:id="_vTlZEanTEd-_eNeM-oxilQ" name="isClosed" visibility="protected" type="_vG95YKnTEd-_eNeM-oxilQ"/>
+                    <ownedAttribute xmi:id="_vTmAIKnTEd-_eNeM-oxilQ" name="this$0" visibility="package" isLeaf="true" type="_vHzm4KnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                    <ownedAttribute xmi:id="_vTmAIanTEd-_eNeM-oxilQ" name="val$nestedURL" visibility="private" isLeaf="true" type="_vHonwKnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                    <ownedAttribute xmi:id="_vTmAIqnTEd-_eNeM-oxilQ" name="val$deleteRequired" visibility="private" isLeaf="true" type="_vG95YKnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                    <ownedAttribute xmi:id="_vTmnMKnTEd-_eNeM-oxilQ" name="val$tempFile" visibility="private" isLeaf="true" type="_vH8JwKnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                    <ownedAttribute xmi:id="_vTmnManTEd-_eNeM-oxilQ" name="val$bytes" visibility="private" isLeaf="true" type="_vH34UqnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+                    <ownedOperation xmi:id="_vTnOQKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="package">
+                      <ownedParameter xmi:id="_vTnOQanTEd-_eNeM-oxilQ" name="arg0" type="_vHzm4KnTEd-_eNeM-oxilQ"/>
+                      <ownedParameter xmi:id="_vTnOQqnTEd-_eNeM-oxilQ" name="$anonymous0" type="_vH_NEKnTEd-_eNeM-oxilQ"/>
+                      <ownedParameter xmi:id="_vTnOQ6nTEd-_eNeM-oxilQ" name="arg2" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                      <ownedParameter xmi:id="_vTn1UKnTEd-_eNeM-oxilQ" name="arg3" type="_vG95YKnTEd-_eNeM-oxilQ"/>
+                      <ownedParameter xmi:id="_vTn1UanTEd-_eNeM-oxilQ" name="arg4" type="_vH8JwKnTEd-_eNeM-oxilQ"/>
+                      <ownedParameter xmi:id="_vTn1UqnTEd-_eNeM-oxilQ" name="arg5" type="_vH34UqnTEd-_eNeM-oxilQ"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:id="_vTqRkKnTEd-_eNeM-oxilQ" name="close" visibility="public"/>
+                  </nestedClassifier>
+                  <ownedOperation xmi:id="_vTzbgKnTEd-_eNeM-oxilQ" name="createOutputStream" visibility="protected">
+                    <ownedParameter xmi:id="_vTzbganTEd-_eNeM-oxilQ" name="nestedURL" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vT0CkKnTEd-_eNeM-oxilQ" name="return" type="_vH_NEKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vT3F4anTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public">
+                    <ownedParameter xmi:id="_vT3s8KnTEd-_eNeM-oxilQ" name="url" type="_vIBpUKnTEd-_eNeM-oxilQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vT5iIKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="protected">
+                    <ownedParameter xmi:id="_vT5iIanTEd-_eNeM-oxilQ" name="url" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vT6wQKnTEd-_eNeM-oxilQ" name="emulateArchiveScheme" visibility="protected">
+                    <ownedParameter xmi:id="_vT6wQanTEd-_eNeM-oxilQ" name="return" type="_vG95YKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vT7XUKnTEd-_eNeM-oxilQ" name="useZipFile" visibility="protected">
+                    <ownedParameter xmi:id="_vT7XUanTEd-_eNeM-oxilQ" name="return" type="_vG95YKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vT7-YKnTEd-_eNeM-oxilQ" name="connect" visibility="public"/>
+                  <ownedOperation xmi:id="_vT9MgKnTEd-_eNeM-oxilQ" name="getNestedURL" visibility="protected">
+                    <ownedParameter xmi:id="_vT9MganTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vUG9gKnTEd-_eNeM-oxilQ" name="getInputStream" visibility="public">
+                    <ownedParameter xmi:id="_vUG9ganTEd-_eNeM-oxilQ" name="return" type="_vH_NEanTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vULO8KnTEd-_eNeM-oxilQ" name="createInputStream" visibility="protected">
+                    <ownedParameter xmi:id="_vULO8anTEd-_eNeM-oxilQ" name="nestedURL" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vULO8qnTEd-_eNeM-oxilQ" name="return" type="_vH_NEanTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vUL2AKnTEd-_eNeM-oxilQ" name="yield" visibility="protected">
+                    <ownedParameter xmi:id="_vUL2AanTEd-_eNeM-oxilQ" name="zipEntry" type="_vILaUKnTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vUL2AqnTEd-_eNeM-oxilQ" name="inputStream" type="_vH_NEanTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vUL2A6nTEd-_eNeM-oxilQ" name="return" type="_vH_NEanTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vUZRYanTEd-_eNeM-oxilQ" name="getOutputStream" visibility="public">
+                    <ownedParameter xmi:id="_vUZRYqnTEd-_eNeM-oxilQ" name="return" type="_vH_NEKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vUafgKnTEd-_eNeM-oxilQ" name="getOutputStream" visibility="private">
+                    <ownedParameter xmi:id="_vUafganTEd-_eNeM-oxilQ" name="delete" type="_vG95YKnTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vUafgqnTEd-_eNeM-oxilQ" name="timeStamp" type="_vG8rQanTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vUafg6nTEd-_eNeM-oxilQ" name="return" type="_vH_NEKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vUbGkKnTEd-_eNeM-oxilQ" name="delete" visibility="public"/>
+                  <ownedOperation xmi:id="_vUcUsKnTEd-_eNeM-oxilQ" name="setTimeStamp" visibility="public">
+                    <ownedParameter xmi:id="_vUcUsanTEd-_eNeM-oxilQ" name="timeStamp" type="_vG8rQanTEd-_eNeM-oxilQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:id="_vUmswKnTEd-_eNeM-oxilQ" name="yield" visibility="protected">
+                    <ownedParameter xmi:id="_vUmswanTEd-_eNeM-oxilQ" name="zipEntry" type="_vILaUKnTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vUmswqnTEd-_eNeM-oxilQ" name="outputStream" type="_vH_NEKnTEd-_eNeM-oxilQ"/>
+                    <ownedParameter xmi:id="_vUnT0KnTEd-_eNeM-oxilQ" name="return" type="_vH_NEKnTEd-_eNeM-oxilQ" direction="return"/>
+                  </ownedOperation>
+                </packagedElement>
+              </packagedElement>
+              <packagedElement xmi:type="uml:Package" xmi:id="_vIWZcKnTEd-_eNeM-oxilQ" name="other">
+                <packagedElement xmi:type="uml:Class" xmi:id="_vIWZcanTEd-_eNeM-oxilQ" name="BSub">
+                  <generalization xmi:id="_vIXAgKnTEd-_eNeM-oxilQ" general="_vGrlganTEd-_eNeM-oxilQ"/>
+                  <ownedOperation xmi:id="_vUxE0anTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public"/>
+                  <ownedOperation xmi:id="_vUyS8KnTEd-_eNeM-oxilQ" name="testProtected" isLeaf="true" isAbstract="true"/>
+                </packagedElement>
+              </packagedElement>
+            </packagedElement>
+          </packagedElement>
+        </packagedElement>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_vGXccanTEd-_eNeM-oxilQ" name="java">
+    <eAnnotations xmi:id="_vVdoYKnTEd-_eNeM-oxilQ" source="Jar2UML">
+      <details xmi:id="_vVdoYanTEd-_eNeM-oxilQ" key="inferred" value="true"/>
+    </eAnnotations>
+    <packagedElement xmi:type="uml:Package" xmi:id="_vGYDgKnTEd-_eNeM-oxilQ" name="lang">
+      <packagedElement xmi:type="uml:Class" xmi:id="_vGYDganTEd-_eNeM-oxilQ" name="Object">
+        <ownedOperation xmi:id="_vJj6YKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public"/>
+        <ownedOperation xmi:id="_vLfNAKnTEd-_eNeM-oxilQ" name="toString" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vLf0EKnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTJUMKnTEd-_eNeM-oxilQ" name="clone" visibility="protected" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTJUManTEd-_eNeM-oxilQ" name="return" type="_vGYDganTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTJ7QKnTEd-_eNeM-oxilQ" name="notify" visibility="public" isLeaf="true" isAbstract="true"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:DataType" xmi:id="_vG7dIKnTEd-_eNeM-oxilQ" name="String[]" isLeaf="true" isAbstract="true"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_vG8rQKnTEd-_eNeM-oxilQ" name="char"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_vG8rQanTEd-_eNeM-oxilQ" name="long"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_vG95YKnTEd-_eNeM-oxilQ" name="boolean"/>
+      <packagedElement xmi:type="uml:DataType" xmi:id="_vHA8sKnTEd-_eNeM-oxilQ" name="System" isLeaf="true" isAbstract="true">
+        <ownedAttribute xmi:id="_vJvgkKnTEd-_eNeM-oxilQ" name="out" isLeaf="true" isStatic="true" type="_vHBjwKnTEd-_eNeM-oxilQ" isReadOnly="true"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_vHBjwanTEd-_eNeM-oxilQ" name="int"/>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vHonwKnTEd-_eNeM-oxilQ" name="String" isLeaf="true">
+        <ownedOperation xmi:id="_vTItIKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true"/>
+        <ownedOperation xmi:id="_vTWvkKnTEd-_eNeM-oxilQ" name="startsWith" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTWvkanTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTWvkqnTEd-_eNeM-oxilQ" name="return" type="_vG95YKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTXWoKnTEd-_eNeM-oxilQ" name="equals" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTXWoanTEd-_eNeM-oxilQ" name="arg0" type="_vGYDganTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTX9sKnTEd-_eNeM-oxilQ" name="return" type="_vG95YKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTcPIKnTEd-_eNeM-oxilQ" name="length" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTcPIanTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTcPIqnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vTc2MKnTEd-_eNeM-oxilQ" name="arg0" type="_vHrrEKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTc2ManTEd-_eNeM-oxilQ" name="charAt" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTc2MqnTEd-_eNeM-oxilQ" name="arg0" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTc2M6nTEd-_eNeM-oxilQ" name="return" type="_vG8rQKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTtU4KnTEd-_eNeM-oxilQ" name="substring" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTtU4anTEd-_eNeM-oxilQ" name="arg0" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTtU4qnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vT_BsKnTEd-_eNeM-oxilQ" name="indexOf" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vT_BsanTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vT_BsqnTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUA24KnTEd-_eNeM-oxilQ" name="indexOf" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vUA24anTEd-_eNeM-oxilQ" name="arg0" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vUA24qnTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUD6MKnTEd-_eNeM-oxilQ" name="indexOf" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vUD6ManTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vUD6MqnTEd-_eNeM-oxilQ" name="arg1" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vUD6M6nTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUEhQKnTEd-_eNeM-oxilQ" name="substring" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vUEhQanTEd-_eNeM-oxilQ" name="arg0" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vUFIUKnTEd-_eNeM-oxilQ" name="arg1" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vUFIUanTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vHrrEKnTEd-_eNeM-oxilQ" name="StringBuffer" isLeaf="true">
+        <ownedOperation xmi:id="_vTNloKnTEd-_eNeM-oxilQ" name="append" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTNloanTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTNloqnTEd-_eNeM-oxilQ" name="return" type="_vHrrEKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTOMsKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true"/>
+        <ownedOperation xmi:id="_vThHoKnTEd-_eNeM-oxilQ" name="append" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vThusKnTEd-_eNeM-oxilQ" name="arg0" type="_vG8rQKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vThusanTEd-_eNeM-oxilQ" name="return" type="_vHrrEKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vHsSIanTEd-_eNeM-oxilQ" name="RuntimeException" isLeaf="true">
+        <ownedOperation xmi:id="_vTPa0KnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vHs5MKnTEd-_eNeM-oxilQ" name="Exception" isLeaf="true" isAbstract="true">
+        <ownedOperation xmi:id="_vTPa0anTEd-_eNeM-oxilQ" name="printStackTrace" visibility="public" isLeaf="true" isAbstract="true"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_vH34UanTEd-_eNeM-oxilQ" name="byte"/>
+      <packagedElement xmi:type="uml:DataType" xmi:id="_vH34UqnTEd-_eNeM-oxilQ" name="byte[]" isLeaf="true" isAbstract="true"/>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH9-8KnTEd-_eNeM-oxilQ" name="StringBuilder" isLeaf="true">
+        <ownedOperation xmi:id="_vTvKEqnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vTvxIKnTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTwYMKnTEd-_eNeM-oxilQ" name="append" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTwYManTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTwYMqnTEd-_eNeM-oxilQ" name="return" type="_vH9-8KnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTw_QKnTEd-_eNeM-oxilQ" name="toString" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTw_QanTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vIF6wKnTEd-_eNeM-oxilQ" name="IllegalArgumentException" isLeaf="true">
+        <ownedOperation xmi:id="_vUCsEKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vUCsEanTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_vG9SUKnTEd-_eNeM-oxilQ" name="util">
+      <packagedElement xmi:type="uml:Interface" xmi:id="_vHqc8KnTEd-_eNeM-oxilQ" name="Comparator" isAbstract="true">
+        <ownedOperation xmi:id="_vTLwcKnTEd-_eNeM-oxilQ" name="compare" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTLwcanTEd-_eNeM-oxilQ" name="arg0" type="_vGYDganTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTMXgKnTEd-_eNeM-oxilQ" name="arg1" type="_vGYDganTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTMXganTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_vH2DIKnTEd-_eNeM-oxilQ" name="zip">
+        <packagedElement xmi:type="uml:Class" xmi:id="_vH2qMKnTEd-_eNeM-oxilQ" name="ZipFile" isLeaf="true">
+          <ownedOperation xmi:id="_vTlZEKnTEd-_eNeM-oxilQ" name="close" visibility="public" isLeaf="true" isAbstract="true"/>
+          <ownedOperation xmi:id="_vUTKwKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+            <ownedParameter xmi:id="_vUTKwanTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUTx0KnTEd-_eNeM-oxilQ" name="getEntry" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUTx0anTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+            <ownedParameter xmi:id="_vUTx0qnTEd-_eNeM-oxilQ" name="return" type="_vILaUKnTEd-_eNeM-oxilQ" direction="return"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUVnAKnTEd-_eNeM-oxilQ" name="getInputStream" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUVnAanTEd-_eNeM-oxilQ" name="arg0" type="_vILaUKnTEd-_eNeM-oxilQ"/>
+            <ownedParameter xmi:id="_vUWOEKnTEd-_eNeM-oxilQ" name="return" type="_vH_NEanTEd-_eNeM-oxilQ" direction="return"/>
+          </ownedOperation>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_vIKzQKnTEd-_eNeM-oxilQ" name="ZipInputStream" isLeaf="true">
+          <ownedOperation xmi:id="_vUNEIKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+            <ownedParameter xmi:id="_vUNEIanTEd-_eNeM-oxilQ" name="arg0" type="_vH_NEanTEd-_eNeM-oxilQ"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUNrMKnTEd-_eNeM-oxilQ" name="available" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUNrManTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUNrMqnTEd-_eNeM-oxilQ" name="close" visibility="public" isLeaf="true" isAbstract="true"/>
+          <ownedOperation xmi:id="_vUO5UKnTEd-_eNeM-oxilQ" name="getNextEntry" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUPgYKnTEd-_eNeM-oxilQ" name="return" type="_vILaUKnTEd-_eNeM-oxilQ" direction="return"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUq-MKnTEd-_eNeM-oxilQ" name="read" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUq-ManTEd-_eNeM-oxilQ" name="arg0" type="_vH34UqnTEd-_eNeM-oxilQ"/>
+            <ownedParameter xmi:id="_vUq-MqnTEd-_eNeM-oxilQ" name="arg1" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+            <ownedParameter xmi:id="_vUq-M6nTEd-_eNeM-oxilQ" name="arg2" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+            <ownedParameter xmi:id="_vUq-NKnTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+          </ownedOperation>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_vILaUKnTEd-_eNeM-oxilQ" name="ZipEntry" isLeaf="true">
+          <ownedOperation xmi:id="_vUPgYanTEd-_eNeM-oxilQ" name="getName" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUPgYqnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUn64KnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+            <ownedParameter xmi:id="_vUn64anTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUpwEKnTEd-_eNeM-oxilQ" name="setTime" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUqXIKnTEd-_eNeM-oxilQ" name="arg0" type="_vG8rQanTEd-_eNeM-oxilQ"/>
+          </ownedOperation>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_vIUkQKnTEd-_eNeM-oxilQ" name="ZipOutputStream" isLeaf="true">
+          <ownedOperation xmi:id="_vUn64qnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+            <ownedParameter xmi:id="_vUoh8KnTEd-_eNeM-oxilQ" name="arg0" type="_vH_NEKnTEd-_eNeM-oxilQ"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUoh8anTEd-_eNeM-oxilQ" name="putNextEntry" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUoh8qnTEd-_eNeM-oxilQ" name="arg0" type="_vILaUKnTEd-_eNeM-oxilQ"/>
+          </ownedOperation>
+          <ownedOperation xmi:id="_vUsMUKnTEd-_eNeM-oxilQ" name="write" visibility="public" isLeaf="true" isAbstract="true">
+            <ownedParameter xmi:id="_vUsMUanTEd-_eNeM-oxilQ" name="arg0" type="_vH34UqnTEd-_eNeM-oxilQ"/>
+            <ownedParameter xmi:id="_vUsMUqnTEd-_eNeM-oxilQ" name="arg1" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+            <ownedParameter xmi:id="_vUsMU6nTEd-_eNeM-oxilQ" name="arg2" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          </ownedOperation>
+        </packagedElement>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_vHA8sanTEd-_eNeM-oxilQ" name="io">
+      <packagedElement xmi:type="uml:Class" xmi:id="_vHBjwKnTEd-_eNeM-oxilQ" name="PrintStream" isLeaf="true" isAbstract="true">
+        <ownedOperation xmi:id="_vJvgkanTEd-_eNeM-oxilQ" name="println" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vJvgkqnTEd-_eNeM-oxilQ" name="arg0" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTQB4KnTEd-_eNeM-oxilQ" name="println" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTQB4anTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH1cEKnTEd-_eNeM-oxilQ" name="FilterInputStream" isAbstract="true">
+        <ownedOperation xmi:id="_vTkK8KnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="protected" isLeaf="true">
+          <ownedParameter xmi:id="_vTkK8anTEd-_eNeM-oxilQ" name="arg0" type="_vH_NEanTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTkyAKnTEd-_eNeM-oxilQ" name="close" visibility="protected"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH3RQanTEd-_eNeM-oxilQ" name="FilterOutputStream" isAbstract="true">
+        <ownedOperation xmi:id="_vTpqgKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="protected" isLeaf="true">
+          <ownedParameter xmi:id="_vTpqganTEd-_eNeM-oxilQ" name="arg0" type="_vH_NEKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTsGwKnTEd-_eNeM-oxilQ" name="close" visibility="protected"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH8JwKnTEd-_eNeM-oxilQ" name="File" isLeaf="true">
+        <ownedOperation xmi:id="_vTujAKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vTujAanTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTvKEKnTEd-_eNeM-oxilQ" name="delete" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTvKEanTEd-_eNeM-oxilQ" name="return" type="_vG95YKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTvxIanTEd-_eNeM-oxilQ" name="getPath" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTvxIqnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vTxmUKnTEd-_eNeM-oxilQ" name="renameTo" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vTxmUanTEd-_eNeM-oxilQ" name="arg0" type="_vH8JwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vTyNYKnTEd-_eNeM-oxilQ" name="return" type="_vG95YKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUhNMKnTEd-_eNeM-oxilQ" name="createTempFile" isLeaf="true" isStatic="true">
+          <ownedParameter xmi:id="_vUhNManTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vUhNMqnTEd-_eNeM-oxilQ" name="arg1" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vUhNM6nTEd-_eNeM-oxilQ" name="return" type="_vH8JwKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH9X4anTEd-_eNeM-oxilQ" name="IOException" isLeaf="true">
+        <ownedOperation xmi:id="_vTw_QqnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vTw_Q6nTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH-mAKnTEd-_eNeM-oxilQ" name="FileInputStream" isLeaf="true">
+        <ownedOperation xmi:id="_vTy0cKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vTy0canTEd-_eNeM-oxilQ" name="arg0" type="_vH8JwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH_NEKnTEd-_eNeM-oxilQ" name="OutputStream" isLeaf="true" isAbstract="true">
+        <ownedOperation xmi:id="_vT13wKnTEd-_eNeM-oxilQ" name="close" visibility="public" isLeaf="true" isAbstract="true"/>
+        <ownedOperation xmi:id="_vT2e0KnTEd-_eNeM-oxilQ" name="write" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vT2e0anTEd-_eNeM-oxilQ" name="arg0" type="_vH34UqnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vT2e0qnTEd-_eNeM-oxilQ" name="arg1" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vT2e06nTEd-_eNeM-oxilQ" name="arg2" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH_NEanTEd-_eNeM-oxilQ" name="InputStream" isLeaf="true" isAbstract="true">
+        <ownedOperation xmi:id="_vT0poKnTEd-_eNeM-oxilQ" name="read" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vT0poanTEd-_eNeM-oxilQ" name="arg0" type="_vH34UqnTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vT0poqnTEd-_eNeM-oxilQ" name="arg1" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vT1QsKnTEd-_eNeM-oxilQ" name="arg2" type="_vHBjwanTEd-_eNeM-oxilQ"/>
+          <ownedParameter xmi:id="_vT1QsanTEd-_eNeM-oxilQ" name="return" type="_vHBjwanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vT1QsqnTEd-_eNeM-oxilQ" name="close" visibility="public" isLeaf="true" isAbstract="true"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vITWIanTEd-_eNeM-oxilQ" name="FileOutputStream" isLeaf="true">
+        <ownedOperation xmi:id="_vUh0QKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vUh0QanTEd-_eNeM-oxilQ" name="arg0" type="_vH8JwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_vH_0IKnTEd-_eNeM-oxilQ" name="net">
+      <packagedElement xmi:type="uml:Class" xmi:id="_vH_0IanTEd-_eNeM-oxilQ" name="URLConnection" isAbstract="true">
+        <ownedOperation xmi:id="_vT4UAKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="protected">
+          <ownedParameter xmi:id="_vT4UAanTEd-_eNeM-oxilQ" name="arg0" type="_vIBpUKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUwdwKnTEd-_eNeM-oxilQ" name="setDoOutput" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vUwdwanTEd-_eNeM-oxilQ" name="arg0" type="_vG95YKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUwdwqnTEd-_eNeM-oxilQ" name="getOutputStream" visibility="public" isAbstract="true">
+          <ownedParameter xmi:id="_vUxE0KnTEd-_eNeM-oxilQ" name="return" type="_vH_NEKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vIBpUKnTEd-_eNeM-oxilQ" name="URL" isLeaf="true">
+        <ownedOperation xmi:id="_vT47EKnTEd-_eNeM-oxilQ" name="toString" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vT47EanTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUYqUKnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vUYqUanTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUYqUqnTEd-_eNeM-oxilQ" name="openStream" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vUZRYKnTEd-_eNeM-oxilQ" name="return" type="_vH_NEanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:id="_vUv2sKnTEd-_eNeM-oxilQ" name="openConnection" visibility="public" isLeaf="true" isAbstract="true">
+          <ownedParameter xmi:id="_vUv2sanTEd-_eNeM-oxilQ" name="return" type="_vH_0IanTEd-_eNeM-oxilQ" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_vIEsoanTEd-_eNeM-oxilQ" name="MalformedURLException" isLeaf="true">
+        <ownedOperation xmi:id="_vUAP0KnTEd-_eNeM-oxilQ" name="&lt;init>" visibility="public" isLeaf="true">
+          <ownedParameter xmi:id="_vUAP0anTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+        </ownedOperation>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_vH8JwanTEd-_eNeM-oxilQ" name="org">
+    <eAnnotations xmi:id="_vVePeqnTEd-_eNeM-oxilQ" source="Jar2UML">
+      <details xmi:id="_vVePe6nTEd-_eNeM-oxilQ" key="inferred" value="true"/>
+    </eAnnotations>
+    <packagedElement xmi:type="uml:Package" xmi:id="_vH8JwqnTEd-_eNeM-oxilQ" name="eclipse">
+      <packagedElement xmi:type="uml:Package" xmi:id="_vH8Jw6nTEd-_eNeM-oxilQ" name="emf">
+        <packagedElement xmi:type="uml:Package" xmi:id="_vH8w0KnTEd-_eNeM-oxilQ" name="common">
+          <packagedElement xmi:type="uml:Package" xmi:id="_vH8w0anTEd-_eNeM-oxilQ" name="util">
+            <packagedElement xmi:type="uml:Class" xmi:id="_vH8w06nTEd-_eNeM-oxilQ" name="URI" isLeaf="true" isAbstract="true">
+              <ownedOperation xmi:id="_vTt78KnTEd-_eNeM-oxilQ" name="decode" isLeaf="true" isStatic="true">
+                <ownedParameter xmi:id="_vTt78anTEd-_eNeM-oxilQ" name="arg0" type="_vHonwKnTEd-_eNeM-oxilQ"/>
+                <ownedParameter xmi:id="_vTt78qnTEd-_eNeM-oxilQ" name="return" type="_vHonwKnTEd-_eNeM-oxilQ" direction="return"/>
+              </ownedOperation>
+            </packagedElement>
+          </packagedElement>
+        </packagedElement>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+</uml:Model>
