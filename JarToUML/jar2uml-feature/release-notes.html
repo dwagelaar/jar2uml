@@ -7,7 +7,17 @@
 <body lang="EN-US">
 <h2>Release Notes</h2>
 
-<h3>JarToUML 1.1.7 ($Rev$ - $Date$)</h3>
+<h3>JarToUML 1.1.8 ($Rev$ - $Date$)</h3>
+
+<ul>
+	<li>Improved progress monitor granularity.</li>
+	<li>Added support for method parameter names.</li>
+	<li>Fixed <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=58">bug 58: Inference of public/protected visibility of invoked virtual methods is inaccurate</a>. This involved the addition of a JVM execution frame simulator to find out the access context of instance fields/methods.</li>
+	<li>Fixed usage of UML's isLeaf().</li>
+	<li>Fixed <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=57">bug 57: Extract dependencies does not always correctly mark contained vs. inferred elements</a>.</li>
+</ul>
+
+<h3>JarToUML 1.1.7 (Rev: 8175 - Date: 2010-07-16 15:22:32 +0200 (vr, 16 jul 2010))</h3>
 
 <ul>
 	<li>Fixed <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=56">bug 56: Container types of referenced types are removed during dependency model extraction, resulting in dangling references</a>.</li>

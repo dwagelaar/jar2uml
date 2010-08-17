@@ -2,7 +2,7 @@
 <feature
       id="be.ac.vub.jar2uml"
       label="%featureName"
-      version="1.1.7"
+      version="1.1.8"
       provider-name="%providerName"
       plugin="be.ac.vub.jar2uml"
       image="VUB_logo_compact.gif">
@@ -37,8 +37,8 @@
 
    <plugin
          id="be.ac.vub.jar2uml"
-         download-size="192"
-         install-size="192"
+         download-size="276"
+         install-size="276"
          version="0.0.0"
          unpack="false"/>
 
@@ -51,8 +51,8 @@
 
    <plugin
          id="be.ac.vub.jar2uml.doc"
-         download-size="4084"
-         install-size="4084"
+         download-size="4268"
+         install-size="4268"
          version="0.0.0"
          unpack="false"/>
 
