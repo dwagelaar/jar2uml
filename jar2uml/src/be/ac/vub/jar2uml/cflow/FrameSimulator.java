@@ -147,7 +147,8 @@ public class FrameSimulator {
 			notCovered.removeAll(allDeadCode);
 			notCovered.removeAll(noAccessContextAvailable);
 			if (!notCovered.isEmpty()) {
-				final SortedSet<InstructionFlow> nc = new TreeSet<InstructionFlow>(notCovered);
+				final SortedSet<InstructionFlow> nc = new TreeSet<InstructionFlow>(OrderedItemComparator.INSTANCE);
+				nc.addAll(notCovered);
 				JarToUML.logger.warning(String.format(
 						JarToUMLResources.getString("FrameSimulator.notCovered"),
 						method.getClassName(),
