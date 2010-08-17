@@ -51,7 +51,7 @@ public final class AddPropertiesTest extends J2UTestCase {
 		//
 		// Run with preverified code
 		//
-		ParseClasses parseClasses = new ParseClasses(null, null);
+		ParseClasses parseClasses = new ParseClasses(null, null, 0);
 		List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
 		parseClasses.parseClasses(jar, parsedClasses, parsedClasses);
 		boolean preverified = false;

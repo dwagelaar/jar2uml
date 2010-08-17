@@ -56,15 +56,16 @@ public class AddProperties extends AddToModel {
 	 * Creates a new {@link AddProperties}.
 	 * @param filter A filter to apply to model operations.
 	 * @param monitor A progress monitor to check for end user cancellation.
+	 * @param ticks amount of ticks this task will add to the progress monitor
 	 * @param model The UML model to store generated elements in.
 	 * @param includeFeatures Whether to include fields and methods.
 	 * @param includeInstructionReferences Whether or not to include Java elements that are
 	 * referred to by bytecode instructions.
 	 */
-	public AddProperties(Filter filter, IProgressMonitor monitor, Model model,
+	public AddProperties(Filter filter, IProgressMonitor monitor, int ticks, Model model,
 			boolean includeFeatures, boolean includeInstructionReferences) {
-		super(filter, monitor, model, includeFeatures, includeInstructionReferences);
-		addMethodOpCode = new AddMethodOpCode(filter, monitor, model,
+		super(filter, monitor, ticks, model, includeFeatures, includeInstructionReferences);
+		addMethodOpCode = new AddMethodOpCode(filter, getMonitor(), 0, model,
 				includeFeatures, includeInstructionReferences);
 	}
 
@@ -78,7 +79,7 @@ public class AddProperties extends AddToModel {
 		if (isIncludeFeatures()) {
 			for (JavaClass javaClass : parsedClasses) {
 				addClassifierProperties(javaClass);
-				checkCancelled();
+				worked();
 			}
 		}
 	}

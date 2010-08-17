@@ -38,7 +38,7 @@ public class ParseClassesTest extends J2UTestCase {
 	 * Test method for {@link be.ac.vub.jar2uml.ParseClasses#ParseClasses(be.ac.vub.jar2uml.Filter, org.eclipse.core.runtime.IProgressMonitor)}.
 	 */
 	public void testParseClasses() {
-		final ParseClasses pc = new ParseClasses(null, null);
+		final ParseClasses pc = new ParseClasses(null, null, 0);
 		assertNotNull(pc);
 	}
 
@@ -86,7 +86,7 @@ public class ParseClassesTest extends J2UTestCase {
 		//
 		final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
 		final List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
-		final ParseClasses pc = new ParseClasses(null, null);
+		final ParseClasses pc = new ParseClasses(null, null, 0);
 		pc.parseClasses(jar, parsedClasses, parsedCpClasses);
 		assertFalse(parsedClasses.isEmpty());
 		assertTrue(parsedCpClasses.isEmpty());
@@ -120,7 +120,7 @@ public class ParseClassesTest extends J2UTestCase {
 		//
 		final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
 		final List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
-		final ParseClasses pc = new ParseClasses(null, null);
+		final ParseClasses pc = new ParseClasses(null, null, 0);
 		pc.parseClasses(jar, parsedClasses, parsedCpClasses);
 		assertFalse(parsedClasses.isEmpty());
 		assertTrue(parsedCpClasses.isEmpty());
@@ -152,7 +152,7 @@ public class ParseClassesTest extends J2UTestCase {
 		// Parse classes in project
 		//
 		final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
-		final ParseClasses pc = new ParseClasses(null, null);
+		final ParseClasses pc = new ParseClasses(null, null, 0);
 		pc.parseClasses(project, parsedClasses);
 		assertFalse(parsedClasses.isEmpty());
 		//

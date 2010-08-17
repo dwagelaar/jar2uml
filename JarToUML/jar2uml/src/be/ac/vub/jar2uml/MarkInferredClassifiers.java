@@ -66,11 +66,12 @@ public class MarkInferredClassifiers extends ChangeModel {
 	 * Creates a new {@link MarkInferredClassifiers}.
 	 * @param filter A filter to apply to model operations.
 	 * @param monitor A progress monitor to check for end user cancellation.
+	 * @param ticks amount of ticks this task will add to the progress monitor
 	 * @param model The UML model to store generated elements in.
 	 */
-	public MarkInferredClassifiers(Filter filter, IProgressMonitor monitor,
+	public MarkInferredClassifiers(Filter filter, IProgressMonitor monitor, int ticks,
 			Model model) {
-		super(filter, monitor, model);
+		super(filter, monitor, ticks, model);
 	}
 
 	/**

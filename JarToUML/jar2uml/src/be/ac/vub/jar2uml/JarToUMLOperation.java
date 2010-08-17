@@ -14,6 +14,7 @@ import org.apache.bcel.classfile.AccessFlags;
 import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
 
 /**
  * Introduces functionality for general {@link JarToUML} operations. 
@@ -28,11 +29,14 @@ public abstract class JarToUMLOperation implements Cancellable {
 	 * Creates a new {@link JarToUMLOperation}.
 	 * @param filter A filter to apply to model operations.
 	 * @param monitor A progress monitor to check for end user cancellation.
+	 * @param ticks amount of ticks this task will add to the progress monitor
 	 */
-	public JarToUMLOperation(Filter filter, IProgressMonitor monitor) {
+	public JarToUMLOperation(Filter filter, IProgressMonitor monitor, int ticks) {
 		super();
 		setFilter(filter);
-		setMonitor(monitor);
+		if (monitor != null) {
+			setMonitor(new SubProgressMonitor(monitor, ticks));
+		}
 	}
 
 	/**
@@ -85,6 +89,33 @@ public abstract class JarToUMLOperation implements Cancellable {
 		final IProgressMonitor monitor = getMonitor();
 		if ((monitor != null) && monitor.isCanceled()) {
 			throw new OperationCanceledException(JarToUMLResources.getString("operationCancelledByUser")); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Starts a new task, if the monitor is set.
+	 * @param taskName
+	 * @param work
+	 */
+	public void beginTask(final String taskName, final int work) {
+		final IProgressMonitor monitor = getMonitor();
+		if (monitor != null) {
+			monitor.beginTask(taskName, work);
+		}
+	}
+
+	/**
+	 * Increases the monitor progress by 1 and andles cancelled progress monitor,
+	 * if monitor is set.
+	 * @throws OperationCanceledException
+	 */
+	public void worked() throws OperationCanceledException {
+		final IProgressMonitor monitor = getMonitor();
+		if (monitor != null) {
+			monitor.worked(1);
+			if (monitor.isCanceled()) {
+				throw new OperationCanceledException(JarToUMLResources.getString("operationCancelledByUser")); //$NON-NLS-1$
+			}
 		}
 	}
 

@@ -31,14 +31,15 @@ public abstract class AddToModel extends ChangeModel {
 	 * Creates a new {@link AddToModel}.
 	 * @param filter A filter to apply to model operations.
 	 * @param monitor A progress monitor to check for end user cancellation.
+	 * @param ticks amount of ticks this task will add to the progress monitor
 	 * @param model The UML model to store generated elements in.
 	 * @param includeFeatures Whether to include fields and methods.
 	 * @param includeInstructionReferences Whether or not to include Java elements that are
 	 * referred to by bytecode instructions.
 	 */
-	public AddToModel(Filter filter, IProgressMonitor monitor, Model model, 
+	public AddToModel(Filter filter, IProgressMonitor monitor, int ticks, Model model, 
 			boolean includeFeatures, boolean includeInstructionReferences) {
-		super(filter, monitor, model);
+		super(filter, monitor, ticks, model);
 		setIncludeFeatures(includeFeatures);
 		setIncludeInstructionReferences(includeInstructionReferences);
 		typeToClassifier.setRoot(getModel());
