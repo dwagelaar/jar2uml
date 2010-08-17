@@ -66,6 +66,15 @@ public final class JarToUML implements Runnable {
 	public static final String LOGGER = "be.ac.vub.jar2uml"; //$NON-NLS-1$
 	public static final String EANNOTATION = "Jar2UML"; //$NON-NLS-1$
 
+	private static final int WORK_CREATE_MODEL = 1;
+	private static final int WORK_PARSE_CLASSES = 100;
+	private static final int WORK_ADD_CLASSIFIERS = 200;
+	private static final int WORK_ADD_PROPERTIES = 400;
+	private static final int WORK_INFERRED_TAGS = 1;
+	private static final int WORK_REMOVE_EMPTY = 1;
+	private static final int WORK_ADD_METADATA = 1;
+	private static final int WORK_TOTAL = WORK_CREATE_MODEL + WORK_PARSE_CLASSES + WORK_ADD_CLASSIFIERS + WORK_ADD_PROPERTIES + WORK_INFERRED_TAGS + WORK_REMOVE_EMPTY + WORK_ADD_METADATA;
+
 	public static Logger logger = Logger.getLogger(LOGGER);
 
 	/**
@@ -271,7 +280,7 @@ public final class JarToUML implements Runnable {
 			assert getOutputFile() != null : JarToUMLResources.getString("JarToUML.nullOutputFile"); //$NON-NLS-1$
 			beginTask(monitor, String.format(
 					JarToUMLResources.getString("JarToUML.startingFor"),
-					getOutputFile()), 7);  //$NON-NLS-1$
+					getOutputFile()), WORK_TOTAL);  //$NON-NLS-1$
 			//
 			// 1
 			//
@@ -289,9 +298,12 @@ public final class JarToUML implements Runnable {
 			//
 			subTask(monitor, JarToUMLResources.getString("JarToUML.parsing")); //$NON-NLS-1$
 			final Filter filter = getFilter();
-			final ParseClasses parseClasses = new ParseClasses(filter, monitor);
+			final ParseClasses parseClasses = new ParseClasses(filter, monitor, WORK_PARSE_CLASSES);
 			final List<JavaClass> parsedClasses = getParsedClasses();
 			final List<JavaClass> parsedCpClasses = getParsedCpClasses();
+			parseClasses.beginTask(
+					JarToUMLResources.getString("JarToUML.parsing"), 
+					ParseClasses.getJarWork(getJars()) + ParseClasses.getJarWork(getCpJars()) + ParseClasses.getPathWork(getPaths()) + ParseClasses.getPathWork(getCpPaths())); //$NON-NLS-1$
 			for (JarFile jar : getJars()) {
 				parseClasses.parseClasses(jar, parsedClasses, parsedCpClasses);
 				checkCancelled(monitor);
@@ -308,33 +320,39 @@ public final class JarToUML implements Runnable {
 				parseClasses.parseClasses(path, parsedCpClasses);
 				checkCancelled(monitor);
 			}
-			worked(monitor, JarToUMLResources.getString("JarToUML.parsed")); //$NON-NLS-1$
+			worked(null, JarToUMLResources.getString("JarToUML.parsed")); //$NON-NLS-1$
 			//
 			// 3
 			//
 			subTask(monitor, JarToUMLResources.getString("JarToUML.addingClassifiers")); //$NON-NLS-1$
 			final boolean includeFeatures = isIncludeFeatures();
 			final boolean includeInstructionReferences = isIncludeInstructionReferences();
-			final AddClassifiers addClassifiers = new AddClassifiers(filter, monitor, model, includeFeatures, includeInstructionReferences);
+			final AddClassifiers addClassifiers = new AddClassifiers(filter, monitor, WORK_ADD_CLASSIFIERS,	model, includeFeatures,	includeInstructionReferences);
+			addClassifiers.beginTask(
+					JarToUMLResources.getString("JarToUML.addingClassifiers"), 
+					parsedClasses.size() + parsedCpClasses.size()); //$NON-NLS-1$
 			addClassifiers.addAllClassifiers(parsedClasses);
-			List<JavaClass> skippedClasses = addClassifiers.addClassifiersClosure(parsedCpClasses);
-			getParsedCpClasses().removeAll(skippedClasses);
-			worked(monitor, JarToUMLResources.getString("JarToUML.addedClassifiers")); //$NON-NLS-1$
+			final List<JavaClass> skippedClasses = addClassifiers.addClassifiersClosure(parsedCpClasses);
+			parsedCpClasses.removeAll(skippedClasses);
+			worked(null, JarToUMLResources.getString("JarToUML.addedClassifiers")); //$NON-NLS-1$
 			//
 			// 4
 			//
 			subTask(monitor, JarToUMLResources.getString("JarToUML.addingProperties")); //$NON-NLS-1$
-			final AddProperties addProperties = new AddProperties(filter, monitor, model, includeFeatures, includeInstructionReferences);
-			addProperties.addAllProperties(getParsedClasses());
-			addProperties.addAllProperties(getParsedCpClasses());
-			worked(monitor, JarToUMLResources.getString("JarToUML.addedProperties")); //$NON-NLS-1$
+			final AddProperties addProperties = new AddProperties(filter, monitor, WORK_ADD_PROPERTIES, model, includeFeatures, includeInstructionReferences);
+			addProperties.beginTask(
+					JarToUMLResources.getString("JarToUML.addingProperties"), 
+					parsedClasses.size() + parsedCpClasses.size()); //$NON-NLS-1$
+			addProperties.addAllProperties(parsedClasses);
+			addProperties.addAllProperties(parsedCpClasses);
+			worked(null, JarToUMLResources.getString("JarToUML.addedProperties")); //$NON-NLS-1$
 			//
 			// 5
 			//
-			final RemoveFromModel removeFromModel = new RemoveFromModel(filter, monitor, model);
-			final MarkInferredClassifiers markInferredClassifiers = new MarkInferredClassifiers(filter, monitor, model);
+			final MarkInferredClassifiers markInferredClassifiers = new MarkInferredClassifiers(filter,	monitor, WORK_INFERRED_TAGS, model);
 			final Set<Classifier> containedClassifiers = markInferredClassifiers.findContainedClassifiers(getParsedClasses());
 			containedClassifiers.addAll(markInferredClassifiers.findContainedClassifiers(getParsedCpClasses()));
+			final RemoveFromModel removeFromModel = new RemoveFromModel(filter, monitor, WORK_REMOVE_EMPTY, model);
 			if (isDependenciesOnly()) {
 				subTask(monitor, JarToUMLResources.getString("JarToUML.removingClassifiers")); //$NON-NLS-1$
 				final Set<Classifier> inferredClassifiers = markInferredClassifiers.findInferredClassifiers(containedClassifiers);

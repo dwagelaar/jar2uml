@@ -34,10 +34,11 @@ public class RemoveFromModel extends ChangeModel {
 	 * Creates a new {@link RemoveFromModel}.
 	 * @param filter A filter to apply to model operations.
 	 * @param monitor A progress monitor to check for end user cancellation.
+	 * @param ticks amount of ticks this task will add to the progress monitor
 	 * @param model The UML model to store generated elements in.
 	 */
-	public RemoveFromModel(Filter filter, IProgressMonitor monitor, Model model) {
-		super(filter, monitor, model);
+	public RemoveFromModel(Filter filter, IProgressMonitor monitor, int ticks, Model model) {
+		super(filter, monitor, ticks, model);
 	}
 
 	/**

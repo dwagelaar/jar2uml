@@ -57,14 +57,15 @@ public class AddClassifiers extends AddToModel {
 	 * Creates a new {@link AddClassifiers}
 	 * @param filter A filter to apply to model operations.
 	 * @param monitor A progress monitor to check for end user cancellation.
+	 * @param ticks amount of ticks this task will add to the progress monitor
 	 * @param model The UML model to store generated elements in.
 	 * @param includeFeatures Whether to include fields and methods.
 	 * @param includeInstructionReferences Whether or not to include Java elements that are
 	 * referred to by bytecode instructions.
 	 */
-	public AddClassifiers(Filter filter, IProgressMonitor monitor, Model model, 
+	public AddClassifiers(Filter filter, IProgressMonitor monitor, int ticks, Model model,
 			boolean includeFeatures, boolean includeInstructionReferences) {
-		super(filter, monitor, model, includeFeatures, includeInstructionReferences);
+		super(filter, monitor, ticks, model, includeFeatures, includeInstructionReferences);
 	}
 
 	/**
@@ -76,7 +77,7 @@ public class AddClassifiers extends AddToModel {
 	public void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException, JarToUMLException {
 		for (JavaClass javaClass : parsedClasses) {
 			addClassifier(javaClass, false);
-			checkCancelled();
+			worked();
 		}
 	}
 
@@ -97,7 +98,7 @@ public class AddClassifiers extends AddToModel {
 				if (addClassifier(javaClass, true)) {
 					addedClasses.add(javaClass);
 				}
-				checkCancelled();
+				worked();
 			}
 		} while (!addedClasses.isEmpty());
 		return processClasses;

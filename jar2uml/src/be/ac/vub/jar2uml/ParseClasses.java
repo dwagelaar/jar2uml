@@ -43,9 +43,10 @@ public class ParseClasses extends JarToUMLOperation {
 	 * Creates a new {@link ParseClasses}.
 	 * @param filter A filter to apply to model operations.
 	 * @param monitor A progress monitor to check for end user cancellation.
+	 * @param ticks amount of ticks this task will add to the progress monitor
 	 */
-	public ParseClasses(Filter filter, IProgressMonitor monitor) {
-		super(filter, monitor);
+	public ParseClasses(Filter filter, IProgressMonitor monitor, int ticks) {
+		super(filter, monitor, ticks);
 	}
 
 	/**
@@ -70,6 +71,31 @@ public class ParseClasses extends JarToUMLOperation {
 				break;
 			}
 		}
+	}
+
+	/**
+	 * @param jars
+	 * @return the amount of progress monitor work contained in jars
+	 */
+	public static int getJarWork(final Collection<JarFile> jars) {
+		int work = 0;
+		for (JarFile jar : jars) {
+			work += jar.size();
+		}
+		return work;
+	}
+
+	/**
+	 * @param paths
+	 * @return the amount of progress monitor work contained in paths
+	 * @throws CoreException
+	 */
+	public static int getPathWork(final Collection<IContainer> paths) throws CoreException {
+		final List<IFile> classFiles = new ArrayList<IFile>();
+		for (IContainer path : paths) {
+			findClassFilesIn(path, classFiles);
+		}
+		return classFiles.size();
 	}
 
 	private int majorFormatVersion;
@@ -106,7 +132,7 @@ public class ParseClasses extends JarToUMLOperation {
 				parseClasses(nestedJar, parsedCpClasses, parsedCpClasses);
 				nestedJar.close();
 			}
-			checkCancelled();
+			worked();
 		}
 	}
 
@@ -151,7 +177,7 @@ public class ParseClasses extends JarToUMLOperation {
 	 */
 	public void parseClasses(IContainer container, Collection<JavaClass> parsedClasses) throws IOException, CoreException {
 		assert container != null;
-		List<IFile> classFiles = new ArrayList<IFile>();
+		final List<IFile> classFiles = new ArrayList<IFile>();
 		findClassFilesIn(container, classFiles);
 		for (IFile classFile : classFiles) {
 			IPath filePath = classFile.getLocation();
@@ -166,7 +192,7 @@ public class ParseClasses extends JarToUMLOperation {
 			setMinorFormatVersion(javaClass.getMinor());
 			input.close();
 			parsedClasses.add(javaClass);
-			checkCancelled();
+			worked();
 		}
 	}
 
