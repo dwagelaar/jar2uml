@@ -139,7 +139,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	 * @param method
 	 * @throws JarToUMLException if a type cannot be found
 	 */
-	public void setAll(Method method) throws JarToUMLException {
+	public void setAll(Method method) {
 		setOperationName(method.getName());
 		setArgumentNames(getArgumentNames(method));
 		setBCELArgumentTypes(method.getArgumentTypes());
@@ -190,7 +190,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	 * @param argumentTypes
 	 * @throws JarToUMLException If one or more types cannot be found.
 	 */
-	public void setBCELArgumentTypes(org.apache.bcel.generic.Type[] argumentTypes) throws JarToUMLException {
+	public void setBCELArgumentTypes(org.apache.bcel.generic.Type[] argumentTypes) {
 		setArgumentTypes(toUMLTypes(argumentTypes));
 	}
 
@@ -198,17 +198,12 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	 * Converts an array of {@link org.apache.bcel.generic.Type}s to an {@link EList} of {@link Type}s.
 	 * @param types
 	 * @return an {@link EList} of {@link Type}s.
-	 * @throws JarToUMLException If one or more types cannot be found.
 	 */
-	protected EList<Type> toUMLTypes(org.apache.bcel.generic.Type[] types) throws JarToUMLException {
+	protected EList<Type> toUMLTypes(org.apache.bcel.generic.Type[] types) {
 		EList<Type> umlTypes = new BasicEList<Type>();
 		for (int i = 0; i < types.length; i++) {
 			Type type = typeToClassifier.doSwitch(types[i]);
-			if (type == null) {
-				throw new JarToUMLException(String.format(
-						JarToUMLResources.getString("AddClassifierOperationSwitch.typeNotFound"), 
-						types[i].getSignature())); //$NON-NLS-1$
-			}
+			assert type != null;
 			umlTypes.add(type);
 		}
 		return umlTypes;

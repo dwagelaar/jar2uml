@@ -15,7 +15,7 @@ package be.ac.vub.jar2uml;
  * {@link JarToUML} exception class.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public class JarToUMLException extends Exception {
+public class JarToUMLException extends RuntimeException {
 
 	private static final long serialVersionUID = 2537156925879228701L;
 

@@ -61,7 +61,7 @@ public class AddMethodOpCode extends AddToModel {
 	 * @param method The method for which to convert the references.
 	 * @throws JarToUMLException 
 	 */
-	public void addOpCode(final Classifier instrContext, final JavaClass javaClass, final Method method) throws JarToUMLException {
+	public void addOpCode(final Classifier instrContext, final JavaClass javaClass, final Method method) {
 		if (!isIncludeInstructionReferences() || method.getCode() == null) {
 			return;
 		}
