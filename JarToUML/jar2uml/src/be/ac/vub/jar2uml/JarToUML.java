@@ -92,8 +92,8 @@ public final class JarToUML implements Runnable {
 				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
 			}
 		} catch (Exception e) {
+			report(e);
 			logger.severe(JarToUMLResources.getString("JarToUML.usage")); //$NON-NLS-1$
-			e.printStackTrace();
 		}
 	}
 
@@ -248,6 +248,17 @@ public final class JarToUML implements Runnable {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Reports e via the logger
+	 * @param e
+	 */
+	private static void report(Exception e) {
+		StringWriter stackTrace = new StringWriter();
+		e.printStackTrace(new PrintWriter(stackTrace));
+		logger.severe(e.getLocalizedMessage());
+		logger.severe(stackTrace.toString());
 	}
 
 	private FindReferredTypesSwitch findReferredTypes = new FindReferredTypesSwitch();
@@ -406,11 +417,9 @@ public final class JarToUML implements Runnable {
 		} catch (OperationCanceledException e) {
 			logger.info(JarToUMLResources.getString("JarToUML.cancelled")); //$NON-NLS-1$
 		} catch (IOException e) {
-			report(e);
+			throw new JarToUMLException(e);
 		} catch (CoreException e) {
-			report(e);
-		} catch (JarToUMLException e) {
-			report(e);
+			throw new JarToUMLException(e);
 		} finally {
 			done(monitor, JarToUMLResources.getString("JarToUML.finished")); //$NON-NLS-1$
 		}
@@ -489,17 +498,6 @@ public final class JarToUML implements Runnable {
 		if ((monitor != null) && monitor.isCanceled()) {
 			throw new OperationCanceledException(JarToUMLResources.getString("operationCancelledByUser")); //$NON-NLS-1$
 		}
-	}
-
-	/**
-	 * Reports e via the logger
-	 * @param e
-	 */
-	private void report(Exception e) {
-		StringWriter stackTrace = new StringWriter();
-		e.printStackTrace(new PrintWriter(stackTrace));
-		logger.severe(e.getLocalizedMessage());
-		logger.severe(stackTrace.toString());
 	}
 
 	/**

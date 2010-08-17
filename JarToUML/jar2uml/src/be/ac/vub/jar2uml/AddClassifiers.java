@@ -74,7 +74,7 @@ public class AddClassifiers extends AddToModel {
 	 * @throws IOException
 	 * @throws JarToUMLException 
 	 */
-	public void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException, JarToUMLException {
+	public void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException {
 		for (JavaClass javaClass : parsedClasses) {
 			addClassifier(javaClass, false);
 			worked();
@@ -88,7 +88,7 @@ public class AddClassifiers extends AddToModel {
 	 * @throws IOException
 	 * @throws JarToUMLException 
 	 */
-	public List<JavaClass> addClassifiersClosure(Collection<JavaClass> parsedClasses) throws IOException, JarToUMLException {
+	public List<JavaClass> addClassifiersClosure(Collection<JavaClass> parsedClasses) throws IOException {
 		final List<JavaClass> processClasses = new ArrayList<JavaClass>(parsedClasses);
 		final Set<JavaClass> addedClasses = new HashSet<JavaClass>();
 		do {
@@ -111,7 +111,7 @@ public class AddClassifiers extends AddToModel {
 	 * @return <code>true</code> iff javaClass was added.
 	 * @throws JarToUMLException 
 	 */
-	public boolean addClassifier(JavaClass javaClass, boolean isCp) throws JarToUMLException {
+	public boolean addClassifier(JavaClass javaClass, boolean isCp) {
 		final String className = javaClass.getClassName();
 		if (!filter(javaClass)) {
 			logSkippedFiltered(javaClass);
@@ -237,7 +237,7 @@ public class AddClassifiers extends AddToModel {
 	 * @param javaClass The Java class file to convert.
 	 * @throws JarToUMLException 
 	 */
-	public void addPropertyTypes(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
+	public void addPropertyTypes(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
 		Field[] fields = javaClass.getFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -247,13 +247,6 @@ public class AddClassifiers extends AddToModel {
 			JarToUML.logger.finest(fields[i].getSignature());
 			addClassifierProperty.setPropertyName(fields[i].getName());
 			addClassifierProperty.setBCELPropertyType(fields[i].getType());
-			if (addClassifierProperty.getPropertyType() == null) {
-				throw new JarToUMLException(String.format(
-						JarToUMLResources.getString("typeNotFoundFor"), 
-						javaClass.getClassName(),
-						fields[i].getName(),
-						fields[i].getType().getSignature())); //$NON-NLS-1$
-			}
 		}
 	}
 
@@ -263,7 +256,7 @@ public class AddClassifiers extends AddToModel {
 	 * @param javaClass The Java class file to convert.
 	 * @throws JarToUMLException 
 	 */
-	public void addOperationReferences(Classifier classifier, JavaClass javaClass) throws JarToUMLException {
+	public void addOperationReferences(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
 		Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {

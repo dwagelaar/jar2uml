@@ -72,6 +72,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	 */
 	public void setBCELPropertyType(org.apache.bcel.generic.Type propertyType) {
 		setPropertyType(typeToClassifier.doSwitch(propertyType));
+		assert getPropertyType() != null;
 	}
 
 	/*
