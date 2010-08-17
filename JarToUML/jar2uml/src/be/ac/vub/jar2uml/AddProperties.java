@@ -148,11 +148,7 @@ public class AddProperties extends AddToModel {
 				}
 			}
 			JarToUML.logger.finest(methods[i].getSignature());
-			org.apache.bcel.generic.Type[] types = methods[i].getArgumentTypes();
-			addClassifierOperation.setOperationName(methods[i].getName());
-			//TODO we can infer parameter names from the local variable table
-			addClassifierOperation.setBCELArgumentTypes(types);
-			addClassifierOperation.setBCELReturnType(methods[i].getReturnType());
+			addClassifierOperation.setAll(methods[i]);
 			Operation op = (Operation) addClassifierOperation.doSwitch(classifier);
 			op.setVisibility(JarToUML.toUMLVisibility(methods[i]));
 			op.setIsAbstract(methods[i].isAbstract());

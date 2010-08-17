@@ -128,11 +128,11 @@ public class AddInstructionDependenciesVisitor extends AccessContextVisitor {
 	@Override
 	public void visitInvokeInstruction(InvokeInstruction obj) {
 		final ConstantPoolGen cpg = getCpg();
-		final org.apache.bcel.generic.Type returnType = obj.getReturnType(cpg);
 		try {
 			addClassifierOperation.setOperationName(obj.getMethodName(cpg));
+			addClassifierOperation.setArgumentNames(null); //we don't have the names available here
 			addClassifierOperation.setBCELArgumentTypes(obj.getArgumentTypes(cpg));
-			addClassifierOperation.setBCELReturnType(returnType);
+			addClassifierOperation.setBCELReturnType(obj.getReturnType(cpg));
 		} catch (JarToUMLException e) {
 			throw new RuntimeException(e);
 		}
@@ -306,7 +306,7 @@ public class AddInstructionDependenciesVisitor extends AccessContextVisitor {
 		if (instrContext.conformsTo(accessContext) || instrContext.conformsTo(owner)) {
 			//feature access on instance of this class or known superclass
 			final EList<Parameter> params = op.getOwnedParameters();
-			final Operation childOp = instrContext.getOperation(op.getName(), getParameterNames(params), getParameterTypes(params));
+			final Operation childOp = instrContext.getOperation(op.getName(), null, getParameterTypes(params));
 			if (childOp != null) {
 				op.setIsLeaf(false);
 			}
@@ -328,23 +328,11 @@ public class AddInstructionDependenciesVisitor extends AccessContextVisitor {
 			//TODO WARNING: this only works correctly if the entire class hierarchy is known!
 			//Inheritance links between inferred classes are typically missing!
 			final EList<Parameter> params = op.getOwnedParameters();
-			final Operation childOp = instrContext.getOperation(op.getName(), getParameterNames(params), getParameterTypes(params));
+			final Operation childOp = instrContext.getOperation(op.getName(), null, getParameterTypes(params));
 			if (childOp != null) {
 				op.setIsLeaf(false);
 			}
 		}
-	}
-
-	/**
-	 * @param parameters
-	 * @return An {@link EList} of the names of each {@link Parameter} in parameters.
-	 */
-	private EList<String> getParameterNames(final EList<Parameter> parameters) {
-		final EList<String> names = new BasicEList<String>();
-		for (Parameter par : parameters) {
-			names.add(par.getName());
-		}
-		return names;
 	}
 
 	/**

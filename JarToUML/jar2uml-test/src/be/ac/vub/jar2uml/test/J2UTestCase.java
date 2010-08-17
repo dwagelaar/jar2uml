@@ -17,10 +17,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
-import java.util.logging.Level;
 
 import junit.framework.Assert;
 
+import org.apache.bcel.classfile.ClassFormatException;
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.JavaClass;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -211,15 +213,6 @@ public abstract class J2UTestCase extends EMFTestCase {
 	}
 
 	/**
-	 * Handles a caught exception
-	 * @param e
-	 */
-	public static void handle(Exception e) {
-		JarToUML.logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		fail(e.getLocalizedMessage());
-	}
-
-	/**
 	 * Loads a UML Model from the given EMF uri.
 	 * @param uri
 	 * @return The (first) root Model in the loaded resource, if any, <code>null</code> otherwise.
@@ -350,6 +343,18 @@ public abstract class J2UTestCase extends EMFTestCase {
 	protected void tearDown() throws Exception {
 		JarToUML.logger.info("starting teardown");
 		super.tearDown();
+	}
+
+	/**
+	 * @param clazz
+	 * @return the parsed test class
+	 * @throws ClassFormatException
+	 * @throws IOException
+	 */
+	protected JavaClass getTestClass(Class<?> clazz) throws ClassFormatException, IOException {
+		final ClassParser parser = new ClassParser(
+				getClassContents(clazz), classFilePath(clazz));
+		return parser.parse();
 	}
 
 }
