@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: be.ac.vub.jar2uml.test
-Bundle-Version: 1.1.8
+Bundle-Version: 1.1.9
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: be.ac.vub.jar2uml;bundle-version="1.1.3",
