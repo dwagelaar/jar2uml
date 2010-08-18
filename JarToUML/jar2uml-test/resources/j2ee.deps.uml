@@ -3056,7 +3056,7 @@
     </packagedElement>
     <packagedElement xmi:type="uml:Package" xmi:id="_fdMhsaa-Ed-bSItM7Y7YFQ" name="io">
       <packagedElement xmi:type="uml:Class" xmi:id="_fdNIwaa-Ed-bSItM7Y7YFQ" name="ObjectInputStream">
-        <nestedClassifier xmi:type="uml:Class" xmi:id="_g98iw6a-Ed-bSItM7Y7YFQ" name="GetField" isLeaf="true" isAbstract="true">
+        <nestedClassifier xmi:type="uml:Class" xmi:id="_g98iw6a-Ed-bSItM7Y7YFQ" name="GetField" isAbstract="true">
           <ownedOperation xmi:id="_aNBzIaa_Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="protected" isLeaf="true"/>
         </nestedClassifier>
         <ownedOperation xmi:id="_hiZ6sKa-Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="public" isLeaf="true">
@@ -7029,7 +7029,7 @@
         <ownedAttribute xmi:id="_Z1_zMKa_Ed-bSItM7Y7YFQ" name="appRandom" visibility="protected" isLeaf="true" type="_f4bsMqa-Ed-bSItM7Y7YFQ" isReadOnly="true"/>
         <ownedOperation xmi:id="_Z2ilxqa_Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="protected" isLeaf="true"/>
       </packagedElement>
-      <packagedElement xmi:type="uml:Class" xmi:id="_g0fExKa-Ed-bSItM7Y7YFQ" name="Provider" isLeaf="true" isAbstract="true">
+      <packagedElement xmi:type="uml:Class" xmi:id="_g0fExKa-Ed-bSItM7Y7YFQ" name="Provider" isAbstract="true">
         <ownedOperation xmi:id="_Z2dGNqa_Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="protected" isLeaf="true">
           <ownedParameter xmi:id="_Z2dGN6a_Ed-bSItM7Y7YFQ" name="arg0" type="_fc8DAKa-Ed-bSItM7Y7YFQ"/>
           <ownedParameter xmi:id="_Z2dGOKa_Ed-bSItM7Y7YFQ" name="arg1" type="_frKFMaa-Ed-bSItM7Y7YFQ"/>
@@ -9165,7 +9165,7 @@
           </ownedOperation>
           <ownedOperation xmi:id="_acRwEKa_Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="protected"/>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_hEmkYKa-Ed-bSItM7Y7YFQ" name="Context" isLeaf="true" isAbstract="true">
+        <packagedElement xmi:type="uml:Class" xmi:id="_hEmkYKa-Ed-bSItM7Y7YFQ" name="Context" isAbstract="true">
           <ownedOperation xmi:id="_acNepKa_Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="protected" isLeaf="true"/>
           <ownedOperation xmi:id="_apV7sKa_Ed-bSItM7Y7YFQ" name="get_values" visibility="public" isLeaf="true" isAbstract="true">
             <ownedParameter xmi:id="_apV7saa_Ed-bSItM7Y7YFQ" name="arg0" type="_fc8DAKa-Ed-bSItM7Y7YFQ"/>
@@ -9174,7 +9174,7 @@
             <ownedParameter xmi:id="_apV7tKa_Ed-bSItM7Y7YFQ" name="return" type="_hEG1IKa-Ed-bSItM7Y7YFQ" direction="return"/>
           </ownedOperation>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_hEmkYqa-Ed-bSItM7Y7YFQ" name="ContextList" isLeaf="true" isAbstract="true">
+        <packagedElement xmi:type="uml:Class" xmi:id="_hEmkYqa-Ed-bSItM7Y7YFQ" name="ContextList" isAbstract="true">
           <ownedOperation xmi:id="_acPT0qa_Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="protected" isLeaf="true"/>
           <ownedOperation xmi:id="_apUtkqa_Ed-bSItM7Y7YFQ" name="count" visibility="public" isLeaf="true" isAbstract="true">
             <ownedParameter xmi:id="_apUtk6a_Ed-bSItM7Y7YFQ" name="return" type="_ffEJ8aa-Ed-bSItM7Y7YFQ" direction="return"/>
@@ -9192,7 +9192,7 @@
             <ownedParameter xmi:id="_acvqJKa_Ed-bSItM7Y7YFQ" name="arg0" type="_hEzYsKa-Ed-bSItM7Y7YFQ"/>
           </ownedOperation>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_hEzYsKa-Ed-bSItM7Y7YFQ" name="ServerRequest" isLeaf="true" isAbstract="true">
+        <packagedElement xmi:type="uml:Class" xmi:id="_hEzYsKa-Ed-bSItM7Y7YFQ" name="ServerRequest" isAbstract="true">
           <ownedOperation xmi:id="_ac1wyKa_Ed-bSItM7Y7YFQ" name="&lt;init>" visibility="protected" isLeaf="true"/>
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_hHzpYKa-Ed-bSItM7Y7YFQ" name="NO_RESOURCES" isLeaf="true">

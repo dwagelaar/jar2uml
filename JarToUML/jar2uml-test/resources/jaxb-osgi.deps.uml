@@ -1995,7 +1995,7 @@
         </eAnnotations>
       </packagedElement>
       <packagedElement xmi:type="uml:Interface" xmi:id="_TQeIIKaoEd-JRPPqIhuM1Q" name="Cloneable" isAbstract="true"/>
-      <packagedElement xmi:type="uml:Class" xmi:id="_TVOFQqaoEd-JRPPqIhuM1Q" name="Number" isLeaf="true" isAbstract="true">
+      <packagedElement xmi:type="uml:Class" xmi:id="_TVOFQqaoEd-JRPPqIhuM1Q" name="Number" isAbstract="true">
         <ownedOperation xmi:id="_VZitc6aoEd-JRPPqIhuM1Q" name="&lt;init>" visibility="protected" isLeaf="true"/>
         <ownedOperation xmi:id="_VZkioKaoEd-JRPPqIhuM1Q" name="longValue" visibility="public" isLeaf="true" isAbstract="true">
           <ownedParameter xmi:id="_VZkioaaoEd-JRPPqIhuM1Q" name="return" type="_Sc2S0KaoEd-JRPPqIhuM1Q" direction="return"/>
