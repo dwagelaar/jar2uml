@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.uml2.common.util.UML2Util;
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Comment;
 import org.eclipse.uml2.uml.Element;
@@ -251,6 +252,24 @@ public final class JarToUML implements Runnable {
 	}
 
 	/**
+	 * Finds the {@link Comment} owned by element that contains the comment string.
+	 * The {@link Comment} is created if necessary.
+	 * @param element
+	 * @param comment
+	 * @return the {@link Comment} owned by element containing the comment string
+	 */
+	public static Comment getOwnedComment(Element element, String comment) {
+		for (Comment c : element.getOwnedComments()) {
+			if (comment.equals(c.getBody())) {
+				return c;
+			}
+		}
+		final Comment c = element.createOwnedComment();
+		c.setBody(comment);
+		return c;
+	}
+
+	/**
 	 * Reports e via the logger
 	 * @param e
 	 */
@@ -280,6 +299,7 @@ public final class JarToUML implements Runnable {
 	private boolean runComplete = false;
 	private long jobStartTime;
 	private boolean includeComment = true;
+	private boolean updateExistingFile;
 
 	/**
 	 * Performs the actual jar to UML conversion.
@@ -296,13 +316,30 @@ public final class JarToUML implements Runnable {
 			// 1
 			//
 			subTask(monitor, JarToUMLResources.getString("JarToUML.creatingUML")); //$NON-NLS-1$
-			final ResourceSet resourceSet = createResourceSet();
-			final Resource res = resourceSet.createResource(URI.createURI(getOutputFile()));
-			assert res != null : String.format(JarToUMLResources.getString("JarToUML.nullRes"), getOutputFile()); //$NON-NLS-1$
-			setModel(UMLFactory.eINSTANCE.createModel());
+			if (getModel() == null) {
+				final ResourceSet resourceSet = createResourceSet();
+				final Resource res;
+				if (isUpdateExistingFile()) {
+					res = resourceSet.getResource(URI.createURI(getOutputFile()), true);
+					if (res == null) {
+						throw new IOException(String.format(JarToUMLResources.getString("JarToUML.nullRes"), getOutputFile())); //$NON-NLS-1$
+					}
+					setModel((Model) UML2Util.load(resourceSet, URI.createURI(getOutputFile()), UMLPackage.eINSTANCE.getModel()));
+				} else {
+					res = resourceSet.createResource(URI.createURI(getOutputFile()));
+					if (res == null) {
+						throw new IOException(String.format(JarToUMLResources.getString("JarToUML.nullRes"), getOutputFile())); //$NON-NLS-1$
+					}
+				}
+				if (getModel() == null) {
+					final Model newModel = UMLFactory.eINSTANCE.createModel();
+					res.getContents().add(newModel);
+					newModel.setName(getOutputModelName());
+					setModel(newModel);
+				}
+			}
 			final Model model = getModel();
-			res.getContents().add(model);
-			getModel().setName(getOutputModelName());
+			assert model != null;
 			worked(monitor, JarToUMLResources.getString("JarToUML.createdUML")); //$NON-NLS-1$
 			//
 			// 2
@@ -394,24 +431,21 @@ public final class JarToUML implements Runnable {
 			// 6
 			//
 			subTask(monitor, JarToUMLResources.getString("JarToUML.removingEmpty")); //$NON-NLS-1$
-			removeFromModel.removeEmptyPackages(getModel());
+			removeFromModel.removeEmptyPackages(model);
 			worked(monitor, JarToUMLResources.getString("JarToUML.removedEmpty")); //$NON-NLS-1$
 			//
 			// 7
 			//
 			subTask(monitor, JarToUMLResources.getString("JarToUML.addingMetadata")); //$NON-NLS-1$
 			if (isIncludeComment()) {
-				Comment comment = getModel().createOwnedComment();
-				comment.setBody(String.format(
+				getOwnedComment(model, String.format(
 						JarToUMLResources.getString("JarToUML.generatedBy"), 
 						JarToUMLPlugin.getPlugin().getBundle().getVersion(),
 						getInputList())); //$NON-NLS-1$
 			}
-			EAnnotation ann = getModel().createEAnnotation("Jar2UML"); //$NON-NLS-1$
-			EMap<String,String> details = ann.getDetails();
-			details.put("majorBytecodeFormatVersion", String.valueOf(parseClasses.getMajorFormatVersion())); //$NON-NLS-1$
-			details.put("minorBytecodeFormatVersion", String.valueOf(parseClasses.getMinorFormatVersion())); //$NON-NLS-1$
-			details.put("preverified", String.valueOf(addProperties.isPreverified())); //$NON-NLS-1$
+			annotate(model, "majorBytecodeFormatVersion", String.valueOf(parseClasses.getMajorFormatVersion())); //$NON-NLS-1$
+			annotate(model, "minorBytecodeFormatVersion", String.valueOf(parseClasses.getMinorFormatVersion())); //$NON-NLS-1$
+			annotate(model, "preverified", String.valueOf(addProperties.isPreverified())); //$NON-NLS-1$
 			worked(monitor, JarToUMLResources.getString("JarToUML.addedMetadata"));
 			setRunComplete(true);
 		} catch (OperationCanceledException e) {
@@ -566,9 +600,10 @@ public final class JarToUML implements Runnable {
 
 	/**
 	 * Sets the UML model to store generated elements in.
+	 * Overrides {@link #setOutputFile(String)} and {@link #setOutputModelName(String)}.
 	 * @param model
 	 */
-	protected void setModel(Model model) {
+	public void setModel(Model model) {
 		this.model = model;
 	}
 
@@ -888,6 +923,20 @@ public final class JarToUML implements Runnable {
 	 */
 	public void setIncludeComment(boolean includeComment) {
 		this.includeComment = includeComment;
+	}
+
+	/**
+	 * @return the updateExistingFile
+	 */
+	public boolean isUpdateExistingFile() {
+		return updateExistingFile;
+	}
+
+	/**
+	 * @param updateExistingFile the updateExistingFile to set
+	 */
+	public void setUpdateExistingFile(boolean updateExistingFile) {
+		this.updateExistingFile = updateExistingFile;
 	}
 
 }

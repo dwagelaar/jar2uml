@@ -89,6 +89,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 			if (ops != null) {
 				umlClass.getOwnedOperations().addAll(ops);
 			}
+			umlClass.setIsAbstract(isAbstract);
 			umlClass.setIsLeaf(isLeaf);
 			return super.caseClass(umlClass);
 		}
@@ -103,6 +104,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 			if (ops != null) {
 				umlIface.getOwnedOperations().addAll(ops);
 			}
+			umlIface.setIsAbstract(isAbstract);
 			//Java interfaces cannot be final
 			return super.caseInterface(umlIface);
 		}
@@ -114,6 +116,7 @@ public class ReplaceByClassifierSwitch extends UMLSwitch<Classifier> {
 			if (ops != null) {
 				dataType.getOwnedOperations().addAll(ops);
 			}
+			dataType.setIsAbstract(isAbstract);
 			dataType.setIsLeaf(isLeaf);
 			return super.caseDataType(dataType);
 		}

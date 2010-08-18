@@ -89,6 +89,16 @@
             <ownedOperation xmi:id="_7IFcEKo6Ed-Gt43D3CZvzA" name="isLeaf" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7IFcEao6Ed-Gt43D3CZvzA" name="return" type="_69FtAqo6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
+            <ownedOperation xmi:id="_YrG7MKriEd-02e0YKMuErw" name="getInterfaceRealization" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_YrG7MariEd-02e0YKMuErw" name="arg0" type="_69ri4ao6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_YrG7MqriEd-02e0YKMuErw" name="arg1" type="_69ptsKo6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_YrG7M6riEd-02e0YKMuErw" name="arg2" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_YrHiQKriEd-02e0YKMuErw" name="arg3" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_YrHiQariEd-02e0YKMuErw" name="return" type="_7F6R2ao6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_Y5xCQKriEd-02e0YKMuErw" name="setIsAbstract" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Y5xCQariEd-02e0YKMuErw" name="arg0" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
+            </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:Interface" xmi:id="_69ptsKo6Ed-Gt43D3CZvzA" name="Interface" isAbstract="true">
             <ownedOperation xmi:id="_7F6456o6Ed-Gt43D3CZvzA" name="createGeneralization" visibility="public" isLeaf="true" isAbstract="true">
@@ -133,6 +143,14 @@
             </ownedOperation>
             <ownedOperation xmi:id="_7IGDIKo6Ed-Gt43D3CZvzA" name="isAbstract" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7IGDIao6Ed-Gt43D3CZvzA" name="return" type="_69FtAqo6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_YrJXcKriEd-02e0YKMuErw" name="getGeneralization" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_YrJ-gKriEd-02e0YKMuErw" name="arg0" type="_698Bkao6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_YrJ-gariEd-02e0YKMuErw" name="arg1" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_YrJ-gqriEd-02e0YKMuErw" name="return" type="_6-RYwKo6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_Y5y3cKriEd-02e0YKMuErw" name="setIsAbstract" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Y5zegKriEd-02e0YKMuErw" name="arg0" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
             </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:Interface" xmi:id="_69ri4Ko6Ed-Gt43D3CZvzA" name="Operation" isAbstract="true">
@@ -215,6 +233,9 @@
             <ownedOperation xmi:id="_7IGDJ6o6Ed-Gt43D3CZvzA" name="isLeaf" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7IGqMKo6Ed-Gt43D3CZvzA" name="return" type="_69FtAqo6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
+            <ownedOperation xmi:id="_Y51TsKriEd-02e0YKMuErw" name="setIsAbstract" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Y51TsariEd-02e0YKMuErw" name="arg0" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
+            </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:Interface" xmi:id="_694XMKo6Ed-Gt43D3CZvzA" name="Property" isAbstract="true">
             <ownedOperation xmi:id="_7GHtMqo6Ed-Gt43D3CZvzA" name="setIsLeaf" visibility="public" isLeaf="true" isAbstract="true">
@@ -243,6 +264,9 @@
             </ownedOperation>
             <ownedOperation xmi:id="_7Gv_Vqo6Ed-Gt43D3CZvzA" name="getClassifier" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7Gv_V6o6Ed-Gt43D3CZvzA" name="return" type="_6-HAs6o6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_Y1Sx8KriEd-02e0YKMuErw" name="getModel" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Y1Sx8ariEd-02e0YKMuErw" name="return" type="_6-HAs6o6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:Interface" xmi:id="_698Bkao6Ed-Gt43D3CZvzA" name="Classifier" isAbstract="true">
@@ -295,6 +319,11 @@
             </ownedOperation>
             <ownedOperation xmi:id="_7IGqNqo6Ed-Gt43D3CZvzA" name="isLeaf" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7IGqN6o6Ed-Gt43D3CZvzA" name="return" type="_69FtAqo6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_Yt0Q8KriEd-02e0YKMuErw" name="getGeneralization" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Yt0Q8ariEd-02e0YKMuErw" name="arg0" type="_698Bkao6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_Yt0Q8qriEd-02e0YKMuErw" name="arg1" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
+              <ownedParameter xmi:id="_Yt0Q86riEd-02e0YKMuErw" name="return" type="_6-RYwKo6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:DataType" xmi:id="_69_E5Ko6Ed-Gt43D3CZvzA" name="PackageableElement" isLeaf="true" isAbstract="true"/>
@@ -371,6 +400,12 @@
             <ownedOperation xmi:id="_7HKPCKo6Ed-Gt43D3CZvzA" name="getEAnnotations" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7HKPCao6Ed-Gt43D3CZvzA" name="return" type="_69qUxKo6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
+            <ownedOperation xmi:id="_Y0uKMKriEd-02e0YKMuErw" name="getOwnedComments" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Y0uKMariEd-02e0YKMuErw" name="return" type="_69qUxKo6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_Y0uxQKriEd-02e0YKMuErw" name="createOwnedComment" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Y0uxQariEd-02e0YKMuErw" name="return" type="_6-dmBKo6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:Interface" xmi:id="_6-Qxs6o6Ed-Gt43D3CZvzA" name="Dependency" isAbstract="true">
             <ownedOperation xmi:id="_7G5wVqo6Ed-Gt43D3CZvzA" name="getSuppliers" visibility="public" isLeaf="true" isAbstract="true">
@@ -430,8 +465,23 @@
             <ownedOperation xmi:id="_7HUAB6o6Ed-Gt43D3CZvzA" name="setBody" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7HUACKo6Ed-Gt43D3CZvzA" name="arg0" type="_69ri4ao6Ed-Gt43D3CZvzA"/>
             </ownedOperation>
+            <ownedOperation xmi:id="_Y0vYUKriEd-02e0YKMuErw" name="getBody" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_Y0v_YKriEd-02e0YKMuErw" name="return" type="_69ri4ao6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:DataType" xmi:id="_7F6R2ao6Ed-Gt43D3CZvzA" name="InterfaceRealization" isLeaf="true" isAbstract="true"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Package" xmi:id="_YZcjcKriEd-02e0YKMuErw" name="common">
+          <packagedElement xmi:type="uml:Package" xmi:id="_YZcjcariEd-02e0YKMuErw" name="util">
+            <packagedElement xmi:type="uml:Class" xmi:id="_YZdKgKriEd-02e0YKMuErw" name="UML2Util" isLeaf="true" isAbstract="true">
+              <ownedOperation xmi:id="_Y1TZAKriEd-02e0YKMuErw" name="load" isLeaf="true" isStatic="true">
+                <ownedParameter xmi:id="_Y1TZAariEd-02e0YKMuErw" name="arg0" type="_6-XfY6o6Ed-Gt43D3CZvzA"/>
+                <ownedParameter xmi:id="_Y1TZAqriEd-02e0YKMuErw" name="arg1" type="_6-cX4ao6Ed-Gt43D3CZvzA"/>
+                <ownedParameter xmi:id="_Y1UAEKriEd-02e0YKMuErw" name="arg2" type="_6-HAs6o6Ed-Gt43D3CZvzA"/>
+                <ownedParameter xmi:id="_Y1UAEariEd-02e0YKMuErw" name="return" type="_6-EkcKo6Ed-Gt43D3CZvzA" direction="return"/>
+              </ownedOperation>
+            </packagedElement>
+          </packagedElement>
         </packagedElement>
       </packagedElement>
       <packagedElement xmi:type="uml:Package" xmi:id="_69pttKo6Ed-Gt43D3CZvzA" name="emf">
@@ -535,6 +585,11 @@
               <ownedOperation xmi:id="_7HPukKo6Ed-Gt43D3CZvzA" name="createResource" visibility="public" isLeaf="true" isAbstract="true">
                 <ownedParameter xmi:id="_7HPukao6Ed-Gt43D3CZvzA" name="arg0" type="_6-cX4ao6Ed-Gt43D3CZvzA"/>
                 <ownedParameter xmi:id="_7HPukqo6Ed-Gt43D3CZvzA" name="return" type="_6-VqNqo6Ed-Gt43D3CZvzA" direction="return"/>
+              </ownedOperation>
+              <ownedOperation xmi:id="_Y1PHkKriEd-02e0YKMuErw" name="getResource" visibility="public" isLeaf="true" isAbstract="true">
+                <ownedParameter xmi:id="_Y1PuoKriEd-02e0YKMuErw" name="arg0" type="_6-cX4ao6Ed-Gt43D3CZvzA"/>
+                <ownedParameter xmi:id="_Y1PuoariEd-02e0YKMuErw" name="arg1" type="_69FtAqo6Ed-Gt43D3CZvzA"/>
+                <ownedParameter xmi:id="_Y1PuoqriEd-02e0YKMuErw" name="return" type="_6-VqNqo6Ed-Gt43D3CZvzA" direction="return"/>
               </ownedOperation>
             </packagedElement>
           </packagedElement>
@@ -706,6 +761,9 @@
             <ownedOperation xmi:id="_7K8i0Ko6Ed-Gt43D3CZvzA" name="getFullPath" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7K8i0ao6Ed-Gt43D3CZvzA" name="return" type="_6-mI4Ko6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
+            <ownedOperation xmi:id="_ZBmvoKriEd-02e0YKMuErw" name="exists" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_ZBmvoariEd-02e0YKMuErw" name="return" type="_69FtAqo6Ed-Gt43D3CZvzA" direction="return"/>
+            </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:DataType" xmi:id="_7HyhI6o6Ed-Gt43D3CZvzA" name="IResource[]" isLeaf="true" isAbstract="true">
             <eAnnotations xmi:id="_7XJy6Ko6Ed-Gt43D3CZvzA" source="Jar2UML">
@@ -780,6 +838,12 @@
             <ownedOperation xmi:id="_7K44dKo6Ed-Gt43D3CZvzA" name="&lt;init>" visibility="protected" isLeaf="true">
               <ownedParameter xmi:id="_7K44dao6Ed-Gt43D3CZvzA" name="arg0" type="_69ri4ao6Ed-Gt43D3CZvzA"/>
               <ownedParameter xmi:id="_7K44dqo6Ed-Gt43D3CZvzA" name="arg1" type="_7ATZF6o6Ed-Gt43D3CZvzA"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_ZBjFQKriEd-02e0YKMuErw" name="setFileName" visibility="protected">
+              <ownedParameter xmi:id="_ZBjFQariEd-02e0YKMuErw" name="arg0" type="_69ri4ao6Ed-Gt43D3CZvzA"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_ZBmvoqriEd-02e0YKMuErw" name="validatePage" visibility="protected">
+              <ownedParameter xmi:id="_ZBmvo6riEd-02e0YKMuErw" name="return" type="_69FtAqo6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
           </packagedElement>
         </packagedElement>
@@ -922,6 +986,9 @@
             </ownedOperation>
             <ownedOperation xmi:id="_7LNBhqo6Ed-Gt43D3CZvzA" name="addSelectionListener" visibility="public" isLeaf="true" isAbstract="true">
               <ownedParameter xmi:id="_7LNBh6o6Ed-Gt43D3CZvzA" name="arg0" type="_7LNBhao6Ed-Gt43D3CZvzA"/>
+            </ownedOperation>
+            <ownedOperation xmi:id="_ZBQxYKriEd-02e0YKMuErw" name="getEnabled" visibility="public" isLeaf="true" isAbstract="true">
+              <ownedParameter xmi:id="_ZBQxYariEd-02e0YKMuErw" name="return" type="_69FtAqo6Ed-Gt43D3CZvzA" direction="return"/>
             </ownedOperation>
           </packagedElement>
           <packagedElement xmi:type="uml:Class" xmi:id="_7AYRm6o6Ed-Gt43D3CZvzA" name="Event" isLeaf="true" isAbstract="true">

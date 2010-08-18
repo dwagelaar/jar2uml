@@ -45,7 +45,7 @@ public class AddClassifierInterfaceSwitch extends UMLSwitch<DirectedRelationship
 	public DirectedRelationship caseClass(Class umlClass) {
 		Interface iface = getIface();
 		assert iface != null;
-		return umlClass.createInterfaceRealization(null, (Interface) iface);
+		return umlClass.getInterfaceRealization(null, iface, false, true);
 	}
 
 	/*
@@ -56,7 +56,7 @@ public class AddClassifierInterfaceSwitch extends UMLSwitch<DirectedRelationship
 	public DirectedRelationship caseInterface(Interface umlIface) {
 		Interface iface = getIface();
 		assert iface != null;
-		return umlIface.createGeneralization(iface);
+		return umlIface.getGeneralization(iface, true);
 	}
 
 }
