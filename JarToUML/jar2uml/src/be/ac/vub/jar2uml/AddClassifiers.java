@@ -169,8 +169,9 @@ public class AddClassifiers extends AddToModel {
 			if (!(iface instanceof Interface)) {
 				replaceByClassifier.setClassifier(iface);
 				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getInterface());
-				iface = (Classifier) replaceByClassifier.doSwitch(iface.getOwner());
+				iface = replaceByClassifier.doSwitch(iface.getOwner());
 			}
+			assert iface instanceof Interface;
 			iface.setIsLeaf(false);
 		}
 	}
@@ -186,8 +187,9 @@ public class AddClassifiers extends AddToModel {
 			if (!(superClass instanceof Class)) {
 				replaceByClassifier.setClassifier(superClass);
 				replaceByClassifier.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-				replaceByClassifier.doSwitch(superClass.getOwner());
+				superClass = replaceByClassifier.doSwitch(superClass.getOwner());
 			}
+			assert superClass instanceof Class;
 			superClass.setIsLeaf(false);
 		}
 	}
@@ -224,10 +226,8 @@ public class AddClassifiers extends AddToModel {
 		if (!classifier.getQualifiedName().endsWith("java::lang::Object")) { //$NON-NLS-1$
 			Classifier superClass = findContainedClassifier.findClassifier(
 					getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
-			if (superClass != null) {
-				assert superClass instanceof Class;
-				classifier.createGeneralization(superClass);
-			}
+			assert superClass instanceof Class;
+			classifier.getGeneralization(superClass, true);
 		}
 	}
 
