@@ -1573,7 +1573,7 @@
           <ownedParameter xmi:id="_4-9vZqZIEd-Aet8qJO4yMA" name="arg0" type="_29QWU6ZIEd-Aet8qJO4yMA"/>
         </ownedOperation>
       </packagedElement>
-      <packagedElement xmi:type="uml:Class" xmi:id="_3sYGJKZIEd-Aet8qJO4yMA" name="Number" isLeaf="true" isAbstract="true">
+      <packagedElement xmi:type="uml:Class" xmi:id="_3sYGJKZIEd-Aet8qJO4yMA" name="Number" isAbstract="true">
         <ownedOperation xmi:id="_6LnIsKZIEd-Aet8qJO4yMA" name="longValue" visibility="public" isLeaf="true" isAbstract="true">
           <ownedParameter xmi:id="_6LnIsaZIEd-Aet8qJO4yMA" name="return" type="_29ME4aZIEd-Aet8qJO4yMA" direction="return"/>
         </ownedOperation>
