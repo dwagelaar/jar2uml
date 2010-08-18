@@ -29,9 +29,11 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.Diagnostic;
@@ -103,7 +105,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @throws CoreException
 	 * @throws IOException
 	 */
-	public static IFile copyClassToJavaProject(Class<?> clazz, IProject project)
+	public static IFile copyClassToJavaProject(final Class<?> clazz, final IProject project)
 	throws CoreException, IOException {
 		String path = classFilePath(clazz);
 		JarToUML.logger.info("copying class file: " + path);
@@ -111,12 +113,20 @@ public abstract class J2UTestCase extends EMFTestCase {
 		IPath outPath = jproject.getOutputLocation();
 		JarToUML.logger.info("class file path: " + outPath);
 		IPath classFilePath = outPath.append(path);
-		IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
-		if (!classFile.exists()) {
-			createPath((IFolder) classFile.getParent());
-			classFile.create(getClassContents(clazz), true, null);
-			JarToUML.logger.info("created file: " + classFile);
-		}
+		final IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
+		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				if (!classFile.exists()) {
+					createPath((IFolder) classFile.getParent());
+					try {
+						classFile.create(getClassContents(clazz), true, null);
+						JarToUML.logger.info("created file: " + classFile);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}, null);
 		return classFile;
 	}
 
@@ -176,16 +186,20 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @return A new project with the Java project nature.
 	 * @throws CoreException
 	 */
-	public static IProject createJavaProject(String name) throws CoreException {
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
-		if (!project.exists()) {
-			project.create(null);
-			project.open(null);
-			IProjectDescription description = project.getDescription();
-			String natures[] = new String[] { "org.eclipse.jdt.core.javanature" };
-			description.setNatureIds(natures);
-			project.setDescription(description, null);
-		}
+	public static IProject createJavaProject(final String name) throws CoreException {
+		final IProject project = getProject(name);
+		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				if (!project.exists()) {
+					project.create(null);
+					project.open(null);
+					IProjectDescription description = project.getDescription();
+					String natures[] = new String[] { "org.eclipse.jdt.core.javanature" };
+					description.setNatureIds(natures);
+					project.setDescription(description, null);
+				}
+			}
+		}, null);
 		return project;
 	}
 
