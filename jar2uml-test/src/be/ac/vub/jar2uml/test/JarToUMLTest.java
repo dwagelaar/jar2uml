@@ -418,53 +418,66 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		// test run on Java test project
 		//
-		testRunProject(false);
-		testRunProject(true);
+		testRunProject(false, false);
+		testRunProject(false, true);
+		testRunProject(true, false);
+		testRunProject(true, true);
 		//
 		// test run on ambienttalk jars
 		//
-		final Model atModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+		final Model atModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile}, false);
 		final Model atRefModel = loadModelFromUri(atModelUri);
 		assertEquals(atModel.eResource(), atRefModel.eResource());
-		final Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile});
+		final Model atAgainModel = testRunJar(false, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile}, true);
+		assertEquals(atAgainModel.eResource(), atRefModel.eResource());
+		final Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile}, false);
 		final Model atRefDepsModel = loadModelFromUri(atDepsModelUri);
 		JarToUML.logger.info(atDepsModel.eResource().getContents().toString());
 		JarToUML.logger.info(atRefDepsModel.eResource().getContents().toString());
 		assertEquals(atDepsModel.eResource(), atRefDepsModel.eResource());
+		final Model atAgainDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile}, true);
+		assertEquals(atAgainDepsModel.eResource(), atRefDepsModel.eResource());
 		//
 		// test run on platformkit servlet war
 		//
-		final Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{});
+		final Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{}, false);
 		final Model pksRefDepsModel = loadModelFromUri(pkServletDepsUri);
 		JarToUML.logger.info(pksDepsModel.eResource().getContents().toString());
 		JarToUML.logger.info(pksRefDepsModel.eResource().getContents().toString());
 		assertEquals(pksDepsModel.eResource(), pksRefDepsModel.eResource());
+		final Model pksAgainDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{}, true);
+		assertEquals(pksAgainDepsModel.eResource(), pksRefDepsModel.eResource());
 		//
 		// test run on jaxb-osgi.jar
 		//
-		final Model jaxbOsgiDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{});
+		final Model jaxbOsgiDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{}, false);
 		final Model jaxbOsgiRefDepsModel = loadModelFromUri(jaxbOsgiDepsUri);
 		JarToUML.logger.info(jaxbOsgiDepsModel.eResource().getContents().toString());
 		JarToUML.logger.info(jaxbOsgiRefDepsModel.eResource().getContents().toString());
 		assertEquals(jaxbOsgiDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
+		final Model jaxbOsgiAgainDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{}, true);
+		assertEquals(jaxbOsgiAgainDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
 		//
 		// test run on j2ee.jar
 		//
-		final Model j2eeDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{});
+		final Model j2eeDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{}, false);
 		final Model j2eeRefDepsModel = loadModelFromUri(j2eeDepsUri);
 		JarToUML.logger.info(j2eeDepsModel.eResource().getContents().toString());
 		JarToUML.logger.info(j2eeRefDepsModel.eResource().getContents().toString());
 		assertEquals(j2eeDepsModel.eResource(), j2eeRefDepsModel.eResource());
+		final Model j2eeAgainDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{}, true);
+		assertEquals(j2eeAgainDepsModel.eResource(), j2eeRefDepsModel.eResource());
 	}
 
 	/**
 	 * Test run on Java test project.
 	 * @param depsOnly
+	 * @param updateExisting whether to update an existing model
 	 * @return The generated model.
 	 * @throws JavaModelException
 	 * @throws IOException
 	 */
-	private Model testRunProject(boolean depsOnly) throws JavaModelException, IOException {
+	private Model testRunProject(boolean depsOnly, boolean updateExisting) throws JavaModelException, IOException {
 		IProject project = getProject(javatestProject);
 		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 		JarToUML jar2uml = new JarToUML();
@@ -478,6 +491,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		jar2uml.setDependenciesOnly(depsOnly);
 		jar2uml.setOutputFile("platform:/resource/" + javatestProject + "/" + javatestProject + ".uml");
 		jar2uml.setOutputModelName(javatestProject);
+		jar2uml.setUpdateExistingFile(updateExisting);
 		assertFalse(jar2uml.isRunComplete());
 		jar2uml.run();
 		assertTrue(jar2uml.isRunComplete());
@@ -493,10 +507,11 @@ public final class JarToUMLTest extends J2UTestCase {
 	 * @param depsOnly
 	 * @param jarFiles
 	 * @param cpJarFiles
+	 * @param updateExisting whether to update an existing model
 	 * @return The generated model.
 	 * @throws IOException
 	 */
-	private Model testRunJar(boolean depsOnly, IFile[] jarFiles, IFile[] cpJarFiles) throws IOException {
+	private Model testRunJar(boolean depsOnly, IFile[] jarFiles, IFile[] cpJarFiles, boolean updateExisting) throws IOException {
 		JarToUML jar2uml = new JarToUML();
 		for (IFile file : jarFiles) {
 			jar2uml.addJar(jarFile(file));
@@ -517,6 +532,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		}
 		jar2uml.setOutputFile("platform:/resource/" + javatestProject + "/" + outFileName + ".uml");
 		jar2uml.setOutputModelName(outFileName);
+		jar2uml.setUpdateExistingFile(updateExisting);
 		assertFalse(jar2uml.isRunComplete());
 		jar2uml.run();
 		assertTrue(jar2uml.isRunComplete());
