@@ -58,6 +58,9 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 
 	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
 	protected JarToUML jarToUML;
+	protected Button updateExistingModelBtn;
+
+	private boolean fileExists;
 
 	// cache of newly-created file
 	private IFile newFile;
@@ -90,6 +93,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	@Override
 	protected InputStream getInitialContents() {
 		jarToUML = new JarToUML();
+		jarToUML.setUpdateExistingFile(updateExistingModelBtn.getSelection() && updateExistingModelBtn.getEnabled());
 		return new ByteArrayInputStream(new byte[0]); // dummy input stream
 	}
 
@@ -99,7 +103,18 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected void createAdvancedControls(Composite parent) {
-		// do nothing
+		updateExistingModelBtn = 
+			createCheckbox(parent, JarToUMLResources.getString("AbstractImportWizardPage.updateExisting"), false); //$NON-NLS-1$
+		updateExistingModelBtn.setEnabled(isFileExists());
+	}
+
+	/**
+	 * @return the {@link IFile} handle to the file to be created
+	 */
+	protected IFile getFileHandle() {
+		final IPath containerPath = getContainerFullPath();
+		final IPath newFilePath = containerPath.append(getFileName());
+		return createFileHandle(newFilePath);
 	}
 
 	/**
@@ -114,8 +129,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 
 		// create the new file and cache it if successful
 		final IPath containerPath = getContainerFullPath();
-		final IPath newFilePath = containerPath.append(getFileName());
-		final IFile newFileHandle = createFileHandle(newFilePath);
+		final IFile newFileHandle = getFileHandle();
 		final InputStream initialContents = getInitialContents();
 
 		createLinkTarget();
@@ -206,7 +220,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	@Override
 	protected void createFile(IFile fileHandle, InputStream contents, IProgressMonitor monitor)
 	throws CoreException {
-		IPath path = fileHandle.getFullPath();
+		final IPath path = fileHandle.getFullPath();
 		jarToUML.setOutputFile(path.toString());
 		jarToUML.setOutputModelName(path.removeFileExtension().lastSegment());
 		jarToUML.setMonitor(monitor);
@@ -299,6 +313,44 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		IPath path = getContainerFullPath();
 		IJavaProject javaProject = JarToUML.getJavaProject(path);
 		jarToUML.addPaths(javaProject, includeWorkspaceReferences);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#setFileName(java.lang.String)
+	 */
+	@Override
+	public void setFileName(String value) {
+		super.setFileName(value);
+	}
+
+	/**
+	 * @return the fileExists
+	 */
+	public boolean isFileExists() {
+		return fileExists;
+	}
+
+	/**
+	 * @param fileExists the fileExists to set
+	 */
+	public void setFileExists(boolean fileExists) {
+		this.fileExists = fileExists;
+		if (updateExistingModelBtn != null) {
+			updateExistingModelBtn.setEnabled(fileExists);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#validatePage()
+	 */
+	@Override
+	protected boolean validatePage() {
+		try {
+			setFileExists(getFileHandle().exists());
+		} catch (Exception e) {
+			setFileExists(false);
+		}
+		return super.validatePage();
 	}
 
 }
