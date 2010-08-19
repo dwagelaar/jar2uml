@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -138,13 +139,12 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 			protected void execute(IProgressMonitor monitor)
 			throws CoreException {
 				try {
-					monitor.beginTask(JarToUMLResources.getString("AbstractImportWizardPage.taskName"), 1100); //$NON-NLS-1$
+					monitor.beginTask(JarToUMLResources.getString("AbstractImportWizardPage.taskName"), 100); //$NON-NLS-1$
 					ContainerGenerator generator = new ContainerGenerator(
 							containerPath);
 					generator.generateContainer(new SubProgressMonitor(monitor,
 							100));
-					createFile(newFileHandle, initialContents,
-							new SubProgressMonitor(monitor, 1000));
+					//postpone file creation to a background job
 				} finally {
 					monitor.done();
 				}
@@ -180,6 +180,37 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 			}
 			return null;
 		}
+
+		final WorkspaceJob job = new WorkspaceJob(JarToUMLResources.getString("AbstractImportWizardPage.taskName")) {
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) {
+				IStatus st;
+				try {
+					createFile(newFileHandle, initialContents, monitor);
+					st = new Status(
+							IStatus.OK, 
+							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
+							String.format(
+									JarToUMLResources.getString("AbstractImportWizardPage.taskCompleted"), 
+									getName())); //$NON-NLS-1$
+				} catch (OperationCanceledException e) {
+					st = Status.CANCEL_STATUS;
+				} catch (Exception e) {
+					JarToUMLPlugin.getPlugin().report(e);
+					st = new Status(
+							IStatus.ERROR, 
+							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
+							e.getLocalizedMessage(),
+							e);
+				} finally {
+					monitor.done();
+				}
+				return st;
+			}
+		}; //$NON-NLS-1$
+		job.setRule(getFileHandle().getProject()); //lock project
+		job.setUser(true);
+		job.schedule();
 
 		newFile = newFileHandle;
 
@@ -229,7 +260,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 			try {
 				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
 			} catch (IOException e) {
-				JarToUMLPlugin.getPlugin().report(e);
+				throw new RuntimeException(e);
 			}
 		}
 		jarToUML = null;
