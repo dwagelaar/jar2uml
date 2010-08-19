@@ -352,19 +352,30 @@ public final class JarToUML implements Runnable {
 			parseClasses.beginTask(
 					JarToUMLResources.getString("JarToUML.parsing"), 
 					ParseClasses.getJarWork(getJars()) + ParseClasses.getJarWork(getCpJars()) + ParseClasses.getPathWork(getPaths()) + ParseClasses.getPathWork(getCpPaths())); //$NON-NLS-1$
-			for (JarFile jar : getJars()) {
+			List<JarFile> jars = getJars();
+			List<IContainer> paths = getPaths();
+			List<JarFile> cpJars = getCpJars();
+			List<IContainer> cpPaths = getCpPaths();
+			//promote classpath entries to main entries if no main entries exist
+			if (jars.isEmpty() && paths.isEmpty()) {
+				jars = cpJars;
+				paths = cpPaths;
+				cpJars = Collections.emptyList();
+				cpPaths = Collections.emptyList();
+			}
+			for (JarFile jar : jars) {
 				parseClasses.parseClasses(jar, parsedClasses, parsedCpClasses);
 				checkCancelled(monitor);
 			}
-			for (IContainer path : getPaths()) {
+			for (IContainer path : paths) {
 				parseClasses.parseClasses(path, parsedClasses);
 				checkCancelled(monitor);
 			}
-			for (JarFile jar : getCpJars()) {
+			for (JarFile jar : cpJars) {
 				parseClasses.parseClasses(jar, parsedCpClasses, parsedCpClasses);
 				checkCancelled(monitor);
 			}
-			for (IContainer path : getCpPaths()) {
+			for (IContainer path : cpPaths) {
 				parseClasses.parseClasses(path, parsedCpClasses);
 				checkCancelled(monitor);
 			}
@@ -539,7 +550,14 @@ public final class JarToUML implements Runnable {
 	 */
 	private String getInputList() {
 		StringBuffer b = null;
-		for (JarFile jar : getJars()) {
+		List<JarFile> jars = getJars();
+		List<IContainer> paths = getPaths();
+		//promote classpath entries to main entries if no main entries exist
+		if (jars.isEmpty() && paths.isEmpty()) {
+			jars = getCpJars();
+			paths = getCpPaths();
+		}
+		for (JarFile jar : jars) {
 			if (b == null) {
 				b = new StringBuffer();
 			} else {
@@ -548,7 +566,7 @@ public final class JarToUML implements Runnable {
 			String jarName = jar.getName();
 			b.append(jarName.substring(jarName.lastIndexOf('/') + 1));	
 		}
-		for (IContainer path : getPaths()) {
+		for (IContainer path : paths) {
 			if (b == null) {
 				b = new StringBuffer();
 			} else {
@@ -556,7 +574,10 @@ public final class JarToUML implements Runnable {
 			}
 			b.append(path.getFullPath());
 		}
-		return b.toString();
+		if (b != null) {
+			return b.toString();
+		}
+		return "";
 	}
 
 	/**
