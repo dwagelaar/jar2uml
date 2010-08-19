@@ -967,11 +967,17 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 		} else if (c instanceof ConstantString){
 			stack.push(Type.STRING);
 		} else if (c instanceof ConstantClass) {
-			final StringBuffer className = new StringBuffer();
-			className.append('L');
-			className.append(((ConstantClass) c).getBytes(getConstantPoolGen().getConstantPool()));
-			className.append(';');
-			stack.push(Type.getType(className.toString()));
+			final String className = ((ConstantClass) c).getBytes(getConstantPoolGen().getConstantPool());
+			if (className.startsWith("[")) {
+				stack.push(Type.getType(className)); //already an array type signature
+			} else {
+				final StringBuffer signature = new StringBuffer();
+				signature.append('L');
+				signature.append(className);
+				signature.append(';');
+				assert !signature.toString().endsWith(";;"); //no double signature
+				stack.push(Type.getType(signature.toString()));
+			}
 		} else {
 			throw new RuntimeException(String.format(
 					JarToUMLResources.getString("JarToUMLExecutionVisitor.unexpectedConstant"),
