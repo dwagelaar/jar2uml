@@ -2120,4 +2120,14 @@ public class B {
 		
 		return testNullObjects(first, second); //just don't try to run this...
 	}
+
+	/**
+	 * Tests LDC/LDC_W on array type constants
+	 * @param clazz
+	 * @return
+	 */
+	public boolean testArrayConstant(Class<?> clazz) {
+		return Object[].class.isAssignableFrom(clazz);
+	}
+
 }
