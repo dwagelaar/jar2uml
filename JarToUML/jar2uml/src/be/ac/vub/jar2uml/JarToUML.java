@@ -67,6 +67,10 @@ public final class JarToUML implements Runnable {
 	public static final String LOGGER = "be.ac.vub.jar2uml"; //$NON-NLS-1$
 	public static final String EANNOTATION = "Jar2UML"; //$NON-NLS-1$
 
+	public static final String MAJOR_BYTECODE_FORMAT_VERSION = "majorBytecodeFormatVersion";
+	public static final String MINOR_BYTECODE_FORMAT_VERSION = "minorBytecodeFormatVersion";
+	public static final String PREVERIFIED = "preverified";
+
 	private static final int WORK_CREATE_MODEL = 1;
 	private static final int WORK_PARSE_CLASSES = 100;
 	private static final int WORK_ADD_CLASSIFIERS = 200;
@@ -454,9 +458,9 @@ public final class JarToUML implements Runnable {
 						JarToUMLPlugin.getPlugin().getBundle().getVersion(),
 						getInputList())); //$NON-NLS-1$
 			}
-			annotate(model, "majorBytecodeFormatVersion", String.valueOf(parseClasses.getMajorFormatVersion())); //$NON-NLS-1$
-			annotate(model, "minorBytecodeFormatVersion", String.valueOf(parseClasses.getMinorFormatVersion())); //$NON-NLS-1$
-			annotate(model, "preverified", String.valueOf(addProperties.isPreverified())); //$NON-NLS-1$
+			annotate(model, MAJOR_BYTECODE_FORMAT_VERSION, String.valueOf(parseClasses.getMajorFormatVersion())); //$NON-NLS-1$
+			annotate(model, MINOR_BYTECODE_FORMAT_VERSION, String.valueOf(parseClasses.getMinorFormatVersion())); //$NON-NLS-1$
+			annotate(model, PREVERIFIED, String.valueOf(addProperties.isPreverified())); //$NON-NLS-1$
 			worked(monitor, JarToUMLResources.getString("JarToUML.addedMetadata"));
 			setRunComplete(true);
 		} catch (OperationCanceledException e) {

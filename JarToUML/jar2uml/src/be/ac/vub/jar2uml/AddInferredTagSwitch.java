@@ -29,6 +29,8 @@ import org.eclipse.uml2.uml.util.UMLSwitch;
  */
 public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 
+	public static final String INFERRED = "inferred"; //$NON-NLS-1$
+
 	private Set<? extends Classifier> containedClassifiers;
 
 	/**
@@ -51,7 +53,7 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 * @param element The element to add the tag to.
 	 */
 	public static final void addInferredTag(Element element) {
-		JarToUML.annotate(element, "inferred", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		JarToUML.annotate(element, INFERRED, Boolean.TRUE.toString());
 	}
 
 	/**
@@ -60,7 +62,22 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	 * @param element The element to remove the tag from.
 	 */
 	public static final void removeInferredTag(Element element) {
-		JarToUML.deannotate(element, "inferred"); //$NON-NLS-1$
+		JarToUML.deannotate(element, INFERRED);
+	}
+
+	/**
+	 * @param element
+	 * @return <code>true</code> iff this element or one of its containers is marked as inferred
+	 */
+	public static final boolean isInferred(Element element) {
+		final Element owner = element.getOwner();
+		final String inferred = JarToUML.getAnnotationValue(element, INFERRED);
+		if (Boolean.parseBoolean(inferred)) {
+			return true;
+		} else if (owner != null) {
+			return isInferred(owner);
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -88,7 +105,7 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 	@Override
 	public Boolean caseClassifier(Classifier object) {
 		// Always mark as inferred if array type (name ends with "[]")
-		return getContainedClassifiers().contains(object) && (!object.getName().endsWith("[]"));
+		return getContainedClassifiers().contains(object) && (!object.getName().endsWith("[]")); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
