@@ -193,7 +193,7 @@ public class FindContainedClassifierSwitch extends UMLSwitch<Classifier> {
 		if (isCreate()) {
 			replaceByClassifierSwitch.setClassifier(parent);
 			replaceByClassifierSwitch.setMetaClass(UMLPackage.eINSTANCE.getClass_());
-			JarToUML.logger.fine(String.format(
+			JarToUMLResources.logger.fine(String.format(
 					JarToUMLResources.getString("FindContainedClassifierSwitch.replacingByClass"), 
 					JarToUML.qualifiedName(parent),
 					parent.eClass().getName())); //$NON-NLS-1$

@@ -47,6 +47,7 @@ import org.eclipse.uml2.uml.NamedElement;
 import org.osgi.framework.Bundle;
 
 import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 
 /**
  * Shared functionality for Jar2UML test cases.
@@ -90,7 +91,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 		String targetPath = fileName(path);
 		IFile file = project.getFile(targetPath);
 		if (!file.exists()) {
-			JarToUML.logger.info("Creating jar file: " + file);
+			JarToUMLResources.logger.info("Creating jar file: " + file);
 			URL url = bundle.getResource(path);
 			file.create(url.openStream(), true, null);
 		}
@@ -108,10 +109,10 @@ public abstract class J2UTestCase extends EMFTestCase {
 	public static IFile copyClassToJavaProject(final Class<?> clazz, final IProject project)
 	throws CoreException, IOException {
 		String path = classFilePath(clazz);
-		JarToUML.logger.info("copying class file: " + path);
+		JarToUMLResources.logger.info("copying class file: " + path);
 		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 		IPath outPath = jproject.getOutputLocation();
-		JarToUML.logger.info("class file path: " + outPath);
+		JarToUMLResources.logger.info("class file path: " + outPath);
 		IPath classFilePath = outPath.append(path);
 		final IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
 		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
@@ -120,7 +121,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 					createPath((IFolder) classFile.getParent());
 					try {
 						classFile.create(getClassContents(clazz), true, null);
-						JarToUML.logger.info("created file: " + classFile);
+						JarToUMLResources.logger.info("created file: " + classFile);
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
@@ -232,7 +233,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @return The (first) root Model in the loaded resource, if any, <code>null</code> otherwise.
 	 */
 	public static Model loadModelFromUri(String uri) {
-		JarToUML.logger.info("Loading UML model from: " + uri);
+		JarToUMLResources.logger.info("Loading UML model from: " + uri);
 		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(uri), true);
 		return findModel(res);
 	}
@@ -284,7 +285,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 		model.validateMembersDistinguishable(diagnostics, context);
 		model.validateNotOwnSelf(diagnostics, context);
 		model.validateVisibilityNeedsOwnership(diagnostics, context);
-		JarToUML.logger.info("Model diagnostics: " + diagnostics.getMessage());
+		JarToUMLResources.logger.info("Model diagnostics: " + diagnostics.getMessage());
 		assertEquals(Diagnostic.OK, diagnostics.getSeverity());
 	}
 
@@ -346,7 +347,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 		// Refresh workspace
 		//
 		ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
-		JarToUML.logger.info("setup done");
+		JarToUMLResources.logger.info("setup done");
 	}
 
 	/*
@@ -355,7 +356,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 */
 	@Override
 	protected void tearDown() throws Exception {
-		JarToUML.logger.info("starting teardown");
+		JarToUMLResources.logger.info("starting teardown");
 		super.tearDown();
 	}
 

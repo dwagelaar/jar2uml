@@ -50,7 +50,6 @@ public class AddClassifiers extends AddToModel {
 
 	protected FixClassifierSwitch fixClassifier = new FixClassifierSwitch();
 	protected ReplaceByClassifierSwitch replaceByClassifier = new ReplaceByClassifierSwitch();
-	protected AddClassifierInterfaceSwitch addClassifierInterface = new AddClassifierInterfaceSwitch();
 	protected AddInstructionReferencesVisitor addInstructionReferences = new AddInstructionReferencesVisitor(typeToClassifier);
 
 	/**
@@ -72,7 +71,6 @@ public class AddClassifiers extends AddToModel {
 	 * Adds all classifiers in parsedClasses to the UML model. Does not add classifier properties.
 	 * @param parsedClasses
 	 * @throws IOException
-	 * @throws JarToUMLException 
 	 */
 	public void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException {
 		for (JavaClass javaClass : parsedClasses) {
@@ -86,7 +84,6 @@ public class AddClassifiers extends AddToModel {
 	 * @param parsedClasses
 	 * @return The entries in parsedClasses that have not been added.
 	 * @throws IOException
-	 * @throws JarToUMLException 
 	 */
 	public List<JavaClass> addClassifiersClosure(Collection<JavaClass> parsedClasses) throws IOException {
 		final List<JavaClass> processClasses = new ArrayList<JavaClass>(parsedClasses);
@@ -109,7 +106,6 @@ public class AddClassifiers extends AddToModel {
 	 * @param javaClass The BCEL class representation to convert.
 	 * @param isCp whether to treat javaClass as a classpath class.
 	 * @return <code>true</code> iff javaClass was added.
-	 * @throws JarToUMLException 
 	 */
 	public boolean addClassifier(JavaClass javaClass, boolean isCp) {
 		final String className = javaClass.getClassName();
@@ -117,7 +113,7 @@ public class AddClassifiers extends AddToModel {
 			logSkippedFiltered(javaClass);
 			return false;
 		}
-		JarToUML.logger.finest(className);
+		JarToUMLResources.logger.finest(className);
 		Classifier classifier;
 		if (isCp) {
 			classifier = findContainedClassifier.findClassifier(
@@ -235,7 +231,6 @@ public class AddClassifiers extends AddToModel {
 	 * Adds property types to the model for each javaClass field.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
-	 * @throws JarToUMLException 
 	 */
 	public void addPropertyTypes(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
@@ -244,7 +239,7 @@ public class AddClassifiers extends AddToModel {
 			if (!filter(fields[i])) {
 				continue;
 			}
-			JarToUML.logger.finest(fields[i].getSignature());
+			JarToUMLResources.logger.finest(fields[i].getSignature());
 			addClassifierProperty.setPropertyName(fields[i].getName());
 			addClassifierProperty.setBCELPropertyType(fields[i].getType());
 		}
@@ -254,7 +249,6 @@ public class AddClassifiers extends AddToModel {
 	 * Adds referenced types to the model for each javaClass method.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
-	 * @throws JarToUMLException 
 	 */
 	public void addOperationReferences(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
@@ -265,7 +259,7 @@ public class AddClassifiers extends AddToModel {
 					continue;
 				}
 			}
-			JarToUML.logger.finest(methods[i].getSignature());
+			JarToUMLResources.logger.finest(methods[i].getSignature());
 			//set only types to trigger UML element creation
 			addClassifierOperation.setBCELArgumentTypes(methods[i].getArgumentTypes());
 			addClassifierOperation.setBCELReturnType(methods[i].getReturnType());
@@ -287,7 +281,7 @@ public class AddClassifiers extends AddToModel {
 					continue;
 				}
 			}
-			JarToUML.logger.finest(methods[i].getSignature());
+			JarToUMLResources.logger.finest(methods[i].getSignature());
 			addOpCodeRefs(classifier, methods[i]);
 		}
 	}

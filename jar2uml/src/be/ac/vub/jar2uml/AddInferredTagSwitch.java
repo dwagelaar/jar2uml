@@ -95,6 +95,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 			for (PackageableElement element : object.getPackagedElements()) {
 				removeInferredTag(element);
 			}
+		} else {
+			removeInferredTag(object);
 		}
 		return isContained;
 	}
@@ -124,6 +126,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 			for (Classifier nested : object.getNestedClassifiers()) {
 				removeInferredTag(nested);
 			}
+		} else {
+			removeInferredTag(object);
 		}
 		return isContained;
 	}
@@ -136,6 +140,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 		boolean isContained = caseClassifier(object);
 		if (!isContained) {
 			addInferredTag(object);
+		} else {
+			removeInferredTag(object);
 		}
 		return isContained;
 	}
@@ -156,6 +162,8 @@ public class AddInferredTagSwitch extends UMLSwitch<Boolean> {
 			for (Classifier nested : object.getNestedClassifiers()) {
 				removeInferredTag(nested);
 			}
+		} else {
+			removeInferredTag(object);
 		}
 		return isContained;
 	}

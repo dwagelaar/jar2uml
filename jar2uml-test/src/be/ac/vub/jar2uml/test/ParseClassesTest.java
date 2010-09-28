@@ -23,7 +23,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
-import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.ParseClasses;
 
 /**
@@ -61,7 +61,7 @@ public class ParseClassesTest extends J2UTestCase {
 		//
 		final List<IFile> cfs = new ArrayList<IFile>();
 		ParseClasses.findClassFilesIn(project, cfs);
-		JarToUML.logger.info("Class files in project: " + cfs);
+		JarToUMLResources.logger.info("Class files in project: " + cfs);
 		assertFalse(cfs.isEmpty());
 		assertTrue(cfs.contains(classFile));
 	}

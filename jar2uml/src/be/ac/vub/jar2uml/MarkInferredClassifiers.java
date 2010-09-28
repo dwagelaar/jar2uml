@@ -59,7 +59,6 @@ public class MarkInferredClassifiers extends ChangeModel {
 		return derived;
 	}
 
-	protected FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
 	protected AddInferredTagSwitch addInferredTags = new AddInferredTagSwitch();
 
 	/**
@@ -83,7 +82,7 @@ public class MarkInferredClassifiers extends ChangeModel {
 		for (JavaClass javaClass : parsedClasses) {
 			addContainedClassifier(javaClass, containedClassifiers);
 		}
-		JarToUML.logger.fine(JarToUMLResources.getString("MarkInferredClassifiers.foundContainedClassifiers")); //$NON-NLS-1$
+		JarToUMLResources.logger.fine(JarToUMLResources.getString("MarkInferredClassifiers.foundContainedClassifiers")); //$NON-NLS-1$
 		return containedClassifiers;
 	}
 
@@ -100,7 +99,7 @@ public class MarkInferredClassifiers extends ChangeModel {
 		Classifier classifier = findContainedClassifier.findClassifier(
 				getModel(), javaClass.getClassName(), null);
 		containedClassifiers.add(classifier);
-		JarToUML.logger.finer(String.format(
+		JarToUMLResources.logger.finer(String.format(
 				JarToUMLResources.getString("MarkInferredClassifiers.addedContainedClassifier"), 
 				JarToUML.qualifiedName(classifier))); //$NON-NLS-1$
 		Collection<Classifier> derived = findDerivedClassifiers(classifier);
@@ -114,7 +113,7 @@ public class MarkInferredClassifiers extends ChangeModel {
 	public Set<Classifier> findInferredClassifiers(Collection<? extends Classifier> containedClassifiers) {
 		final Set<Classifier> inferredClassifiers = new HashSet<Classifier>();
 		addInferredClassifiers(getModel(), containedClassifiers, inferredClassifiers);
-		JarToUML.logger.fine(JarToUMLResources.getString("MarkInferredClassifiers.foundInferredClassifiers")); //$NON-NLS-1$
+		JarToUMLResources.logger.fine(JarToUMLResources.getString("MarkInferredClassifiers.foundInferredClassifiers")); //$NON-NLS-1$
 		return inferredClassifiers;
 	}
 
@@ -129,7 +128,7 @@ public class MarkInferredClassifiers extends ChangeModel {
 			if (e instanceof Classifier) {
 				if (!containedClassifiers.contains(e)) {
 					inferredClassifiers.add((Classifier) e);
-					JarToUML.logger.finer(String.format(
+					JarToUMLResources.logger.finer(String.format(
 							JarToUMLResources.getString("MarkInferredClassifiers.addedInferredClassifier"), 
 							JarToUML.qualifiedName((Classifier) e))); //$NON-NLS-1$
 				}

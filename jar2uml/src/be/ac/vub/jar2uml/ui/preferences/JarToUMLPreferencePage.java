@@ -18,7 +18,6 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.ui.JarToUMLPlugin;
 
@@ -91,7 +90,7 @@ public class JarToUMLPreferencePage extends FieldEditorPreferencePage implements
 		if (ok) {
 			// Directly apply new log level
 			String logLevel = getPreferenceStore().getString(PreferenceConstants.P_LOG_LEVEL);
-			Logger logger = Logger.getLogger(JarToUML.LOGGER);
+			Logger logger = Logger.getLogger(JarToUMLResources.LOGGER);
 			logger.setLevel(Level.parse(logLevel));
 			logger.info(String.format(JarToUMLResources.getString("logLevelSetTo"), logger.getLevel())); //$NON-NLS-1$
 		}
