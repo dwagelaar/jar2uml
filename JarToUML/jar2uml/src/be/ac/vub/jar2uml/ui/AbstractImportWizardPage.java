@@ -57,7 +57,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 
 	public static final String WIZ_IMAGE = "icons/full/wizban/Jar2UMLWizard.png"; //$NON-NLS-1$
 
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
+	protected static Logger logger = Logger.getLogger(JarToUMLResources.LOGGER);
 	protected JarToUML jarToUML;
 	protected Button updateExistingModelBtn;
 

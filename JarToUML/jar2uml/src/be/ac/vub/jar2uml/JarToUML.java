@@ -11,8 +11,6 @@
 package be.ac.vub.jar2uml;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 
 import org.apache.bcel.classfile.AccessFlags;
 import org.apache.bcel.classfile.JavaClass;
@@ -32,7 +29,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.emf.common.util.EMap;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAnnotation;
@@ -62,9 +58,8 @@ import be.ac.vub.jar2uml.ui.JarToUMLPlugin;
  * Main class for the jar to UML converter. Start conversion by invoking {@link #run()}. 
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
-public final class JarToUML implements Runnable {
+public final class JarToUML extends JarToUMLRunnable {
 
-	public static final String LOGGER = "be.ac.vub.jar2uml"; //$NON-NLS-1$
 	public static final String EANNOTATION = "Jar2UML"; //$NON-NLS-1$
 
 	public static final String MAJOR_BYTECODE_FORMAT_VERSION = "majorBytecodeFormatVersion";
@@ -79,8 +74,6 @@ public final class JarToUML implements Runnable {
 	private static final int WORK_REMOVE_EMPTY = 1;
 	private static final int WORK_ADD_METADATA = 1;
 	private static final int WORK_TOTAL = WORK_CREATE_MODEL + WORK_PARSE_CLASSES + WORK_ADD_CLASSIFIERS + WORK_ADD_PROPERTIES + WORK_INFERRED_TAGS + WORK_REMOVE_EMPTY + WORK_ADD_METADATA;
-
-	public static Logger logger = Logger.getLogger(LOGGER);
 
 	/**
 	 * @param args
@@ -97,8 +90,8 @@ public final class JarToUML implements Runnable {
 				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
 			}
 		} catch (Exception e) {
-			report(e);
-			logger.severe(JarToUMLResources.getString("JarToUML.usage")); //$NON-NLS-1$
+			JarToUMLResources.report(e);
+			JarToUMLResources.logger.severe(JarToUMLResources.getString("JarToUML.usage")); //$NON-NLS-1$
 		}
 	}
 
@@ -273,17 +266,6 @@ public final class JarToUML implements Runnable {
 		return c;
 	}
 
-	/**
-	 * Reports e via the logger
-	 * @param e
-	 */
-	private static void report(Exception e) {
-		StringWriter stackTrace = new StringWriter();
-		e.printStackTrace(new PrintWriter(stackTrace));
-		logger.severe(e.getLocalizedMessage());
-		logger.severe(stackTrace.toString());
-	}
-
 	private FindReferredTypesSwitch findReferredTypes = new FindReferredTypesSwitch();
 
 	private Model model;
@@ -296,22 +278,17 @@ public final class JarToUML implements Runnable {
 	private Filter filter;
 	private String outputFile = "api.uml"; //$NON-NLS-1$
 	private String outputModelName = "api"; //$NON-NLS-1$
-	private IProgressMonitor monitor = null;
 	private boolean includeInstructionReferences = false;
 	private boolean includeFeatures = true;
 	private boolean dependenciesOnly = false;
-	private boolean runComplete = false;
-	private long jobStartTime;
 	private boolean includeComment = true;
 	private boolean updateExistingFile;
 
 	/**
 	 * Performs the actual jar to UML conversion.
 	 */
-	public void run() {
+	protected void runWithMonitor(final IProgressMonitor monitor) {
 		try {
-			final IProgressMonitor monitor = getMonitor();
-			setRunComplete(false);
 			assert getOutputFile() != null : JarToUMLResources.getString("JarToUML.nullOutputFile"); //$NON-NLS-1$
 			beginTask(monitor, String.format(
 					JarToUMLResources.getString("JarToUML.startingFor"),
@@ -426,7 +403,7 @@ public final class JarToUML implements Runnable {
 				final Set<Classifier> removeClassifiers = new HashSet<Classifier>(containedClassifiers);
 				if (removeClassifiers.removeAll(referredTypes)) {
 					containedClassifiers.retainAll(referredTypes);
-					logger.warning(String.format(
+					JarToUMLResources.logger.warning(String.format(
 							JarToUMLResources.getString("JarToUML.cyclicDepsFound"),
 							getNameList(containedClassifiers)));
 					// Keep referred classifiers, but strip their properties
@@ -462,90 +439,10 @@ public final class JarToUML implements Runnable {
 			annotate(model, MINOR_BYTECODE_FORMAT_VERSION, String.valueOf(parseClasses.getMinorFormatVersion())); //$NON-NLS-1$
 			annotate(model, PREVERIFIED, String.valueOf(addProperties.isPreverified())); //$NON-NLS-1$
 			worked(monitor, JarToUMLResources.getString("JarToUML.addedMetadata"));
-			setRunComplete(true);
-		} catch (OperationCanceledException e) {
-			logger.info(JarToUMLResources.getString("JarToUML.cancelled")); //$NON-NLS-1$
 		} catch (IOException e) {
 			throw new JarToUMLException(e);
 		} catch (CoreException e) {
 			throw new JarToUMLException(e);
-		} finally {
-			done(monitor, JarToUMLResources.getString("JarToUML.finished")); //$NON-NLS-1$
-		}
-	}
-
-	/**
-	 * Starts a new task with the progress monitor, if not null.
-	 * @param monitor The progress monitor.
-	 * @param name
-	 * @param totalWork
-	 * @see IProgressMonitor#beginTask(String, int)
-	 */
-	private void beginTask(IProgressMonitor monitor, String name, int totalWork) {
-		if (name != null) {
-			logger.info(name);
-		}
-		if (monitor != null) {
-			setJobStartTime(System.currentTimeMillis());
-			monitor.beginTask(name, totalWork);
-		}
-	}
-
-	/**
-	 * Logs and starts a new task on the progress monitor
-	 * @param monitor
-	 * @param message
-	 */
-	private void subTask(IProgressMonitor monitor, String message) {
-		if (message != null) {
-			logger.info(message);
-		}
-		if (monitor != null) {
-			monitor.subTask(message);
-		}
-	}
-
-	/**
-	 * Increases the progressmonitor by 1, if not null.
-	 * @param monitor
-	 * @throws OperationCanceledException if user pressed cancel button.
-	 */
-	private void worked(IProgressMonitor monitor, String message) 
-	throws OperationCanceledException {
-		if (message != null) {
-			final long time = System.currentTimeMillis()-getJobStartTime();
-			logger.info(String.format(
-					JarToUMLResources.getString("JarToUML.logAt"), 
-					message, time, time, time)); //$NON-NLS-1$
-		}
-		if (monitor != null) {
-			monitor.worked(1);
-			checkCancelled(monitor);
-		}
-	}
-
-	/**
-	 * Finishes progress monitor task.
-	 * @param monitor
-	 * @param message
-	 */
-	private void done(IProgressMonitor monitor, String message) {
-		if (message != null) {
-			logger.info(message);
-		}
-		if (monitor != null) {
-			monitor.done();
-		}
-	}
-
-	/**
-	 * Handles cancelled progress monitor
-	 * @param monitor
-	 * @throws OperationCanceledException
-	 */
-	private void checkCancelled(IProgressMonitor monitor) throws OperationCanceledException {
-		if ((monitor != null) && monitor.isCanceled()) {
-			throw new OperationCanceledException(JarToUMLResources.getString("operationCancelledByUser")); //$NON-NLS-1$
 		}
 	}
 
@@ -678,21 +575,6 @@ public final class JarToUML implements Runnable {
 	}
 
 	/**
-	 * @return The progress monitor object used to check for cancellations.
-	 */
-	public IProgressMonitor getMonitor() {
-		return monitor;
-	}
-
-	/**
-	 * Sets the progress monitor object used to check for cancellations.
-	 * @param monitor
-	 */
-	public void setMonitor(IProgressMonitor monitor) {
-		this.monitor = monitor;
-	}
-
-	/**
 	 * @return Whether or not to include Java elements that are only
 	 * referred to by bytecode instructions. Defaults to false.
 	 */
@@ -818,34 +700,6 @@ public final class JarToUML implements Runnable {
 				addPaths(ref, includeWorkspaceReferences);
 			}
 		}
-	}
-
-	/**
-	 * @return the runComplete
-	 */
-	public boolean isRunComplete() {
-		return runComplete;
-	}
-
-	/**
-	 * @param runComplete the runComplete to set
-	 */
-	public void setRunComplete(boolean runComplete) {
-		this.runComplete = runComplete;
-	}
-
-	/**
-	 * @return the jobStartTime
-	 */
-	public long getJobStartTime() {
-		return jobStartTime;
-	}
-
-	/**
-	 * @param jobStartTime the jobStartTime to set
-	 */
-	protected void setJobStartTime(long jobStartTime) {
-		this.jobStartTime = jobStartTime;
 	}
 
 	/**

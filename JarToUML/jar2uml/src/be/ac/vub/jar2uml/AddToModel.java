@@ -19,13 +19,13 @@ import org.eclipse.uml2.uml.Model;
  */
 public abstract class AddToModel extends ChangeModel {
 
-	protected FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
 	protected TypeToClassifierSwitch typeToClassifier = new TypeToClassifierSwitch();
 	protected AddClassifierPropertySwitch addClassifierProperty = new AddClassifierPropertySwitch(typeToClassifier);
 	protected AddClassifierOperationSwitch addClassifierOperation = new AddClassifierOperationSwitch(typeToClassifier);
 
 	private boolean includeFeatures;
 	private boolean includeInstructionReferences;
+	protected AddClassifierInterfaceSwitch addClassifierInterface = new AddClassifierInterfaceSwitch();
 
 	/**
 	 * Creates a new {@link AddToModel}.

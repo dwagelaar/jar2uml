@@ -119,6 +119,34 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 		return true;
 	}
 
+	/**
+	 * @param parameters
+	 * @return the parameter names
+	 */
+	public static EList<String> getParameterNames(EList<Parameter> parameters) {
+		final EList<String> argNames = new BasicEList<String>();
+		for (Parameter par : parameters) {
+			if (par.getDirection() != ParameterDirectionKind.RETURN_LITERAL) {
+				argNames.add(par.getName());
+			}
+		}
+		return argNames;
+	}
+
+	/**
+	 * @param parameters
+	 * @return the parameter types
+	 */
+	public static EList<Type> getParameterTypes(EList<Parameter> parameters) {
+		final EList<Type> argTypes = new BasicEList<Type>();
+		for (Parameter par : parameters) {
+			if (par.getDirection() != ParameterDirectionKind.RETURN_LITERAL) {
+				argTypes.add(par.getType());
+			}
+		}
+		return argTypes;
+	}
+
 	private String operationName = null;
 	private EList<String> argumentNames = null;
 	private EList<Type> argumentTypes = null;

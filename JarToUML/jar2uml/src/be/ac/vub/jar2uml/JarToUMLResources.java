@@ -10,8 +10,11 @@
  *******************************************************************************/
 package be.ac.vub.jar2uml;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 /**
  * Contains the Jar2UML resource bundle.
@@ -21,6 +24,10 @@ public class JarToUMLResources {
 
 	private static final ResourceBundle resourceBundle =
 		ResourceBundle.getBundle("be.ac.vub.jar2uml.messages"); //$NON-NLS-1$
+
+	public static final String LOGGER = "be.ac.vub.jar2uml"; //$NON-NLS-1$
+
+	public static final Logger logger = Logger.getLogger(LOGGER);
 
 	/**
 	 * Not meant to be instantiated.
@@ -46,6 +53,17 @@ public class JarToUMLResources {
 	 */
 	public static ResourceBundle getResourcebundle() {
 		return resourceBundle;
+	}
+
+	/**
+	 * Reports e via the logger
+	 * @param e
+	 */
+	public static void report(Exception e) {
+		StringWriter stackTrace = new StringWriter();
+		e.printStackTrace(new PrintWriter(stackTrace));
+		logger.severe(e.getLocalizedMessage());
+		logger.severe(stackTrace.toString());
 	}
 
 }

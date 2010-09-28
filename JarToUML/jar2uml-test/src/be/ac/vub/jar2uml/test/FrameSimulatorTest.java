@@ -21,7 +21,7 @@ import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
 
 import be.ac.vub.jar2uml.AccessContextVisitor;
-import be.ac.vub.jar2uml.JarToUML;
+import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.cflow.ControlFlow;
 import be.ac.vub.jar2uml.cflow.FrameSimulator;
 import be.ac.vub.jar2uml.cflow.SmartExecutionVisitor;
@@ -57,7 +57,7 @@ public class FrameSimulatorTest extends J2UTestCase {
 	public void testMethod(final FrameSimulator simulator, final AccessContextVisitor acv, final MethodGen m) {
 		acv.setCp(m.getConstantPool().getConstantPool());
 		final ControlFlow cflow = new ControlFlow(m);
-		JarToUML.logger.info(cflow.toString());
+		JarToUMLResources.logger.info(cflow.toString());
 		//execute once in default mode
 		simulator.getExecution().setTrackNull(false);
 		simulator.execute(cflow);

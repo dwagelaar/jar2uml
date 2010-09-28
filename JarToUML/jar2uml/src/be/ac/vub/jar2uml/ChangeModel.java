@@ -20,6 +20,7 @@ import org.eclipse.uml2.uml.Model;
 public abstract class ChangeModel extends JarToUMLOperation {
 
 	private Model model;
+	protected FindContainedClassifierSwitch findContainedClassifier = new FindContainedClassifierSwitch();
 
 	/**
 	 * Creates a new {@link ChangeModel}.

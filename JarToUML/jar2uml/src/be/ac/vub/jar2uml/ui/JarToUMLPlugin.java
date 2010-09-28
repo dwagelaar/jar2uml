@@ -32,7 +32,6 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.ui.logging.ConsoleStreamHandler;
 import be.ac.vub.jar2uml.ui.preferences.PreferenceConstants;
@@ -58,7 +57,7 @@ public class JarToUMLPlugin extends AbstractUIPlugin {
 	private static IConsoleManager consoleMgr; 
 	private static Handler handler;
 
-	protected static Logger logger = Logger.getLogger(JarToUML.LOGGER);
+	protected static Logger logger = Logger.getLogger(JarToUMLResources.LOGGER);
 
 	/**
 	 * Returns the singleton instance of the Eclipse plugin.

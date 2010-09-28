@@ -73,7 +73,6 @@ public class AddProperties extends AddToModel {
 	 * Adds the properties of all classifiers in parsedClasses to the classifiers in the UML model.
 	 * @param parsedClasses
 	 * @throws IOException
-	 * @throws JarToUMLException 
 	 */
 	public void addAllProperties(Collection<JavaClass> parsedClasses) throws IOException {
 		if (isIncludeFeatures()) {
@@ -87,7 +86,6 @@ public class AddProperties extends AddToModel {
 	/**
 	 * Adds the properties of the javaClass to the corresponding classifier in the UML model.
 	 * @param javaClass The BCEL class representation to convert.
-	 * @throws JarToUMLException 
 	 */
 	public void addClassifierProperties(JavaClass javaClass) {
 		final String className = javaClass.getClassName();
@@ -95,7 +93,7 @@ public class AddProperties extends AddToModel {
 			logSkippedFiltered(javaClass);
 			return;
 		}
-		JarToUML.logger.finer(className);
+		JarToUMLResources.logger.finer(className);
 		final Classifier classifier = findContainedClassifier.findClassifier(
 				getModel(), className, null);
 		addProperties(classifier, javaClass);
@@ -106,7 +104,6 @@ public class AddProperties extends AddToModel {
 	 * Adds a property to classifier for each javaClass field.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
-	 * @throws JarToUMLException 
 	 */
 	public void addProperties(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
@@ -115,7 +112,7 @@ public class AddProperties extends AddToModel {
 			if (!filter(fields[i])) {
 				continue;
 			}
-			JarToUML.logger.finest(fields[i].getSignature());
+			JarToUMLResources.logger.finest(fields[i].getSignature());
 			addClassifierProperty.setPropertyName(fields[i].getName());
 			addClassifierProperty.setBCELPropertyType(fields[i].getType());
 			Property prop = (Property) addClassifierProperty.doSwitch(classifier);
@@ -130,7 +127,6 @@ public class AddProperties extends AddToModel {
 	 * Adds an operation to classifier for each javaClass method.
 	 * @param classifier The classifier representation of javaClass.
 	 * @param javaClass The Java class file to convert.
-	 * @throws JarToUMLException 
 	 */
 	public void addOperations(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
@@ -141,7 +137,7 @@ public class AddProperties extends AddToModel {
 					continue;
 				}
 			}
-			JarToUML.logger.finest(methods[i].getSignature());
+			JarToUMLResources.logger.finest(methods[i].getSignature());
 			addClassifierOperation.setAll(methods[i]);
 			Operation op = (Operation) addClassifierOperation.doSwitch(classifier);
 			op.setVisibility(JarToUML.toUMLVisibility(methods[i]));

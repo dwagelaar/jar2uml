@@ -22,7 +22,6 @@ import org.apache.bcel.generic.MethodGen;
 import org.apache.bcel.generic.Type;
 
 import be.ac.vub.jar2uml.Cancellable;
-import be.ac.vub.jar2uml.JarToUML;
 import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.cflow.ControlFlow.InstructionFlow;
 import be.ac.vub.jar2uml.cflow.LocalHistoryTable.LocalHistorySet;
@@ -92,11 +91,11 @@ public class FrameSimulator {
 		execution.setConstantPoolGen(method.getConstantPool());
 		execution.setLocalVarTable(method.getLocalVariableTable(method.getConstantPool()));
 
-		JarToUML.logger.finest(method.toString());
+		JarToUMLResources.logger.finest(method.toString());
 
 		//try first with simplified algorithm
 		executeSimple(cflow);
-		JarToUML.logger.finer(String.format(
+		JarToUMLResources.logger.finer(String.format(
 				JarToUMLResources.getString("FrameSimulator.instrCount"), 
 				reuseCount, copyCount, excCopyCount, maxQueueSize, method)); //$NON-NLS-1$
 
@@ -108,11 +107,11 @@ public class FrameSimulator {
 			 * situations. Some methods do not have a local variable table, however, so we must retain
 			 * the full algorithm.
 			 */
-			JarToUML.logger.fine(String.format(
+			JarToUMLResources.logger.fine(String.format(
 					JarToUMLResources.getString("FrameSimulator.fallback"), 
 					method.toString())); //$NON-NLS-1$
 			executeFull(cflow);
-			JarToUML.logger.finer(String.format(
+			JarToUMLResources.logger.finer(String.format(
 					JarToUMLResources.getString("FrameSimulator.instrCount"), 
 					reuseCount, copyCount, excCopyCount, maxQueueSize, method)); //$NON-NLS-1$
 		}
@@ -124,7 +123,7 @@ public class FrameSimulator {
 			if (!noAccessContextAvailable.isEmpty()) {
 				final SortedSet<InstructionFlow> naca = new TreeSet<InstructionFlow>(OrderedItemComparator.INSTANCE);
 				naca.addAll(noAccessContextAvailable);
-				JarToUML.logger.info(String.format(
+				JarToUMLResources.logger.info(String.format(
 						JarToUMLResources.getString("FrameSimulator.guaranteedNPE"),
 						method.getClassName(),
 						method,
@@ -135,7 +134,7 @@ public class FrameSimulator {
 			allDeadCode.addAll(cflow.getDeadCode());
 			allDeadCode.addAll(deadCode);
 			if (!allDeadCode.isEmpty()) {
-				JarToUML.logger.info(String.format(
+				JarToUMLResources.logger.info(String.format(
 						JarToUMLResources.getString("FrameSimulator.guaranteedDead"),
 						method.getClassName(),
 						method,
@@ -149,7 +148,7 @@ public class FrameSimulator {
 			if (!notCovered.isEmpty()) {
 				final SortedSet<InstructionFlow> nc = new TreeSet<InstructionFlow>(OrderedItemComparator.INSTANCE);
 				nc.addAll(notCovered);
-				JarToUML.logger.warning(String.format(
+				JarToUMLResources.logger.warning(String.format(
 						JarToUMLResources.getString("FrameSimulator.notCovered"),
 						method.getClassName(),
 						method,
@@ -187,7 +186,7 @@ public class FrameSimulator {
 
 			if (copyCount + excCopyCount > CUT_OFF) {
 				setCutOff(true);
-				JarToUML.logger.fine(String.format(
+				JarToUMLResources.logger.fine(String.format(
 						JarToUMLResources.getString("FrameSimulator.cutoff"),
 						cflow)); //$NON-NLS-1$
 				break;

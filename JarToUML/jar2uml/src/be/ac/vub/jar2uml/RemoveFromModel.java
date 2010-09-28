@@ -99,7 +99,7 @@ public class RemoveFromModel extends ChangeModel {
 				Package pack = (Package) o;
 				removeEmptyPackages(pack);
 				if (pack.getPackagedElements().isEmpty()) {
-					JarToUML.logger.finer(String.format(
+					JarToUMLResources.logger.finer(String.format(
 							JarToUMLResources.getString("RemoveFromModel.removing"), 
 							JarToUML.qualifiedName(pack), 
 							pack.eClass().getName())); //$NON-NLS-1$

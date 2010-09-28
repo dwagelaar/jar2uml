@@ -124,7 +124,7 @@ public abstract class JarToUMLOperation implements Cancellable {
 	 * @param javaClass
 	 */
 	protected void logSkippedFiltered(JavaClass javaClass) {
-		JarToUML.logger.fine(String.format(
+		JarToUMLResources.logger.fine(String.format(
 				JarToUMLResources.getString("JarToUMLOperation.skippedFiltered"), 
 				javaClass.getClassName())); //$NON-NLS-1$
 	}

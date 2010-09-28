@@ -131,14 +131,14 @@ public final class JarToUMLTest extends J2UTestCase {
 		}
 		entries.add(JavaCore.newProjectEntry(projectref.getFullPath()));
 		jproject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
-		JarToUML.logger.info("Java project classpath entries: " + entries);
+		JarToUMLResources.logger.info("Java project classpath entries: " + entries);
 		IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
 		//
 		// Find references of the first project
 		//
 		Set<IJavaProject> refs = new HashSet<IJavaProject>();
 		JarToUML.findJavaProjectReferences(jproject, refs);
-		JarToUML.logger.info("Java project references: " + refs);
+		JarToUMLResources.logger.info("Java project references: " + refs);
 		assertFalse(refs.isEmpty());
 		assertTrue(refs.contains(jprojectref));
 	}
@@ -160,7 +160,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		// Load a UML model with derived classifiers, and find Model object
 		//
-		JarToUML.logger.info("Loading UML model from: " + pkServletDepsUri);
+		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
 		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
 		Model root = findModel(res);
 		//
@@ -173,7 +173,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		// Find derived classifiers
 		//
 		Collection<Classifier> derived = MarkInferredClassifiers.findDerivedClassifiers(javaLangString);
-		JarToUML.logger.info("Found derived classifiers: " + derived);
+		JarToUMLResources.logger.info("Found derived classifiers: " + derived);
 		assertFalse(derived.isEmpty());
 		assertFalse(derived.contains(javaLangString));
 	}
@@ -242,7 +242,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		// Load a UML model with derived classifiers, and find Model object
 		//
-		JarToUML.logger.info("Loading UML model from: " + pkServletDepsUri);
+		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
 		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
 		Model root = findModel(res);
 		//
@@ -261,7 +261,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		elements.add(javaLangString);
 		elements.add(javaLangObject);
 		List<String> names = JarToUML.getNameList(elements);
-		JarToUML.logger.info("Name list: " + names);
+		JarToUMLResources.logger.info("Name list: " + names);
 		assertFalse(names.isEmpty());
 		assertTrue(names.size() == 3);
 		assertEquals("platformkitservlet.deps", names.get(0));
@@ -276,7 +276,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		// Load a UML model, and find Model object
 		//
-		JarToUML.logger.info("Loading UML model from: " + pkServletDepsUri);
+		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
 		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
 		Model root = findModel(res);
 		//
@@ -289,7 +289,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		// Annotate
 		//
 		JarToUML.annotate(javaLangString, "test", "test");
-		JarToUML.logger.info("Found annotations: " + javaLangString.getEAnnotations());
+		JarToUMLResources.logger.info("Found annotations: " + javaLangString.getEAnnotations());
 		EAnnotation ann = javaLangString.getEAnnotation(JarToUML.EANNOTATION);
 		assertNotNull(ann);
 		assertEquals("test", ann.getDetails().get("test"));
@@ -302,7 +302,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		// Load a UML model, and find Model object
 		//
-		JarToUML.logger.info("Loading UML model from: " + pkServletDepsUri);
+		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
 		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
 		Model root = findModel(res);
 		//
@@ -320,7 +320,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		// Deannotate test
 		//
 		JarToUML.deannotate(javaLangString, "test");
-		JarToUML.logger.info("Found annotations: " + javaLangString.getEAnnotations());
+		JarToUMLResources.logger.info("Found annotations: " + javaLangString.getEAnnotations());
 		EAnnotation ann = javaLangString.getEAnnotation(JarToUML.EANNOTATION);
 		assertNotNull(ann);
 		assertFalse(ann.getDetails().containsKey("test"));
@@ -432,8 +432,8 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertEquals(atAgainModel.eResource(), atRefModel.eResource());
 		final Model atDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile}, false);
 		final Model atRefDepsModel = loadModelFromUri(atDepsModelUri);
-		JarToUML.logger.info(atDepsModel.eResource().getContents().toString());
-		JarToUML.logger.info(atRefDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(atDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(atRefDepsModel.eResource().getContents().toString());
 		assertEquals(atDepsModel.eResource(), atRefDepsModel.eResource());
 		final Model atAgainDepsModel = testRunJar(true, new IFile[]{atFile}, new IFile[]{antlrFile,getoptFile}, true);
 		assertEquals(atAgainDepsModel.eResource(), atRefDepsModel.eResource());
@@ -442,8 +442,8 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		final Model pksDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{}, false);
 		final Model pksRefDepsModel = loadModelFromUri(pkServletDepsUri);
-		JarToUML.logger.info(pksDepsModel.eResource().getContents().toString());
-		JarToUML.logger.info(pksRefDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(pksDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(pksRefDepsModel.eResource().getContents().toString());
 		assertEquals(pksDepsModel.eResource(), pksRefDepsModel.eResource());
 		final Model pksAgainDepsModel = testRunJar(true, new IFile[]{pksFile}, new IFile[]{}, true);
 		assertEquals(pksAgainDepsModel.eResource(), pksRefDepsModel.eResource());
@@ -452,8 +452,8 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		final Model jaxbOsgiDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{}, false);
 		final Model jaxbOsgiRefDepsModel = loadModelFromUri(jaxbOsgiDepsUri);
-		JarToUML.logger.info(jaxbOsgiDepsModel.eResource().getContents().toString());
-		JarToUML.logger.info(jaxbOsgiRefDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(jaxbOsgiDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(jaxbOsgiRefDepsModel.eResource().getContents().toString());
 		assertEquals(jaxbOsgiDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
 		final Model jaxbOsgiAgainDepsModel = testRunJar(true, new IFile[]{jaxbOsgiFile}, new IFile[]{}, true);
 		assertEquals(jaxbOsgiAgainDepsModel.eResource(), jaxbOsgiRefDepsModel.eResource());
@@ -462,8 +462,8 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		final Model j2eeDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{}, false);
 		final Model j2eeRefDepsModel = loadModelFromUri(j2eeDepsUri);
-		JarToUML.logger.info(j2eeDepsModel.eResource().getContents().toString());
-		JarToUML.logger.info(j2eeRefDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(j2eeDepsModel.eResource().getContents().toString());
+		JarToUMLResources.logger.info(j2eeRefDepsModel.eResource().getContents().toString());
 		assertEquals(j2eeDepsModel.eResource(), j2eeRefDepsModel.eResource());
 		final Model j2eeAgainDepsModel = testRunJar(true, new IFile[]{j2eeFile}, new IFile[]{}, true);
 		assertEquals(j2eeAgainDepsModel.eResource(), j2eeRefDepsModel.eResource());
