@@ -26,6 +26,7 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 	private String propertyName = null;
 	private Type propertyType = null;
 	private TypeToClassifierSwitch typeToClassifier = null;
+	private boolean propertyCreated;
 
 	/**
 	 * Creates a new {@link AddClassifierPropertySwitch}.
@@ -89,6 +90,9 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 			ownedAtt = umlClass.createOwnedAttribute(name, type);
 			ownedAtt.setIsLeaf(true);		//final
 			ownedAtt.setIsReadOnly(true);	//final
+			setPropertyCreated(true);
+		} else {
+			setPropertyCreated(false);
 		}
 		return ownedAtt;
 	}
@@ -107,6 +111,9 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 			ownedAtt = umlIface.createOwnedAttribute(name, type);
 			ownedAtt.setIsLeaf(true);		//final
 			ownedAtt.setIsReadOnly(true);	//final
+			setPropertyCreated(true);
+		} else {
+			setPropertyCreated(false);
 		}
 		return ownedAtt;
 	}
@@ -125,8 +132,25 @@ public class AddClassifierPropertySwitch extends UMLSwitch<Property> {
 			ownedAtt = umlDataType.createOwnedAttribute(name, type);
 			ownedAtt.setIsLeaf(true);		//final
 			ownedAtt.setIsReadOnly(true);	//final
+			setPropertyCreated(true);
+		} else {
+			setPropertyCreated(false);
 		}
 		return ownedAtt;
+	}
+
+	/**
+	 * @return <code>true</code> iff the property was newly created
+	 */
+	public boolean isPropertyCreated() {
+		return propertyCreated;
+	}
+
+	/**
+	 * @param propertyCreated the propertyCreated to set
+	 */
+	protected void setPropertyCreated(boolean propertyCreated) {
+		this.propertyCreated = propertyCreated;
 	}
 
 }

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
-
 import org.eclipse.uml2.uml.Classifier;
 import org.eclipse.uml2.uml.Element;
 import org.eclipse.uml2.uml.Model;
@@ -19,7 +17,7 @@ import be.ac.vub.jar2uml.MergeModel;
 
 public class MergeModelTest extends J2UTestCase {
 
-	public static final Pattern javaNamePattern = Pattern.compile("^\\w+(\\[\\])*(\\.(\\w+(\\[\\])*|<init>))*$");
+	public static final Pattern javaNamePattern = Pattern.compile("^\\w+(\\[\\])*(\\.\\w+)*(\\$\\w+)*(\\[\\])*(\\#(\\w+|<init>)(\\.\\w+)?)?$");
 
 	/**
 	 * Test method for {@link MergeModel#getJavaName(NamedElement)}.
@@ -30,8 +28,8 @@ public class MergeModelTest extends J2UTestCase {
 		for (Element e : jaxbOsgiRefDepsModel.allOwnedElements()) {
 			if (e instanceof NamedElement) {
 				String javaName = MergeModel.getJavaName((NamedElement) e);
-				Assert.assertFalse(javaName.startsWith(modelName));
-				Assert.assertTrue(javaNamePattern.matcher(javaName).matches());
+				assertFalse(javaName.startsWith(modelName));
+				assertTrue(javaNamePattern.matcher(javaName).matches());
 			}
 		}
 	}
@@ -44,21 +42,22 @@ public class MergeModelTest extends J2UTestCase {
 		final List<Classifier> classifiers = new ArrayList<Classifier>();
 		final List<Element> elements = jaxbOsgiRefDepsModel.allOwnedElements();
 		MergeModel.findClassifiers(jaxbOsgiRefDepsModel, classifiers);
-		Assert.assertFalse(classifiers.isEmpty());
-		Assert.assertFalse(classifiers.size() > elements.size());
+		assertFalse(classifiers.isEmpty());
+		assertFalse(classifiers.size() > elements.size());
 		final Set<Classifier> uniqueClassifiers = new HashSet<Classifier>(classifiers);
-		Assert.assertEquals(uniqueClassifiers.size(), classifiers.size()); // no duplicates
+		assertEquals(uniqueClassifiers.size(), classifiers.size()); // no duplicates
 		for (Element e : elements) {
 			if (e instanceof Classifier) {
-				Assert.assertTrue(uniqueClassifiers.contains(e));
+				assertTrue(uniqueClassifiers.contains(e));
 			}
 		}
 	}
 
 	/**
 	 * Test method for {@link MergeModel#run()}.
+	 * @throws InterruptedException 
 	 */
-	public void testRun() {
+	public void testRun() throws InterruptedException {
 		final Model baseModel = loadModelFromUri(jaxbOsgiDepsUri);
 		final Model jaxbOsgiRefDepsModel = loadModelFromUri(jaxbOsgiDepsUri);
 		final Model j2eeRefDepsModel = loadModelFromUri(j2eeDepsUri);
@@ -74,10 +73,21 @@ public class MergeModelTest extends J2UTestCase {
 		for (Classifier c : j2eeClassifiers) {
 			String className = MergeModel.getJavaName(c);
 			Classifier cim = findClassifierSwitch.findClassifier(baseModel, className, null);
-			Assert.assertNotNull(cim);
+			assertNotNull(cim);
 			Classifier orig = findClassifierSwitch.findClassifier(jaxbOsgiRefDepsModel, className, null);
 			boolean inferred = (orig != null ? AddInferredTagSwitch.isInferred(orig) : true) && AddInferredTagSwitch.isInferred(c);
-			Assert.assertEquals(inferred, AddInferredTagSwitch.isInferred(cim));
+			assertEquals(inferred, AddInferredTagSwitch.isInferred(cim));
+		}
+		final List<Classifier> jaxbClassifiers = new ArrayList<Classifier>();
+		MergeModel.findClassifiers(jaxbOsgiRefDepsModel, jaxbClassifiers);
+		for (Classifier c : jaxbClassifiers) {
+			String className = MergeModel.getJavaName(c);
+			Classifier cim = findClassifierSwitch.findClassifier(baseModel, className, null);
+			assertNotNull(cim);
+			if (!AddInferredTagSwitch.isInferred(c)) {
+				assertFalse(AddInferredTagSwitch.isInferred(cim));
+				assertCompatible(cim, c);
+			}
 		}
 	}
 

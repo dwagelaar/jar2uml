@@ -22,16 +22,45 @@ import org.eclipse.uml2.uml.Dependency;
 import org.eclipse.uml2.uml.Interface;
 import org.eclipse.uml2.uml.InterfaceRealization;
 import org.eclipse.uml2.uml.Model;
+import org.eclipse.uml2.uml.NamedElement;
 import org.eclipse.uml2.uml.Operation;
 import org.eclipse.uml2.uml.Parameter;
 import org.eclipse.uml2.uml.Property;
 import org.eclipse.uml2.uml.Type;
+import org.eclipse.uml2.uml.VisibilityKind;
 
 /**
  * Merges classifiers into the model.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class MergeClassifiers extends AddToModel {
+
+	/**
+	 * Merges the visibility of base and merge into base.
+	 * @param base
+	 * @param merge
+	 */
+	public static final void mergeVisibility(final NamedElement base, final NamedElement merge) {
+		if (base.isSetVisibility() && merge.isSetVisibility()) {
+			final VisibilityKind cv = merge.getVisibility();
+			switch (base.getVisibility().ordinal()) {
+			case VisibilityKind.PRIVATE:
+				if (cv == VisibilityKind.PACKAGE_LITERAL) {
+					base.setVisibility(cv);
+				}
+			case VisibilityKind.PACKAGE:
+				if (cv == VisibilityKind.PROTECTED_LITERAL) {
+					base.setVisibility(cv);
+				}
+			case VisibilityKind.PROTECTED:
+				if (cv == VisibilityKind.PUBLIC_LITERAL) {
+					base.setVisibility(cv);
+				}
+			}
+		} else if (merge.isSetVisibility()) {
+			base.setVisibility(merge.getVisibility());
+		}
+	}
 
 	private final Set<Classifier> containedClassifiers = new HashSet<Classifier>();
 
@@ -73,9 +102,19 @@ public class MergeClassifiers extends AddToModel {
 		if (!AddInferredTagSwitch.isInferred(c)) {
 			getContainedClassifiers().add(classifier);
 		}
-		classifier.setIsAbstract(c.isAbstract());
-		classifier.setVisibility(c.getVisibility());
-		classifier.setIsLeaf(c.isLeaf());
+		if (findContainedClassifier.isCreated()) {
+			//copy values
+			classifier.setIsAbstract(c.isAbstract());
+			classifier.setIsLeaf(c.isLeaf());
+			if (c.isSetVisibility()) {
+				classifier.setVisibility(c.getVisibility());
+			}
+		} else {
+			//merge values
+			mergeVisibility(classifier, c);
+			classifier.setIsAbstract(classifier.isAbstract() && c.isAbstract());
+			classifier.setIsLeaf(classifier.isLeaf() && c.isLeaf());
+		}
 		addInterfaceRealizations(classifier, c);
 		addGeneralizations(classifier, c);
 		if (isIncludeFeatures()) {
@@ -132,10 +171,25 @@ public class MergeClassifiers extends AddToModel {
 			Classifier tim = findClassifierInModel((Classifier) p.getType());
 			addClassifierProperty.setPropertyType(tim);
 			Property prop = (Property) addClassifierProperty.doSwitch(classifier);
-			prop.setVisibility(p.getVisibility());
-			prop.setIsStatic(p.isStatic());
-			prop.setIsReadOnly(p.isReadOnly());
-			prop.setIsLeaf(p.isLeaf());
+			if (addClassifierProperty.isPropertyCreated()) {
+				//copy value
+				prop.setIsStatic(p.isStatic());
+				prop.setIsReadOnly(p.isReadOnly());
+				prop.setIsLeaf(p.isLeaf());
+				if (p.isSetVisibility()) {
+					prop.setVisibility(p.getVisibility());
+				}
+			} else {
+				//merge values
+				mergeVisibility(prop, p);
+				if (prop.isStatic() != p.isStatic()) {
+					throw new JarToUMLException(String.format(
+							JarToUMLResources.getString("MergeClassifiers.cannotMergeStatic"), 
+							prop.getQualifiedName(), p.getQualifiedName()));
+				}
+				prop.setIsReadOnly(prop.isReadOnly() && p.isReadOnly());
+				prop.setIsLeaf(prop.isLeaf() && p.isLeaf());
+			}
 		}
 	}
 
@@ -164,10 +218,25 @@ public class MergeClassifiers extends AddToModel {
 				addClassifierOperation.setReturnType(null);
 			}
 			Operation op = (Operation) addClassifierOperation.doSwitch(classifier);
-			op.setVisibility(o.getVisibility());
-			op.setIsAbstract(o.isAbstract());
-			op.setIsStatic(o.isStatic());
-			op.setIsLeaf(o.isLeaf());
+			if (addClassifierOperation.isOperationCreated()) {
+				//copy values
+				op.setIsStatic(o.isStatic());
+				op.setIsAbstract(o.isAbstract());
+				op.setIsLeaf(o.isLeaf());
+				if (o.isSetVisibility()) {
+					op.setVisibility(o.getVisibility());
+				}
+			} else {
+				//merge values
+				mergeVisibility(op, o);
+				op.setIsAbstract(op.isAbstract() && o.isAbstract());
+				if (op.isStatic() != o.isStatic()) {
+					throw new JarToUMLException(String.format(
+							JarToUMLResources.getString("MergeClassifiers.cannotMergeStatic"), 
+							op.getQualifiedName(), o.getQualifiedName()));
+				}
+				op.setIsLeaf(op.isLeaf() && o.isLeaf());
+			}
 		}
 	}
 

@@ -152,6 +152,7 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	private EList<Type> argumentTypes = null;
 	private Type returnType = null;
 	private TypeToClassifierSwitch typeToClassifier = null;
+	private boolean operationCreated;
 
 	/**
 	 * Creates a new {@link AddClassifierOperationSwitch}.
@@ -284,8 +285,10 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 			}
 			op.setIsLeaf(true);		//final
 			op.setIsAbstract(true); //abstract
+			setOperationCreated(true);
 		} else if (isArgumentNamesSet()) {
 			updateOperationParameterNames(op);
+			setOperationCreated(false);
 		}
 		return op;
 	}
@@ -307,8 +310,10 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 			}
 			op.setIsLeaf(true);		//final
 			op.setIsAbstract(true); //abstract
+			setOperationCreated(true);
 		} else if (isArgumentNamesSet()) {
 			updateOperationParameterNames(op);
+			setOperationCreated(false);
 		}
 		return op;
 	}
@@ -330,8 +335,10 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 			}
 			op.setIsLeaf(true);		//final
 			op.setIsAbstract(true); //abstract
+			setOperationCreated(true);
 		} else if (isArgumentNamesSet()) {
 			updateOperationParameterNames(op);
+			setOperationCreated(false);
 		}
 		return op;
 	}
@@ -357,6 +364,20 @@ public class AddClassifierOperationSwitch extends UMLSwitch<Operation> {
 	 */
 	public void setBCELReturnType(org.apache.bcel.generic.Type returnType) {
 		setReturnType(typeToClassifier.doSwitch(returnType));
+	}
+
+	/**
+	 * @return <code>true</code> iff the operation was newly created
+	 */
+	public boolean isOperationCreated() {
+		return operationCreated;
+	}
+
+	/**
+	 * @param operationCreated the operationCreated to set
+	 */
+	protected void setOperationCreated(boolean operationCreated) {
+		this.operationCreated = operationCreated;
 	}
 
 }
