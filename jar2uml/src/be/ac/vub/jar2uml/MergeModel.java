@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.uml2.uml.Classifier;
+import org.eclipse.uml2.uml.Feature;
 import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.NamedElement;
 import org.eclipse.uml2.uml.Namespace;
@@ -42,7 +43,16 @@ public final class MergeModel extends JarToUMLRunnable {
 		final Namespace ns = e.getNamespace();
 		if (ns != null && ns.getNamespace() != null) { //skip root element
 			jn.append(getJavaName(ns));
-			jn.append('.');
+			if (e instanceof Feature) {
+				assert ns instanceof Classifier;
+				jn.append('#');
+			} else if (ns instanceof Classifier) {
+				assert e instanceof Classifier;
+				jn.append('$');
+			} else {
+				assert ns instanceof Package || ns instanceof Feature;
+				jn.append('.');
+			}
 		}
 		jn.append(e.getName());
 		return jn.toString();
