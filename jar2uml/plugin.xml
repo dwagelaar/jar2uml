@@ -57,6 +57,31 @@
   <extension
         point="org.eclipse.core.runtime.preferences">
      <initializer class="be.ac.vub.jar2uml.ui.preferences.PreferenceInitializer"/>
+  </extension>
+  <extension
+        point="org.eclipse.ui.popupMenus">
+     <objectContribution
+           adaptable="false"
+           id="be.ac.vub.jar2uml.objectContribution1"
+           nameFilter="*.uml"
+           objectClass="org.eclipse.core.resources.IFile">
+        <menu
+              icon="icons/full/obj16/importjar_wiz.gif"
+              id="be.ac.vub.jar2uml.menu1"
+              label="Jar2UML"
+              path="additions">
+           <separator
+                 name="group1">
+           </separator>
+        </menu>
+        <action
+              class="be.ac.vub.jar2uml.ui.MergeModelAction"
+              enablesFor="1"
+              id="be.ac.vub.jar2uml.mergeAction"
+              label="Merge Jar2UML model..."
+              menubarPath="be.ac.vub.jar2uml.menu1/group1">
+        </action>
+     </objectContribution>
   </extension>    
 
 </plugin>
