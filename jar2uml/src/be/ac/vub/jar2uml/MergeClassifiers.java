@@ -81,8 +81,8 @@ public class MergeClassifiers extends AddToModel {
 	}
 
 	/**
-	 * Merges all {@link Classifier}s contained under root into the model.
-	 * @param root
+	 * Merges all elements into the model.
+	 * @param elements the elements to merge
 	 */
 	public void mergeAllClassifiers(final List<Classifier> elements) {
 		for (Classifier c : elements) {
