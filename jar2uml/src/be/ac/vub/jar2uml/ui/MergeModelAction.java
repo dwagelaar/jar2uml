@@ -25,11 +25,13 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.window.Window;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.uml2.uml.Model;
 
+import be.ac.vub.jar2uml.JarToUMLException;
 import be.ac.vub.jar2uml.JarToUMLResources;
 import be.ac.vub.jar2uml.MergeModel;
 
@@ -86,6 +88,9 @@ public class MergeModelAction extends SelectionAction {
 				dlg.open();
 			}
 		});
+		if (dlg.getReturnCode() != Window.OK) {
+			return;
+		}
 		final Object[] selectedResources = dlg.getResult();
 		
 		final WorkspaceJob job = new WorkspaceJob(String.format(
@@ -132,6 +137,9 @@ public class MergeModelAction extends SelectionAction {
 	 */
 	protected void mergeModels(IFile baseFile, Object[] resources, IProgressMonitor monitor) throws IOException {
 		assert monitor != null;
+		if (resources.length == 0) {
+			throw new JarToUMLException(JarToUMLResources.getString("MergeModelAction.noModelsSelected")); //$NON-NLS-1$
+		}
 		monitor.beginTask(
 				String.format(
 						JarToUMLResources.getString("MergeModelAction.mergingStart"), 
