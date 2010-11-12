@@ -14,19 +14,33 @@ import org.apache.bcel.classfile.AccessFlags;
 import org.apache.bcel.classfile.JavaClass;
 
 /**
- * Includes only named public/protected elements.
+ * Includes only named public/protected elements. Includes all
+ * named classes, as they may be subclassed by public/protected
+ * named classes.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class PublicAPIFilter implements Filter {
 
+	/*
+	 * (non-Javadoc)
+	 * @see be.ac.vub.jar2uml.Filter#filter(java.lang.String)
+	 */
 	public boolean filter(String expression) {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see be.ac.vub.jar2uml.Filter#filter(org.apache.bcel.classfile.JavaClass)
+	 */
 	public boolean filter(JavaClass javaClass) {
-		return JarToUML.isNamedClass(javaClass) && filter((AccessFlags) javaClass);
+		return JarToUML.isNamedClass(javaClass);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see be.ac.vub.jar2uml.Filter#filter(org.apache.bcel.classfile.AccessFlags)
+	 */
 	public boolean filter(AccessFlags flags) {
 		return (flags.isPublic() || flags.isProtected());
 	}
