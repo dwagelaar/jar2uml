@@ -19,6 +19,8 @@ public class MergeModelTest extends J2UTestCase {
 
 	public static final Pattern javaNamePattern = Pattern.compile("^\\w+(\\[\\])*(\\.\\w+)*(\\$\\w+)*(\\[\\])*(\\#(\\w+|<init>)(\\.\\w+)?)?$");
 
+	public static final String bug78Uri = PLUGIN_URI + "/resources/bug78.uml";
+
 	/**
 	 * Test method for {@link MergeModel#getJavaName(NamedElement)}.
 	 */
@@ -61,28 +63,50 @@ public class MergeModelTest extends J2UTestCase {
 		final Model baseModel = loadModelFromUri(jaxbOsgiDepsUri);
 		final Model jaxbOsgiRefDepsModel = loadModelFromUri(jaxbOsgiDepsUri);
 		final Model j2eeRefDepsModel = loadModelFromUri(j2eeDepsUri);
+		testRunMerge(baseModel, j2eeRefDepsModel, jaxbOsgiRefDepsModel);
+	}
+
+	/**
+	 * Test method for <a href="https://soft.vub.ac.be/bugzilla/show_bug.cgi?id=78">bug 78</a>.
+	 * @throws InterruptedException 
+	 */
+	public void testBug78() throws InterruptedException {
+		final Model baseModel = loadModelFromUri(jaxbOsgiDepsUri);
+		final Model refModel = loadModelFromUri(jaxbOsgiDepsUri);
+		final Model mergeModel = loadModelFromUri(bug78Uri);
+		testRunMerge(baseModel, mergeModel, refModel);
+	}
+
+	/**
+	 * Tests {@link MergeModel#run()} with given models.
+	 * @param base the base model
+	 * @param merge the model to merge
+	 * @param ref the reference model - the merged model must be compatible with this model
+	 * @throws InterruptedException 
+	 */
+	private void testRunMerge(final Model base, final Model merge, final Model ref) throws InterruptedException {
 		final MergeModel mergeModel = new MergeModel();
-		mergeModel.setBaseModel(baseModel);
-		mergeModel.setMergeModel(j2eeRefDepsModel);
+		mergeModel.setBaseModel(base);
+		mergeModel.setMergeModel(merge);
 		mergeModel.run();
-		validateModel(baseModel);
-		validateInferredTags(baseModel);
-		final List<Classifier> j2eeClassifiers = new ArrayList<Classifier>();
-		MergeModel.findClassifiers(j2eeRefDepsModel, j2eeClassifiers);
+		validateModel(base);
+		validateInferredTags(base);
+		final List<Classifier> mergeClassifiers = new ArrayList<Classifier>();
+		MergeModel.findClassifiers(merge, mergeClassifiers);
 		FindContainedClassifierSwitch findClassifierSwitch = new FindContainedClassifierSwitch();
-		for (Classifier c : j2eeClassifiers) {
+		for (Classifier c : mergeClassifiers) {
 			String className = MergeModel.getJavaName(c);
-			Classifier cim = findClassifierSwitch.findClassifier(baseModel, className, null);
+			Classifier cim = findClassifierSwitch.findClassifier(base, className, null);
 			assertNotNull(cim);
-			Classifier orig = findClassifierSwitch.findClassifier(jaxbOsgiRefDepsModel, className, null);
+			Classifier orig = findClassifierSwitch.findClassifier(ref, className, null);
 			boolean inferred = (orig != null ? AddInferredTagSwitch.isInferred(orig) : true) && AddInferredTagSwitch.isInferred(c);
 			assertEquals(inferred, AddInferredTagSwitch.isInferred(cim));
 		}
-		final List<Classifier> jaxbClassifiers = new ArrayList<Classifier>();
-		MergeModel.findClassifiers(jaxbOsgiRefDepsModel, jaxbClassifiers);
-		for (Classifier c : jaxbClassifiers) {
+		final List<Classifier> refClassifiers = new ArrayList<Classifier>();
+		MergeModel.findClassifiers(ref, refClassifiers);
+		for (Classifier c : refClassifiers) {
 			String className = MergeModel.getJavaName(c);
-			Classifier cim = findClassifierSwitch.findClassifier(baseModel, className, null);
+			Classifier cim = findClassifierSwitch.findClassifier(base, className, null);
 			assertNotNull(cim);
 			if (!AddInferredTagSwitch.isInferred(c)) {
 				assertFalse(AddInferredTagSwitch.isInferred(cim));
