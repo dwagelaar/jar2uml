@@ -81,8 +81,8 @@ public class MergeClassifiers extends AddToModel {
 	}
 
 	/**
-	 * Merges all elements into the model.
-	 * @param elements the elements to merge
+	 * Merges all classifiers into the model.
+	 * @param elements the classifiers to merge
 	 */
 	public void mergeAllClassifiers(final List<Classifier> elements) {
 		for (Classifier c : elements) {
@@ -115,6 +115,27 @@ public class MergeClassifiers extends AddToModel {
 			classifier.setIsAbstract(classifier.isAbstract() && c.isAbstract());
 			classifier.setIsLeaf(classifier.isLeaf() && c.isLeaf());
 		}
+	}
+
+	/**
+	 * Merges properties of all classifiers into the model.
+	 * @param elements the classifiers to merge
+	 */
+	public void mergeAllClassifierProperties(final List<Classifier> elements) {
+		for (Classifier c : elements) {
+			mergeClassifierProperties(c);
+			worked();
+		}
+	}
+
+	/**
+	 * Merges properties of c into the model.
+	 * @param c
+	 */
+	public void mergeClassifierProperties(final Classifier c) {
+		JarToUMLResources.logger.finest(c.getQualifiedName());
+		final Classifier classifier = findClassifierInModel(c);
+		assert classifier != null;
 		addInterfaceRealizations(classifier, c);
 		addGeneralizations(classifier, c);
 		if (isIncludeFeatures()) {
