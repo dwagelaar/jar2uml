@@ -30,7 +30,7 @@ import org.eclipse.uml2.uml.Package;
 public final class MergeModel extends JarToUMLRunnable {
 
 	private static final int WORK_FIND_CONTAINED = 100;
-	private static final int WORK_MERGE_CLASSES = 100;
+	private static final int WORK_MERGE_CLASSES = 200;
 	private static final int WORK_INFERRED_TAGS = 100;
 	private static final int WORK_TOTAL = WORK_FIND_CONTAINED + WORK_MERGE_CLASSES + WORK_INFERRED_TAGS;
 
@@ -125,6 +125,15 @@ public final class MergeModel extends JarToUMLRunnable {
 		worked(null, JarToUMLResources.getString("MergeModel.mergedClassifiers")); //$NON-NLS-1$
 		//
 		// 3
+		//
+		subTask(monitor, JarToUMLResources.getString("MergeModel.mergingClassifierProperties")); //$NON-NLS-1$
+		mergeClassifiers.beginTask(
+				JarToUMLResources.getString("MergeModel.mergingClassifierProperties"), 
+				mergeElements.size()); //$NON-NLS-1$
+		mergeClassifiers.mergeAllClassifierProperties(mergeElements);
+		worked(null, JarToUMLResources.getString("MergeModel.mergedClassifierProperties")); //$NON-NLS-1$
+		//
+		// 4
 		//
 		subTask(monitor, JarToUMLResources.getString("MergeModel.updatingInferred")); //$NON-NLS-1$
 		final MarkInferredClassifiers markInferredClassifiers = new MarkInferredClassifiers(
