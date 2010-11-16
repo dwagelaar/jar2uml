@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmi:id="_ulla0PF1Ed-eKP5QJnbo5g" name="bug78">
+  <packagedElement xmi:type="uml:Package" xmi:id="_w_i70PF1Ed-eKP5QJnbo5g" name="bug78">
+    <packagedElement xmi:type="uml:Class" xmi:id="_0DaVcPF1Ed-eKP5QJnbo5g" name="UsesNestedInterface" clientDependency="_HoNx0PF2Ed-eKP5QJnbo5g">
+      <interfaceRealization xmi:id="_HoNx0PF2Ed-eKP5QJnbo5g" supplier="__OtwQPF1Ed-eKP5QJnbo5g" client="_0DaVcPF1Ed-eKP5QJnbo5g" contract="__OtwQPF1Ed-eKP5QJnbo5g"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_h9cjsPF3Ed-eKP5QJnbo5g" name="UsesRootInterface" clientDependency="_ipua4PF3Ed-eKP5QJnbo5g">
+      <interfaceRealization xmi:id="_ipua4PF3Ed-eKP5QJnbo5g" supplier="_1PJv0PF1Ed-eKP5QJnbo5g" client="_h9cjsPF3Ed-eKP5QJnbo5g" contract="_1PJv0PF1Ed-eKP5QJnbo5g"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Interface" xmi:id="_1PJv0PF1Ed-eKP5QJnbo5g" name="RootInterface">
+      <nestedClassifier xmi:type="uml:Interface" xmi:id="__OtwQPF1Ed-eKP5QJnbo5g" name="NestedInterface"/>
+    </packagedElement>
+  </packagedElement>
+</uml:Model>
