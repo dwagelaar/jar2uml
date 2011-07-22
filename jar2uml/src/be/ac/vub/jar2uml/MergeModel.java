@@ -120,16 +120,13 @@ public final class MergeModel extends JarToUMLRunnable {
 		subTask(monitor, JarToUMLResources.getString("MergeModel.mergingClassifiers")); //$NON-NLS-1$
 		mergeClassifiers.beginTask(
 				JarToUMLResources.getString("MergeModel.mergingClassifiers"), 
-				mergeElements.size()); //$NON-NLS-1$
+				mergeElements.size() * 2); //$NON-NLS-1$
 		mergeClassifiers.mergeAllClassifiers(mergeElements);
 		worked(null, JarToUMLResources.getString("MergeModel.mergedClassifiers")); //$NON-NLS-1$
 		//
 		// 3
 		//
 		subTask(monitor, JarToUMLResources.getString("MergeModel.mergingClassifierProperties")); //$NON-NLS-1$
-		mergeClassifiers.beginTask(
-				JarToUMLResources.getString("MergeModel.mergingClassifierProperties"), 
-				mergeElements.size()); //$NON-NLS-1$
 		mergeClassifiers.mergeAllClassifierProperties(mergeElements);
 		worked(null, JarToUMLResources.getString("MergeModel.mergedClassifierProperties")); //$NON-NLS-1$
 		//
