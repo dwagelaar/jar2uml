@@ -48,7 +48,7 @@
 			<link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
 			<link href="../bcel-docs/apidocs"/>
 			<link href="../../../org.eclipse.uml2.doc/references/javadoc"/>
-			<link href="../../../org.eclipse.emf.doc/references/javadoc"/>
+			<link href="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/"/>
 			<link href="../../../org.eclipse.platform.doc.isv/reference/api"/>
 			<classpath>
 				<pathelement path="../../jar2uml/bin"/>
