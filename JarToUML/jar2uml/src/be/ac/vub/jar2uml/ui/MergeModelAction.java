@@ -4,7 +4,9 @@
 package be.ac.vub.jar2uml.ui;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -140,11 +142,18 @@ public class MergeModelAction extends SelectionAction {
 		if (resources.length == 0) {
 			throw new JarToUMLException(JarToUMLResources.getString("MergeModelAction.noModelsSelected")); //$NON-NLS-1$
 		}
+		final List<IFile> files = new ArrayList<IFile>(resources.length);
+		for (Object resource : resources) {
+			if (resource instanceof IFile) {
+				files.add((IFile) resource);
+			}
+		}
+
 		monitor.beginTask(
 				String.format(
 						JarToUMLResources.getString("MergeModelAction.mergingStart"), 
 						baseFile.getName()), 
-				2 + resources.length); //$NON-NLS-1$
+				2 + files.size() * 10); //$NON-NLS-1$
 		monitor.subTask(JarToUMLResources.getString("MergeModelAction.loadingBase")); //$NON-NLS-1$
 		final ResourceSet rs = new ResourceSetImpl();
 		final URI baseURI = URI.createPlatformResourceURI(
@@ -158,25 +167,20 @@ public class MergeModelAction extends SelectionAction {
 		mergeModel.setBaseModel(base);
 		monitor.worked(1);
 
-		for (Object resource : resources) {
-			if (resource instanceof IFile) {
-				IFile mergeFile = (IFile) resource;
-				monitor.subTask(String.format(
-						JarToUMLResources.getString("MergeModelAction.merging"), 
-						mergeFile.getName())); //$NON-NLS-1$
-				URI mergeURI = URI.createPlatformResourceURI(
-						mergeFile.getProject().getName() + '/' +
-						mergeFile.getProjectRelativePath().toString(), 
-						true);
-				Resource mergeRes = rs.getResource(mergeURI, true);
-				Model merge = findRootModel(mergeRes);
-				assert merge != null;
-				mergeModel.setMergeModel(merge);
-				mergeModel.setMonitor(new SubProgressMonitor(monitor, 1));
-				mergeModel.run();
-			} else {
-				monitor.worked(1); //skipped
-			}
+		for (IFile mergeFile : files) {
+			monitor.subTask(String.format(
+					JarToUMLResources.getString("MergeModelAction.merging"), 
+					mergeFile.getName())); //$NON-NLS-1$
+			URI mergeURI = URI.createPlatformResourceURI(
+					mergeFile.getProject().getName() + '/' +
+					mergeFile.getProjectRelativePath().toString(), 
+					true);
+			Resource mergeRes = rs.getResource(mergeURI, true);
+			Model merge = findRootModel(mergeRes);
+			assert merge != null;
+			mergeModel.setMergeModel(merge);
+			mergeModel.setMonitor(new SubProgressMonitor(monitor, 10));
+			mergeModel.run();
 			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
