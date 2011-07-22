@@ -2,7 +2,7 @@
 <feature
       id="be.ac.vub.jar2uml"
       label="%featureName"
-      version="1.1.15"
+      version="1.1.16"
       provider-name="%providerName"
       plugin="be.ac.vub.jar2uml"
       image="VUB_logo_compact.gif">
@@ -44,8 +44,8 @@
 
    <plugin
          id="org.apache.bcel"
-         download-size="560"
-         install-size="560"
+         download-size="552"
+         install-size="552"
          version="0.0.0"
          unpack="false"/>
 
