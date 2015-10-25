@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="be.ac.vub.jar2uml"
+      id="org.eclipselabs.jar2uml"
       label="%featureName"
-      version="1.1.17"
+      version="1.2.0"
       provider-name="%providerName"
-      plugin="be.ac.vub.jar2uml"
-      image="VUB_logo_compact.gif">
+      plugin="org.eclipselabs.jar2uml">
 
    <description url="about.html">
       %description
@@ -20,12 +19,11 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://soft.vub.ac.be/eclipse/update-3.5"/>
+      <update label="%updateSiteName" url="https://raw.githubusercontent.com/dwagelaar/jar2uml/master/update/"/>
    </url>
 
    <requires>
       <import plugin="org.junit"/>
-      <import plugin="org.eclipse.uml2.uml"/>
       <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.core.resources"/>
       <import plugin="org.eclipse.core.runtime"/>
@@ -33,26 +31,20 @@
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.console"/>
       <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.uml2.uml" version="5.0.2" match="greaterOrEqual"/>
    </requires>
 
    <plugin
-         id="be.ac.vub.jar2uml"
-         download-size="300"
-         install-size="300"
+         id="org.eclipselabs.jar2uml"
+         download-size="0"
+         install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.apache.bcel"
-         download-size="552"
-         install-size="552"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="be.ac.vub.jar2uml.doc"
-         download-size="4292"
-         install-size="4292"
+         download-size="0"
+         install-size="0"
          version="0.0.0"
          unpack="false"/>
 

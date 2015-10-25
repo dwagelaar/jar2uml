@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.apache.bcel
+Bundle-Version: 5.2.0.qualifier
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Export-Package: org.apache.bcel;version="5.2.0",
+ org.apache.bcel.classfile;version="5.2.0",
+ org.apache.bcel.generic;version="5.2.0",
+ org.apache.bcel.util;version="5.2.0",
+ org.apache.bcel.verifier;version="5.2.0",
+ org.apache.bcel.verifier.exc;version="5.2.0",
+ org.apache.bcel.verifier.statics;version="5.2.0",
+ org.apache.bcel.verifier.structurals;version="5.2.0"

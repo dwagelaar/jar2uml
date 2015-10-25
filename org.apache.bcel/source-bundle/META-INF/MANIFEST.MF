@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.apache.bcel.source
+Bundle-Version: 5.2.0.qualifier
+Bundle-Localization: plugin
+Bundle-Vendor: %providerName
+Eclipse-SourceBundle: org.apache.bcel;version="5.2.0.qualifier"

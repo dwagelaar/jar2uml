@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="org.eclipselabs.jar2uml" version="0.0.0">
+      <category name="jar2uml"/>
+   </feature>
+   <category-def name="jar2uml" label="Jar2UML">
+      <description>
+         Jar2UML features.
+      </description>
+   </category-def>
+</site>

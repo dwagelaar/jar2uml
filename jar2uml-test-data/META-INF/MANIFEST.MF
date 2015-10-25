@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
-Bundle-SymbolicName: be.ac.vub.jar2uml.test.data
-Bundle-Version: 1.1.12
-Export-Package: be.ac.vub.jar2uml.test.data,
- be.ac.vub.jar2uml.test.data.other
+Bundle-SymbolicName: org.eclipselabs.jar2uml.test.data
+Bundle-Version: 1.2.0
+Export-Package: org.eclipselabs.jar2uml.test.data,
+ org.eclipselabs.jar2uml.test.data.other
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.emf.common;bundle-version="2.5.0"
