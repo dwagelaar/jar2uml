@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,32 +12,33 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-import org.apache.bcel.Constants;
+import org.apache.bcel.Const;
 import org.apache.bcel.classfile.LocalVariable;
 
-/** 
+/**
  * This class represents a local variable within a method. It contains its
  * scope, name and type. The generated LocalVariable object can be obtained
  * with getLocalVariable which needs the instruction list and the constant
  * pool as parameters.
  *
- * @version $Id: LocalVariableGen.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: LocalVariableGen.java 1812325 2017-10-16 20:34:31Z ggregory $
  * @see     LocalVariable
  * @see     MethodGen
  */
-public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Cloneable,
-        java.io.Serializable {
+public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Cloneable {
 
     private int index;
     private String name;
     private Type type;
-    private InstructionHandle start, end;
+    private InstructionHandle start;
+    private InstructionHandle end;
+    private int orig_index; // never changes; used to match up with LocalVariableTypeTable entries
+    private boolean live_to_end;
 
 
     /**
@@ -49,9 +51,9 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
      * @param start from where the instruction is valid (null means from the start)
      * @param end until where the instruction is valid (null means to the end)
      */
-    public LocalVariableGen(int index, String name, Type type, InstructionHandle start,
-            InstructionHandle end) {
-        if ((index < 0) || (index > Constants.MAX_SHORT)) {
+    public LocalVariableGen(final int index, final String name, final Type type, final InstructionHandle start,
+            final InstructionHandle end) {
+        if ((index < 0) || (index > Const.MAX_SHORT)) {
             throw new ClassGenException("Invalid index index: " + index);
         }
         this.name = name;
@@ -59,6 +61,26 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
         this.index = index;
         setStart(start);
         setEnd(end);
+        this.orig_index = index;
+        this.live_to_end = end == null;
+    }
+
+
+    /**
+     * Generate a local variable that with index `index'. Note that double and long
+     * variables need two indexs. Index indices have to be provided by the user.
+     *
+     * @param index index of local variable
+     * @param name its name
+     * @param type its type
+     * @param start from where the instruction is valid (null means from the start)
+     * @param end until where the instruction is valid (null means to the end)
+     * @param orig_index index of local variable prior to any changes to index
+     */
+    public LocalVariableGen(final int index, final String name, final Type type, final InstructionHandle start,
+            final InstructionHandle end, final int orig_index) {
+        this(index, name, type, start, end);
+        this.orig_index = orig_index;
     }
 
 
@@ -68,28 +90,32 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
      * This relies on that the instruction list has already been dumped to byte code or
      * or that the `setPositions' methods has been called for the instruction list.
      *
-     * Note that for local variables whose scope end at the last
-     * instruction of the method's code, the JVM specification is ambiguous:
-     * both a start_pc+length ending at the last instruction and
-     * start_pc+length ending at first index beyond the end of the code are
-     * valid.
+     * Note that due to the conversion from byte code offset to InstructionHandle,
+     * it is impossible to tell the difference between a live range that ends BEFORE
+     * the last insturction of the method or a live range that ends AFTER the last
+     * instruction of the method.  Hence the live_to_end flag to differentiate
+     * between these two cases.
      *
      * @param cp constant pool
      */
-    public LocalVariable getLocalVariable( ConstantPoolGen cp ) {
-        int start_pc = start.getPosition();
-        int length = end.getPosition() - start_pc;
-        if (length > 0) {
-            length += end.getInstruction().getLength();
+    public LocalVariable getLocalVariable( final ConstantPoolGen cp ) {
+        int start_pc = 0;
+        int length = 0;
+        if ((start != null) && (end != null)) {
+            start_pc = start.getPosition();
+            length = end.getPosition() - start_pc;
+            if ((end.getNext() == null) && live_to_end) {
+                length += end.getInstruction().getLength();
+            }
         }
-        int name_index = cp.addUtf8(name);
-        int signature_index = cp.addUtf8(type.getSignature());
+        final int name_index = cp.addUtf8(name);
+        final int signature_index = cp.addUtf8(type.getSignature());
         return new LocalVariable(start_pc, length, name_index, signature_index, index, cp
-                .getConstantPool());
+                .getConstantPool(), orig_index);
     }
 
 
-    public void setIndex( int index ) {
+    public void setIndex( final int index ) {
         this.index = index;
     }
 
@@ -99,21 +125,40 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
     }
 
 
-    public void setName( String name ) {
+    public int getOrigIndex() {
+        return orig_index;
+    }
+
+
+    public void setLiveToEnd( final boolean live_to_end) {
+        this.live_to_end = live_to_end;
+    }
+
+
+    public boolean getLiveToEnd() {
+        return live_to_end;
+    }
+
+
+    @Override
+    public void setName( final String name ) {
         this.name = name;
     }
 
 
+    @Override
     public String getName() {
         return name;
     }
 
 
-    public void setType( Type type ) {
+    @Override
+    public void setType( final Type type ) {
         this.type = type;
     }
 
 
+    @Override
     public Type getType() {
         return type;
     }
@@ -129,13 +174,13 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
     }
 
 
-    public void setStart( InstructionHandle start ) {
+    public void setStart( final InstructionHandle start ) { // TODO could be package-protected?
         BranchInstruction.notifyTarget(this.start, start, this);
         this.start = start;
     }
 
 
-    public void setEnd( InstructionHandle end ) {
+    public void setEnd( final InstructionHandle end ) { // TODO could be package-protected?
         BranchInstruction.notifyTarget(this.end, end, this);
         this.end = end;
     }
@@ -145,7 +190,8 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
      * @param old_ih old target, either start or end
      * @param new_ih new target
      */
-    public void updateTarget( InstructionHandle old_ih, InstructionHandle new_ih ) {
+    @Override
+    public void updateTarget( final InstructionHandle old_ih, final InstructionHandle new_ih ) {
         boolean targeted = false;
         if (start == old_ih) {
             targeted = true;
@@ -161,21 +207,28 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
         }
     }
 
+    /**
+     * Clear the references from and to this variable when it's removed.
+     */
+    void dispose() {
+        setStart(null);
+        setEnd(null);
+    }
 
     /**
      * @return true, if ih is target of this variable
      */
-    public boolean containsTarget( InstructionHandle ih ) {
+    @Override
+    public boolean containsTarget( final InstructionHandle ih ) {
         return (start == ih) || (end == ih);
     }
 
 
-    /** @return a hash code value for the object.
-     */
+    @Override
     public int hashCode() {
-        //If the user changes the name or type, problems with the targeter hashmap will occur
-        int hc = index ^ name.hashCode() ^ type.hashCode();
-        return hc;
+        // If the user changes the name or type, problems with the targeter hashmap will occur.
+        // Note: index cannot be part of hash as it may be changed by the user.
+        return name.hashCode() ^ type.hashCode();
     }
 
 
@@ -183,26 +236,28 @@ public class LocalVariableGen implements InstructionTargeter, NamedAndTyped, Clo
      * We consider to local variables to be equal, if the use the same index and
      * are valid in the same range.
      */
-    public boolean equals( Object o ) {
+    @Override
+    public boolean equals( final Object o ) {
         if (!(o instanceof LocalVariableGen)) {
             return false;
         }
-        LocalVariableGen l = (LocalVariableGen) o;
+        final LocalVariableGen l = (LocalVariableGen) o;
         return (l.index == index) && (l.start == start) && (l.end == end);
     }
 
 
+    @Override
     public String toString() {
         return "LocalVariableGen(" + name + ", " + type + ", " + start + ", " + end + ")";
     }
 
 
+    @Override
     public Object clone() {
         try {
             return super.clone();
-        } catch (CloneNotSupportedException e) {
-            System.err.println(e);
-            return null;
+        } catch (final CloneNotSupportedException e) {
+            throw new Error("Clone Not Supported"); // never happens
         }
     }
 }

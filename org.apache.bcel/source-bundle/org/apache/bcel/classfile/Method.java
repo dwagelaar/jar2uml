@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,43 +12,47 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.IOException;
-import org.apache.bcel.Constants;
+
+import org.apache.bcel.Const;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.util.BCELComparator;
 
 /**
- * This class represents the method info structure, i.e., the representation 
+ * This class represents the method info structure, i.e., the representation
  * for a method in the class. See JVM specification for details.
  * A method has access flags, a name, a signature and a number of attributes.
  *
- * @version $Id: Method.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: Method.java 1806200 2017-08-25 16:33:06Z ggregory $
  */
 public final class Method extends FieldOrMethod {
 
-    private static BCELComparator _cmp = new BCELComparator() {
+    private static BCELComparator bcelComparator = new BCELComparator() {
 
-        public boolean equals( Object o1, Object o2 ) {
-            Method THIS = (Method) o1;
-            Method THAT = (Method) o2;
+        @Override
+        public boolean equals( final Object o1, final Object o2 ) {
+            final Method THIS = (Method) o1;
+            final Method THAT = (Method) o2;
             return THIS.getName().equals(THAT.getName())
                     && THIS.getSignature().equals(THAT.getSignature());
         }
 
 
-        public int hashCode( Object o ) {
-            Method THIS = (Method) o;
+        @Override
+        public int hashCode( final Object o ) {
+            final Method THIS = (Method) o;
             return THIS.getSignature().hashCode() ^ THIS.getName().hashCode();
         }
     };
 
+    // annotations defined on the parameters of a method
+    private ParameterAnnotationEntry[] parameterAnnotationEntries;
 
     /**
      * Empty constructor, all attributes have to be defined via `setXXX'
@@ -61,7 +66,7 @@ public final class Method extends FieldOrMethod {
      * Initialize from another object. Note that both objects use the same
      * references (shallow copy). Use clone() for a physical copy.
      */
-    public Method(Method c) {
+    public Method(final Method c) {
         super(c);
     }
 
@@ -72,7 +77,7 @@ public final class Method extends FieldOrMethod {
      * @throws IOException
      * @throws ClassFormatException
      */
-    Method(DataInputStream file, ConstantPool constant_pool) throws IOException,
+    Method(final DataInput file, final ConstantPool constant_pool) throws IOException,
             ClassFormatException {
         super(file, constant_pool);
     }
@@ -85,8 +90,8 @@ public final class Method extends FieldOrMethod {
      * @param attributes Collection of attributes
      * @param constant_pool Array of constants
      */
-    public Method(int access_flags, int name_index, int signature_index, Attribute[] attributes,
-            ConstantPool constant_pool) {
+    public Method(final int access_flags, final int name_index, final int signature_index, final Attribute[] attributes,
+            final ConstantPool constant_pool) {
         super(access_flags, name_index, signature_index, attributes, constant_pool);
     }
 
@@ -98,7 +103,8 @@ public final class Method extends FieldOrMethod {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitMethod(this);
     }
 
@@ -107,9 +113,9 @@ public final class Method extends FieldOrMethod {
      * @return Code attribute of method, if any
      */
     public final Code getCode() {
-        for (int i = 0; i < attributes_count; i++) {
-            if (attributes[i] instanceof Code) {
-                return (Code) attributes[i];
+        for (final Attribute attribute : super.getAttributes()) {
+            if (attribute instanceof Code) {
+                return (Code) attribute;
             }
         }
         return null;
@@ -121,9 +127,9 @@ public final class Method extends FieldOrMethod {
      * exceptions the method may throw not exception handlers!
      */
     public final ExceptionTable getExceptionTable() {
-        for (int i = 0; i < attributes_count; i++) {
-            if (attributes[i] instanceof ExceptionTable) {
-                return (ExceptionTable) attributes[i];
+        for (final Attribute attribute : super.getAttributes()) {
+            if (attribute instanceof ExceptionTable) {
+                return (ExceptionTable) attribute;
             }
         }
         return null;
@@ -134,7 +140,7 @@ public final class Method extends FieldOrMethod {
      * to the Code atribute.
      */
     public final LocalVariableTable getLocalVariableTable() {
-        Code code = getCode();
+        final Code code = getCode();
         if (code == null) {
             return null;
         }
@@ -146,7 +152,7 @@ public final class Method extends FieldOrMethod {
      * to the Code atribute.
      */
     public final LineNumberTable getLineNumberTable() {
-        Code code = getCode();
+        final Code code = getCode();
         if (code == null) {
             return null;
         }
@@ -160,29 +166,26 @@ public final class Method extends FieldOrMethod {
      *
      * @return String representation of the method.
      */
+    @Override
     public final String toString() {
-        ConstantUtf8 c;
-        String name, signature, access; // Short cuts to constant pool
-        StringBuffer buf;
-        access = Utility.accessToString(access_flags);
+        final String access = Utility.accessToString(super.getAccessFlags());
         // Get name and signature from constant pool
-        c = (ConstantUtf8) constant_pool.getConstant(signature_index, Constants.CONSTANT_Utf8);
-        signature = c.getBytes();
-        c = (ConstantUtf8) constant_pool.getConstant(name_index, Constants.CONSTANT_Utf8);
-        name = c.getBytes();
+        ConstantUtf8 c = (ConstantUtf8) super.getConstantPool().getConstant(super.getSignatureIndex(), Const.CONSTANT_Utf8);
+        String signature = c.getBytes();
+        c = (ConstantUtf8) super.getConstantPool().getConstant(super.getNameIndex(), Const.CONSTANT_Utf8);
+        final String name = c.getBytes();
         signature = Utility.methodSignatureToString(signature, name, access, true,
                 getLocalVariableTable());
-        buf = new StringBuffer(signature);
-        for (int i = 0; i < attributes_count; i++) {
-            Attribute a = attributes[i];
-            if (!((a instanceof Code) || (a instanceof ExceptionTable))) {
-                buf.append(" [").append(a.toString()).append("]");
+        final StringBuilder buf = new StringBuilder(signature);
+        for (final Attribute attribute : super.getAttributes()) {
+            if (!((attribute instanceof Code) || (attribute instanceof ExceptionTable))) {
+                buf.append(" [").append(attribute).append("]");
             }
         }
-        ExceptionTable e = getExceptionTable();
+        final ExceptionTable e = getExceptionTable();
         if (e != null) {
-            String str = e.toString();
-            if (!str.equals("")) {
+            final String str = e.toString();
+            if (!str.isEmpty()) {
                 buf.append("\n\t\tthrows ").append(str);
             }
         }
@@ -193,7 +196,7 @@ public final class Method extends FieldOrMethod {
     /**
      * @return deep copy of this method
      */
-    public final Method copy( ConstantPool _constant_pool ) {
+    public final Method copy( final ConstantPool _constant_pool ) {
         return (Method) copy_(_constant_pool);
     }
 
@@ -218,15 +221,15 @@ public final class Method extends FieldOrMethod {
      * @return Comparison strategy object
      */
     public static BCELComparator getComparator() {
-        return _cmp;
+        return bcelComparator;
     }
 
 
     /**
      * @param comparator Comparison strategy object
      */
-    public static void setComparator( BCELComparator comparator ) {
-        _cmp = comparator;
+    public static void setComparator( final BCELComparator comparator ) {
+        bcelComparator = comparator;
     }
 
 
@@ -234,21 +237,34 @@ public final class Method extends FieldOrMethod {
      * Return value as defined by given BCELComparator strategy.
      * By default two method objects are said to be equal when
      * their names and signatures are equal.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean equals( Object obj ) {
-        return _cmp.equals(this, obj);
+    @Override
+    public boolean equals( final Object obj ) {
+        return bcelComparator.equals(this, obj);
     }
 
 
     /**
      * Return value as defined by given BCELComparator strategy.
      * By default return the hashcode of the method's name XOR signature.
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
-        return _cmp.hashCode(this);
+        return bcelComparator.hashCode(this);
+    }
+
+    /**
+     * @return Annotations on the parameters of a method
+     * @since 6.0
+     */
+    public ParameterAnnotationEntry[] getParameterAnnotationEntries() {
+        if (parameterAnnotationEntries == null) {
+            parameterAnnotationEntries = ParameterAnnotationEntry.createParameterAnnotationEntries(getAttributes());
+        }
+        return parameterAnnotationEntries;
     }
 }

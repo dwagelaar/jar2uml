@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
@@ -21,14 +22,13 @@ import org.apache.bcel.classfile.ConstantPool;
 /**
  * Super class for the GET/PUTxxx family of instructions.
  *
- * @version $Id: FieldInstruction.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: FieldInstruction.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
-public abstract class FieldInstruction extends FieldOrMethod implements TypedInstruction {
+public abstract class FieldInstruction extends FieldOrMethod {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     FieldInstruction() {
     }
@@ -37,7 +37,7 @@ public abstract class FieldInstruction extends FieldOrMethod implements TypedIns
     /**
      * @param index to constant pool
      */
-    protected FieldInstruction(short opcode, int index) {
+    protected FieldInstruction(final short opcode, final int index) {
         super(opcode, index);
     }
 
@@ -45,36 +45,38 @@ public abstract class FieldInstruction extends FieldOrMethod implements TypedIns
     /**
      * @return mnemonic for instruction with symbolic references resolved
      */
-    public String toString( ConstantPool cp ) {
-        return org.apache.bcel.Constants.OPCODE_NAMES[opcode] + " "
-                + cp.constantToString(index, org.apache.bcel.Constants.CONSTANT_Fieldref);
+    @Override
+    public String toString( final ConstantPool cp ) {
+        return org.apache.bcel.Const.getOpcodeName(super.getOpcode()) + " "
+                + cp.constantToString(super.getIndex(), org.apache.bcel.Const.CONSTANT_Fieldref);
     }
 
 
     /** @return size of field (1 or 2)
      */
-    protected int getFieldSize( ConstantPoolGen cpg ) {
-        return getType(cpg).getSize();
+    protected int getFieldSize( final ConstantPoolGen cpg ) {
+        return Type.size(Type.getTypeSize(getSignature(cpg)));
     }
 
 
     /** @return return type of referenced field
      */
-    public Type getType( ConstantPoolGen cpg ) {
+    @Override
+    public Type getType( final ConstantPoolGen cpg ) {
         return getFieldType(cpg);
     }
 
 
     /** @return type of field
      */
-    public Type getFieldType( ConstantPoolGen cpg ) {
+    public Type getFieldType( final ConstantPoolGen cpg ) {
         return Type.getType(getSignature(cpg));
     }
 
 
     /** @return name of referenced field.
      */
-    public String getFieldName( ConstantPoolGen cpg ) {
+    public String getFieldName( final ConstantPoolGen cpg ) {
         return getName(cpg);
     }
 }

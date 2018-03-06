@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,9 +12,9 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
- */ 
+ */
 package org.apache.bcel.verifier.exc;
 
 /**
@@ -26,20 +27,20 @@ package org.apache.bcel.verifier.exc;
  * These are the constraints where data-flow analysis is needed to verify if they hold.
  * The data flow analysis of pass 3 is called pass 3b in JustIce.
  *
- * @version $Id: StructuralCodeConstraintException.java 371539 2006-01-23 14:08:00Z tcurdt $
- * @author Enver Haase
+ * @version $Id: StructuralCodeConstraintException.java 1806200 2017-08-25 16:33:06Z ggregory $
  */
 public class StructuralCodeConstraintException extends CodeConstraintException{
-	/**
-	 * Constructs a new StructuralCodeConstraintException with the specified error message.
-	 */
-	public StructuralCodeConstraintException(String message){
-		super(message);
-	}
-	/**
-	 * Constructs a new StructuralCodeConstraintException with null as its error message string.
-	 */
-	public StructuralCodeConstraintException(){
-		super();
-	}
+    private static final long serialVersionUID = 5406842000007181420L;
+    /**
+     * Constructs a new StructuralCodeConstraintException with the specified error message.
+     */
+    public StructuralCodeConstraintException(final String message) {
+        super(message);
+    }
+    /**
+     * Constructs a new StructuralCodeConstraintException with null as its error message string.
+     */
+    public StructuralCodeConstraintException() {
+        super();
+    }
 }

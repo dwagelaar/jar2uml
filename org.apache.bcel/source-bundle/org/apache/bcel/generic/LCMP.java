@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,29 +12,29 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
 /**
  * LCMP - Compare longs:
- * <PRE>Stack: ..., value1.word1, value1.word2, value2.word1, value2.word2 -&gt;</PRE>
- *        ..., result <= -1, 0, 1>
+ * <PRE>Stack: ..., value1.word1, value1.word2, value2.word1, value2.word2 -&gt; ..., result &lt;= -1, 0, 1&gt;</PRE>
  *
- * @version $Id: LCMP.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ *
+ * @version $Id: LCMP.java 1806200 2017-08-25 16:33:06Z ggregory $
  */
 public class LCMP extends Instruction implements TypedInstruction, StackProducer, StackConsumer {
 
     public LCMP() {
-        super(org.apache.bcel.Constants.LCMP, (short) 1);
+        super(org.apache.bcel.Const.LCMP, (short) 1);
     }
 
 
     /** @return Type.LONG
      */
-    public Type getType( ConstantPoolGen cp ) {
+    @Override
+    public Type getType( final ConstantPoolGen cp ) {
         return Type.LONG;
     }
 
@@ -46,7 +47,8 @@ public class LCMP extends Instruction implements TypedInstruction, StackProducer
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitTypedInstruction(this);
         v.visitStackProducer(this);
         v.visitStackConsumer(this);

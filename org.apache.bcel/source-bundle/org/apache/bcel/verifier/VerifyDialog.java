@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,12 +12,13 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
- *
+ *  limitations under the License.
  */
+
 package org.apache.bcel.verifier;
 
 import java.awt.Color;
+
 import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
 
@@ -29,13 +31,13 @@ import org.apache.bcel.classfile.JavaClass;
  * class in your application.
  * [This class was created using VisualAge for Java,
  * but it does not work under VAJ itself (Version 3.02 JDK 1.2)]
- * @version $Id: VerifyDialog.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author Enver Haase
+ * @version $Id: VerifyDialog.java 1749603 2016-06-21 20:50:19Z ggregory $
  * @see #main(String[])
  * @see #VerifyDialog(String)
  */
 public class VerifyDialog extends javax.swing.JDialog {
 
+    private static final long serialVersionUID = -6374807677043142313L;
     /** Machine-generated. */
     private javax.swing.JPanel ivjJDialogContentPane = null;
     /** Machine-generated. */
@@ -51,7 +53,7 @@ public class VerifyDialog extends javax.swing.JDialog {
     /** Machine-generated. */
     private javax.swing.JButton ivjPass3Button = null;
     /** Machine-generated. */
-    IvjEventHandler ivjEventHandler = new IvjEventHandler();
+    private final IvjEventHandler ivjEventHandler = new IvjEventHandler();
     /**
      * The class to verify. Default set to 'java.lang.Object'
      * in case this class is instantiated via one of the many
@@ -68,7 +70,8 @@ public class VerifyDialog extends javax.swing.JDialog {
     /** Machine-generated. */
     class IvjEventHandler implements java.awt.event.ActionListener {
 
-        public void actionPerformed( java.awt.event.ActionEvent e ) {
+        @Override
+        public void actionPerformed( final java.awt.event.ActionEvent e ) {
             if (e.getSource() == VerifyDialog.this.getPass1Button()) {
                 connEtoC1(e);
             }
@@ -81,8 +84,8 @@ public class VerifyDialog extends javax.swing.JDialog {
             if (e.getSource() == VerifyDialog.this.getFlushButton()) {
                 connEtoC4(e);
             }
-        };
-    };
+        }
+    }
 
     /** Machine-generated. */
     private javax.swing.JButton ivjFlushButton = null;
@@ -96,49 +99,49 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Dialog owner) {
+    public VerifyDialog(final java.awt.Dialog owner) {
         super(owner);
     }
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Dialog owner, String title) {
+    public VerifyDialog(final java.awt.Dialog owner, final String title) {
         super(owner, title);
     }
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Dialog owner, String title, boolean modal) {
+    public VerifyDialog(final java.awt.Dialog owner, final String title, final boolean modal) {
         super(owner, title, modal);
     }
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Dialog owner, boolean modal) {
+    public VerifyDialog(final java.awt.Dialog owner, final boolean modal) {
         super(owner, modal);
     }
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Frame owner) {
+    public VerifyDialog(final java.awt.Frame owner) {
         super(owner);
     }
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Frame owner, String title) {
+    public VerifyDialog(final java.awt.Frame owner, final String title) {
         super(owner, title);
     }
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Frame owner, String title, boolean modal) {
+    public VerifyDialog(final java.awt.Frame owner, final String title, final boolean modal) {
         super(owner, title, modal);
     }
 
 
     /** Machine-generated. */
-    public VerifyDialog(java.awt.Frame owner, boolean modal) {
+    public VerifyDialog(final java.awt.Frame owner, final boolean modal) {
         super(owner, modal);
     }
 
@@ -150,7 +153,7 @@ public class VerifyDialog extends javax.swing.JDialog {
      */
     public VerifyDialog(String fully_qualified_class_name) {
         super();
-        int dotclasspos = fully_qualified_class_name.lastIndexOf(".class");
+        final int dotclasspos = fully_qualified_class_name.lastIndexOf(".class");
         if (dotclasspos != -1) {
             fully_qualified_class_name = fully_qualified_class_name.substring(0, dotclasspos);
         }
@@ -161,14 +164,14 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    private void connEtoC1( java.awt.event.ActionEvent arg1 ) {
+    private void connEtoC1( final java.awt.event.ActionEvent arg1 ) {
         try {
             // user code begin {1}
             // user code end
             this.pass1Button_ActionPerformed(arg1);
             // user code begin {2}
             // user code end
-        } catch (java.lang.Throwable ivjExc) {
+        } catch (final java.lang.Throwable ivjExc) {
             // user code begin {3}
             // user code end
             handleException(ivjExc);
@@ -177,14 +180,14 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    private void connEtoC2( java.awt.event.ActionEvent arg1 ) {
+    private void connEtoC2( final java.awt.event.ActionEvent arg1 ) {
         try {
             // user code begin {1}
             // user code end
             this.pass2Button_ActionPerformed(arg1);
             // user code begin {2}
             // user code end
-        } catch (java.lang.Throwable ivjExc) {
+        } catch (final java.lang.Throwable ivjExc) {
             // user code begin {3}
             // user code end
             handleException(ivjExc);
@@ -193,14 +196,14 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    private void connEtoC3( java.awt.event.ActionEvent arg1 ) {
+    private void connEtoC3( final java.awt.event.ActionEvent arg1 ) {
         try {
             // user code begin {1}
             // user code end
             this.pass4Button_ActionPerformed(arg1);
             // user code begin {2}
             // user code end
-        } catch (java.lang.Throwable ivjExc) {
+        } catch (final java.lang.Throwable ivjExc) {
             // user code begin {3}
             // user code end
             handleException(ivjExc);
@@ -209,14 +212,14 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    private void connEtoC4( java.awt.event.ActionEvent arg1 ) {
+    private void connEtoC4( final java.awt.event.ActionEvent arg1 ) {
         try {
             // user code begin {1}
             // user code end
             this.flushButton_ActionPerformed(arg1);
             // user code begin {2}
             // user code end
-        } catch (java.lang.Throwable ivjExc) {
+        } catch (final java.lang.Throwable ivjExc) {
             // user code begin {3}
             // user code end
             handleException(ivjExc);
@@ -225,7 +228,7 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    public void flushButton_ActionPerformed( java.awt.event.ActionEvent actionEvent ) {
+    public void flushButton_ActionPerformed( final java.awt.event.ActionEvent actionEvent ) {
         VerifierFactory.getVerifier(class_name).flush();
         Repository.removeClass(class_name); // Make sure it will be reloaded.
         getPass1Panel().setBackground(Color.gray);
@@ -250,7 +253,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 ivjFlushButton.setActionCommand("FlushButton");
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -276,7 +279,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 getJDialogContentPane().add(getFlushButton(), getFlushButton().getName());
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -298,7 +301,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 ivjPass1Button.setActionCommand("Button1");
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -319,7 +322,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 ivjPass1Panel.setBounds(30, 30, 50, 50);
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -341,7 +344,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 ivjPass2Button.setActionCommand("Button2");
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -362,7 +365,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 ivjPass2Panel.setBounds(30, 90, 50, 50);
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -384,7 +387,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 ivjPass3Button.setActionCommand("Button2");
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -405,7 +408,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                 ivjPass3Panel.setBounds(30, 150, 50, 50);
                 // user code begin {1}
                 // user code end
-            } catch (java.lang.Throwable ivjExc) {
+            } catch (final java.lang.Throwable ivjExc) {
                 // user code begin {2}
                 // user code end
                 handleException(ivjExc);
@@ -416,10 +419,17 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    private void handleException( java.lang.Throwable exception ) {
+    private void handleException( final java.lang.Throwable exception ) {
         /* Uncomment the following lines to print uncaught exceptions to stdout */
         System.out.println("--------- UNCAUGHT EXCEPTION ---------");
         exception.printStackTrace(System.out);
+        // manually added code
+        if (exception instanceof ThreadDeath) {
+            throw (ThreadDeath) exception;
+        }
+        if (exception instanceof VirtualMachineError) {
+            throw (VirtualMachineError) exception;
+        }
     }
 
 
@@ -447,7 +457,7 @@ public class VerifyDialog extends javax.swing.JDialog {
             setResizable(false);
             setContentPane(getJDialogContentPane());
             initConnections();
-        } catch (java.lang.Throwable ivjExc) {
+        } catch (final java.lang.Throwable ivjExc) {
             handleException(ivjExc);
         }
         // user code begin {2}
@@ -462,24 +472,25 @@ public class VerifyDialog extends javax.swing.JDialog {
      * green means 'passed' while yellow means 'could not be verified yet'.
      * @param args java.lang.String[] fully qualified names of classes to verify.
      */
-    public static void main( java.lang.String[] args ) {
+    public static void main( final java.lang.String[] args ) {
         classes_to_verify = args.length;
-        for (int i = 0; i < args.length; i++) {
+        for (final String arg : args) {
             try {
                 VerifyDialog aVerifyDialog;
-                aVerifyDialog = new VerifyDialog(args[i]);
+                aVerifyDialog = new VerifyDialog(arg);
                 aVerifyDialog.setModal(true);
                 aVerifyDialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
-                    public void windowClosing( java.awt.event.WindowEvent e ) {
+                    @Override
+                    public void windowClosing( final java.awt.event.WindowEvent e ) {
                         classes_to_verify--;
                         if (classes_to_verify == 0) {
                             System.exit(0);
                         }
-                    };
+                    }
                 });
                 aVerifyDialog.setVisible(true);
-            } catch (Throwable exception) {
+            } catch (final Throwable exception) {
                 System.err.println("Exception occurred in main() of javax.swing.JDialog");
                 exception.printStackTrace(System.out);
             }
@@ -488,9 +499,9 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    public void pass1Button_ActionPerformed( java.awt.event.ActionEvent actionEvent ) {
-        Verifier v = VerifierFactory.getVerifier(class_name);
-        VerificationResult vr = v.doPass1();
+    public void pass1Button_ActionPerformed( final java.awt.event.ActionEvent actionEvent ) {
+        final Verifier v = VerifierFactory.getVerifier(class_name);
+        final VerificationResult vr = v.doPass1();
         if (vr.getStatus() == VerificationResult.VERIFIED_OK) {
             getPass1Panel().setBackground(Color.green);
             getPass1Panel().repaint();
@@ -503,10 +514,10 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    public void pass2Button_ActionPerformed( java.awt.event.ActionEvent actionEvent ) {
+    public void pass2Button_ActionPerformed( final java.awt.event.ActionEvent actionEvent ) {
         pass1Button_ActionPerformed(actionEvent);
-        Verifier v = VerifierFactory.getVerifier(class_name);
-        VerificationResult vr = v.doPass2();
+        final Verifier v = VerifierFactory.getVerifier(class_name);
+        final VerificationResult vr = v.doPass2();
         if (vr.getStatus() == VerificationResult.VERIFIED_OK) {
             getPass2Panel().setBackground(Color.green);
             getPass2Panel().repaint();
@@ -523,16 +534,16 @@ public class VerifyDialog extends javax.swing.JDialog {
 
 
     /** Machine-generated. */
-    public void pass4Button_ActionPerformed( java.awt.event.ActionEvent actionEvent ) {
+    public void pass4Button_ActionPerformed( final java.awt.event.ActionEvent actionEvent ) {
         pass2Button_ActionPerformed(actionEvent);
         Color color = Color.green;
-        Verifier v = VerifierFactory.getVerifier(class_name);
+        final Verifier v = VerifierFactory.getVerifier(class_name);
         VerificationResult vr = v.doPass2();
         if (vr.getStatus() == VerificationResult.VERIFIED_OK) {
             JavaClass jc = null;
             try {
                 jc = Repository.lookupClass(class_name);
-                int nr = jc.getMethods().length;
+                final int nr = jc.getMethods().length;
                 for (int i = 0; i < nr; i++) {
                     vr = v.doPass3b(i);
                     if (vr.getStatus() != VerificationResult.VERIFIED_OK) {
@@ -540,7 +551,7 @@ public class VerifyDialog extends javax.swing.JDialog {
                         break;
                     }
                 }
-            } catch (ClassNotFoundException ex) {
+            } catch (final ClassNotFoundException ex) {
                 // FIXME: report the error
                 ex.printStackTrace();
             }

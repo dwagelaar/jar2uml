@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,28 +12,29 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
 import java.util.StringTokenizer;
-import org.apache.bcel.Constants;
+
+import org.apache.bcel.Const;
 import org.apache.bcel.classfile.Constant;
+import org.apache.bcel.classfile.ConstantCP;
 import org.apache.bcel.classfile.ConstantPool;
 
 /**
  * Super class for the INVOKExxx family of instructions.
  *
- * @version $Id: InvokeInstruction.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: InvokeInstruction.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
 public abstract class InvokeInstruction extends FieldOrMethod implements ExceptionThrower,
-        TypedInstruction, StackConsumer, StackProducer {
+        StackConsumer, StackProducer {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     InvokeInstruction() {
     }
@@ -41,7 +43,7 @@ public abstract class InvokeInstruction extends FieldOrMethod implements Excepti
     /**
      * @param index to constant pool
      */
-    protected InvokeInstruction(short opcode, int index) {
+    protected InvokeInstruction(final short opcode, final int index) {
         super(opcode, index);
     }
 
@@ -49,10 +51,11 @@ public abstract class InvokeInstruction extends FieldOrMethod implements Excepti
     /**
      * @return mnemonic for instruction with symbolic references resolved
      */
-    public String toString( ConstantPool cp ) {
-        Constant c = cp.getConstant(index);
-        StringTokenizer tok = new StringTokenizer(cp.constantToString(c));
-        return Constants.OPCODE_NAMES[opcode] + " " + tok.nextToken().replace('.', '/')
+    @Override
+    public String toString( final ConstantPool cp ) {
+        final Constant c = cp.getConstant(super.getIndex());
+        final StringTokenizer tok = new StringTokenizer(cp.constantToString(c));
+        return Const.getOpcodeName(super.getOpcode()) + " " + tok.nextToken().replace('.', '/')
                 + tok.nextToken();
     }
 
@@ -62,19 +65,17 @@ public abstract class InvokeInstruction extends FieldOrMethod implements Excepti
      * constant pool entry they reference.
      * @return Number of words consumed from stack by this instruction
      */
-    public int consumeStack( ConstantPoolGen cpg ) {
-        String signature = getSignature(cpg);
-        Type[] args = Type.getArgumentTypes(signature);
+    @Override
+    public int consumeStack( final ConstantPoolGen cpg ) {
         int sum;
-        if (opcode == Constants.INVOKESTATIC) {
+        if ((super.getOpcode() == Const.INVOKESTATIC) || (super.getOpcode() == Const.INVOKEDYNAMIC)) {
             sum = 0;
         } else {
             sum = 1; // this reference
         }
-        int n = args.length;
-        for (int i = 0; i < n; i++) {
-            sum += args[i].getSize();
-        }
+
+        final String signature = getSignature(cpg);
+        sum += Type.getArgumentTypesSize(signature);
         return sum;
     }
 
@@ -84,35 +85,53 @@ public abstract class InvokeInstruction extends FieldOrMethod implements Excepti
      * constant pool entry they reference.
      * @return Number of words produced onto stack by this instruction
      */
-    public int produceStack( ConstantPoolGen cpg ) {
-        return getReturnType(cpg).getSize();
+    @Override
+    public int produceStack( final ConstantPoolGen cpg ) {
+        final String signature = getSignature(cpg);
+        return Type.getReturnTypeSize(signature);
     }
 
+    /**
+     * This overrides the deprecated version as we know here that the referenced class
+     * may legally be an array.
+     *
+     * @return name of the referenced class/interface
+     * @throws IllegalArgumentException if the referenced class is an array (this should not happen)
+     */
+    @Override
+    public String getClassName( final ConstantPoolGen cpg ) {
+        final ConstantPool cp = cpg.getConstantPool();
+        final ConstantCP cmr = (ConstantCP) cp.getConstant(super.getIndex());
+        final String className = cp.getConstantString(cmr.getClassIndex(), Const.CONSTANT_Class);
+        return className.replace('/', '.');
+    }
 
     /** @return return type of referenced method.
      */
-    public Type getType( ConstantPoolGen cpg ) {
+    @Override
+    public Type getType( final ConstantPoolGen cpg ) {
         return getReturnType(cpg);
     }
 
 
     /** @return name of referenced method.
      */
-    public String getMethodName( ConstantPoolGen cpg ) {
+    public String getMethodName( final ConstantPoolGen cpg ) {
         return getName(cpg);
     }
 
 
     /** @return return type of referenced method.
      */
-    public Type getReturnType( ConstantPoolGen cpg ) {
+    public Type getReturnType( final ConstantPoolGen cpg ) {
         return Type.getReturnType(getSignature(cpg));
     }
 
 
     /** @return argument types of referenced method.
      */
-    public Type[] getArgumentTypes( ConstantPoolGen cpg ) {
+    public Type[] getArgumentTypes( final ConstantPoolGen cpg ) {
         return Type.getArgumentTypes(getSignature(cpg));
     }
+
 }

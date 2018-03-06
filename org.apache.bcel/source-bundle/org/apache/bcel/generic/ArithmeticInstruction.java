@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,25 +12,24 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-import org.apache.bcel.Constants;
+import org.apache.bcel.Const;
 
 /**
  * Super class for the family of arithmetic instructions.
  *
- * @version $Id: ArithmeticInstruction.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ArithmeticInstruction.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
 public abstract class ArithmeticInstruction extends Instruction implements TypedInstruction,
         StackProducer, StackConsumer {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     ArithmeticInstruction() {
     }
@@ -38,57 +38,59 @@ public abstract class ArithmeticInstruction extends Instruction implements Typed
     /**
      * @param opcode of instruction
      */
-    protected ArithmeticInstruction(short opcode) {
+    protected ArithmeticInstruction(final short opcode) {
         super(opcode, (short) 1);
     }
 
 
     /** @return type associated with the instruction
      */
-    public Type getType( ConstantPoolGen cp ) {
-        switch (opcode) {
-            case Constants.DADD:
-            case Constants.DDIV:
-            case Constants.DMUL:
-            case Constants.DNEG:
-            case Constants.DREM:
-            case Constants.DSUB:
+    @Override
+    public Type getType( final ConstantPoolGen cp ) {
+        final short _opcode = super.getOpcode();
+        switch (_opcode) {
+            case Const.DADD:
+            case Const.DDIV:
+            case Const.DMUL:
+            case Const.DNEG:
+            case Const.DREM:
+            case Const.DSUB:
                 return Type.DOUBLE;
-            case Constants.FADD:
-            case Constants.FDIV:
-            case Constants.FMUL:
-            case Constants.FNEG:
-            case Constants.FREM:
-            case Constants.FSUB:
+            case Const.FADD:
+            case Const.FDIV:
+            case Const.FMUL:
+            case Const.FNEG:
+            case Const.FREM:
+            case Const.FSUB:
                 return Type.FLOAT;
-            case Constants.IADD:
-            case Constants.IAND:
-            case Constants.IDIV:
-            case Constants.IMUL:
-            case Constants.INEG:
-            case Constants.IOR:
-            case Constants.IREM:
-            case Constants.ISHL:
-            case Constants.ISHR:
-            case Constants.ISUB:
-            case Constants.IUSHR:
-            case Constants.IXOR:
+            case Const.IADD:
+            case Const.IAND:
+            case Const.IDIV:
+            case Const.IMUL:
+            case Const.INEG:
+            case Const.IOR:
+            case Const.IREM:
+            case Const.ISHL:
+            case Const.ISHR:
+            case Const.ISUB:
+            case Const.IUSHR:
+            case Const.IXOR:
                 return Type.INT;
-            case Constants.LADD:
-            case Constants.LAND:
-            case Constants.LDIV:
-            case Constants.LMUL:
-            case Constants.LNEG:
-            case Constants.LOR:
-            case Constants.LREM:
-            case Constants.LSHL:
-            case Constants.LSHR:
-            case Constants.LSUB:
-            case Constants.LUSHR:
-            case Constants.LXOR:
+            case Const.LADD:
+            case Const.LAND:
+            case Const.LDIV:
+            case Const.LMUL:
+            case Const.LNEG:
+            case Const.LOR:
+            case Const.LREM:
+            case Const.LSHL:
+            case Const.LSHR:
+            case Const.LSUB:
+            case Const.LUSHR:
+            case Const.LXOR:
                 return Type.LONG;
             default: // Never reached
-                throw new ClassGenException("Unknown type " + opcode);
+                throw new ClassGenException("Unknown type " + _opcode);
         }
     }
 }

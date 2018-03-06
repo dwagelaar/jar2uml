@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,48 +12,48 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import org.apache.bcel.ExceptionConst;
 import org.apache.bcel.util.ByteSequence;
 
-/** 
+/**
  * LDC - Push item from constant pool.
  *
  * <PRE>Stack: ... -&gt; ..., item</PRE>
  *
- * @version $Id: LDC.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: LDC.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
-public class LDC extends CPInstruction implements PushInstruction, ExceptionThrower,
-        TypedInstruction {
+public class LDC extends CPInstruction implements PushInstruction, ExceptionThrower {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     LDC() {
     }
 
 
-    public LDC(int index) {
-        super(org.apache.bcel.Constants.LDC_W, index);
+    public LDC(final int index) {
+        super(org.apache.bcel.Const.LDC_W, index);
         setSize();
     }
 
 
     // Adjust to proper size
     protected final void setSize() {
-        if (index <= org.apache.bcel.Constants.MAX_BYTE) { // Fits in one byte?
-            opcode = org.apache.bcel.Constants.LDC;
-            length = 2;
+        if (super.getIndex() <= org.apache.bcel.Const.MAX_BYTE) { // Fits in one byte?
+            super.setOpcode(org.apache.bcel.Const.LDC);
+            super.setLength(2);
         } else {
-            opcode = org.apache.bcel.Constants.LDC_W;
-            length = 3;
+            super.setOpcode(org.apache.bcel.Const.LDC_W);
+            super.setLength(3);
         }
     }
 
@@ -61,12 +62,13 @@ public class LDC extends CPInstruction implements PushInstruction, ExceptionThro
      * Dump instruction as byte code to stream out.
      * @param out Output stream
      */
-    public void dump( DataOutputStream out ) throws IOException {
-        out.writeByte(opcode);
-        if (length == 2) {
-            out.writeByte(index);
+    @Override
+    public void dump( final DataOutputStream out ) throws IOException {
+        out.writeByte(super.getOpcode());
+        if (super.getLength() == 2) { // TODO useless check?
+            out.writeByte(super.getIndex());
         } else {
-            out.writeShort(index);
+            out.writeShort(super.getIndex());
         }
     }
 
@@ -74,7 +76,8 @@ public class LDC extends CPInstruction implements PushInstruction, ExceptionThro
     /**
      * Set the index to constant pool and adjust size.
      */
-    public final void setIndex( int index ) {
+    @Override
+    public final void setIndex( final int index ) {
         super.setIndex(index);
         setSize();
     }
@@ -83,49 +86,54 @@ public class LDC extends CPInstruction implements PushInstruction, ExceptionThro
     /**
      * Read needed data (e.g. index) from file.
      */
-    protected void initFromFile( ByteSequence bytes, boolean wide ) throws IOException {
-        length = 2;
-        index = bytes.readUnsignedByte();
+    @Override
+    protected void initFromFile( final ByteSequence bytes, final boolean wide ) throws IOException {
+        super.setLength(2);
+        super.setIndex(bytes.readUnsignedByte());
     }
 
 
-    public Object getValue( ConstantPoolGen cpg ) {
-        org.apache.bcel.classfile.Constant c = cpg.getConstantPool().getConstant(index);
+    public Object getValue( final ConstantPoolGen cpg ) {
+        org.apache.bcel.classfile.Constant c = cpg.getConstantPool().getConstant(super.getIndex());
         switch (c.getTag()) {
-            case org.apache.bcel.Constants.CONSTANT_String:
-                int i = ((org.apache.bcel.classfile.ConstantString) c).getStringIndex();
+            case org.apache.bcel.Const.CONSTANT_String:
+                final int i = ((org.apache.bcel.classfile.ConstantString) c).getStringIndex();
                 c = cpg.getConstantPool().getConstant(i);
                 return ((org.apache.bcel.classfile.ConstantUtf8) c).getBytes();
-            case org.apache.bcel.Constants.CONSTANT_Float:
+            case org.apache.bcel.Const.CONSTANT_Float:
                 return new Float(((org.apache.bcel.classfile.ConstantFloat) c).getBytes());
-            case org.apache.bcel.Constants.CONSTANT_Integer:
-                return new Integer(((org.apache.bcel.classfile.ConstantInteger) c).getBytes());
-            case org.apache.bcel.Constants.CONSTANT_Class:
-                return c;
+            case org.apache.bcel.Const.CONSTANT_Integer:
+                return Integer.valueOf(((org.apache.bcel.classfile.ConstantInteger) c).getBytes());
+            case org.apache.bcel.Const.CONSTANT_Class:
+                final int nameIndex = ((org.apache.bcel.classfile.ConstantClass) c).getNameIndex();
+                c = cpg.getConstantPool().getConstant(nameIndex);
+                return new ObjectType(((org.apache.bcel.classfile.ConstantUtf8) c).getBytes());
             default: // Never reached
-                throw new RuntimeException("Unknown or invalid constant type at " + index);
+                throw new RuntimeException("Unknown or invalid constant type at " + super.getIndex());
         }
     }
 
 
-    public Type getType( ConstantPoolGen cpg ) {
-        switch (cpg.getConstantPool().getConstant(index).getTag()) {
-            case org.apache.bcel.Constants.CONSTANT_String:
+    @Override
+    public Type getType( final ConstantPoolGen cpg ) {
+        switch (cpg.getConstantPool().getConstant(super.getIndex()).getTag()) {
+            case org.apache.bcel.Const.CONSTANT_String:
                 return Type.STRING;
-            case org.apache.bcel.Constants.CONSTANT_Float:
+            case org.apache.bcel.Const.CONSTANT_Float:
                 return Type.FLOAT;
-            case org.apache.bcel.Constants.CONSTANT_Integer:
+            case org.apache.bcel.Const.CONSTANT_Integer:
                 return Type.INT;
-            case org.apache.bcel.Constants.CONSTANT_Class:
+            case org.apache.bcel.Const.CONSTANT_Class:
                 return Type.CLASS;
             default: // Never reached
-                throw new RuntimeException("Unknown or invalid constant type at " + index);
+                throw new RuntimeException("Unknown or invalid constant type at " + super.getIndex());
         }
     }
 
 
-    public Class[] getExceptions() {
-        return org.apache.bcel.ExceptionConstants.EXCS_STRING_RESOLUTION;
+    @Override
+    public Class<?>[] getExceptions() {
+        return ExceptionConst.createExceptions(ExceptionConst.EXCS.EXCS_STRING_RESOLUTION);
     }
 
 
@@ -137,7 +145,8 @@ public class LDC extends CPInstruction implements PushInstruction, ExceptionThro
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitStackProducer(this);
         v.visitPushInstruction(this);
         v.visitExceptionThrower(this);

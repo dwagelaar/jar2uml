@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,18 +17,17 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.bcel.Constants;
 
-/** 
- * This class is derived from the abstract 
- * <A HREF="org.apache.bcel.classfile.Constant.html">Constant</A> class 
+import org.apache.bcel.Const;
+
+/**
+ * This class is derived from the abstract {@link Constant}
  * and represents a reference to an int object.
  *
- * @version $Id: ConstantInteger.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ConstantInteger.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see     Constant
  */
 public final class ConstantInteger extends Constant implements ConstantObject {
@@ -35,11 +35,11 @@ public final class ConstantInteger extends Constant implements ConstantObject {
     private int bytes;
 
 
-    /** 
+    /**
      * @param bytes Data
      */
-    public ConstantInteger(int bytes) {
-        super(Constants.CONSTANT_Integer);
+    public ConstantInteger(final int bytes) {
+        super(Const.CONSTANT_Integer);
         this.bytes = bytes;
     }
 
@@ -47,18 +47,18 @@ public final class ConstantInteger extends Constant implements ConstantObject {
     /**
      * Initialize from another object.
      */
-    public ConstantInteger(ConstantInteger c) {
+    public ConstantInteger(final ConstantInteger c) {
         this(c.getBytes());
     }
 
 
-    /** 
+    /**
      * Initialize instance from file data.
      *
      * @param file Input stream
      * @throws IOException
      */
-    ConstantInteger(DataInputStream file) throws IOException {
+    ConstantInteger(final DataInput file) throws IOException {
         this(file.readInt());
     }
 
@@ -70,7 +70,8 @@ public final class ConstantInteger extends Constant implements ConstantObject {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitConstantInteger(this);
     }
 
@@ -81,8 +82,9 @@ public final class ConstantInteger extends Constant implements ConstantObject {
      * @param file Output file stream
      * @throws IOException
      */
-    public final void dump( DataOutputStream file ) throws IOException {
-        file.writeByte(tag);
+    @Override
+    public final void dump( final DataOutputStream file ) throws IOException {
+        file.writeByte(super.getTag());
         file.writeInt(bytes);
     }
 
@@ -98,7 +100,7 @@ public final class ConstantInteger extends Constant implements ConstantObject {
     /**
      * @param bytes the raw bytes that represent this integer
      */
-    public final void setBytes( int bytes ) {
+    public final void setBytes( final int bytes ) {
         this.bytes = bytes;
     }
 
@@ -106,6 +108,7 @@ public final class ConstantInteger extends Constant implements ConstantObject {
     /**
      * @return String representation.
      */
+    @Override
     public final String toString() {
         return super.toString() + "(bytes = " + bytes + ")";
     }
@@ -113,7 +116,8 @@ public final class ConstantInteger extends Constant implements ConstantObject {
 
     /** @return Integer object
      */
-    public Object getConstantValue( ConstantPool cp ) {
-        return new Integer(bytes);
+    @Override
+    public Object getConstantValue( final ConstantPool cp ) {
+        return Integer.valueOf(bytes);
     }
 }

@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,11 +17,11 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
-import org.apache.bcel.Constants;
+
+import org.apache.bcel.Const;
 import org.apache.bcel.util.BCELComparator;
 
 /**
@@ -28,22 +29,23 @@ import org.apache.bcel.util.BCELComparator;
  * in the constant pool of a class file. The classes keep closely to
  * the JVM specification.
  *
- * @version $Id: Constant.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: Constant.java 1816490 2017-11-27 18:56:00Z ggregory $
  */
-public abstract class Constant implements Cloneable, Node, Serializable {
+public abstract class Constant implements Cloneable, Node {
 
-    private static BCELComparator _cmp = new BCELComparator() {
+    private static BCELComparator bcelComparator = new BCELComparator() {
 
-        public boolean equals( Object o1, Object o2 ) {
-            Constant THIS = (Constant) o1;
-            Constant THAT = (Constant) o2;
+        @Override
+        public boolean equals( final Object o1, final Object o2 ) {
+            final Constant THIS = (Constant) o1;
+            final Constant THAT = (Constant) o2;
             return THIS.toString().equals(THAT.toString());
         }
 
 
-        public int hashCode( Object o ) {
-            Constant THIS = (Constant) o;
+        @Override
+        public int hashCode( final Object o ) {
+            final Constant THIS = (Constant) o;
             return THIS.toString().hashCode();
         }
     };
@@ -52,13 +54,17 @@ public abstract class Constant implements Cloneable, Node, Serializable {
      * places we will use the tag for switch()es anyway.
      *
      * First, we want match the specification as closely as possible. Second we
-     * need the tag as an index to select the corresponding class name from the 
+     * need the tag as an index to select the corresponding class name from the
      * `CONSTANT_NAMES' array.
      */
-    protected byte tag;
+    /**
+     * @deprecated (since 6.0) will be made private; do not access directly, use getter/setter
+     */
+    @java.lang.Deprecated
+    protected byte tag; // TODO should be private & final
 
 
-    Constant(byte tag) {
+    Constant(final byte tag) {
         this.tag = tag;
     }
 
@@ -70,6 +76,7 @@ public abstract class Constant implements Cloneable, Node, Serializable {
      *
      * @param v Visitor object
      */
+    @Override
     public abstract void accept( Visitor v );
 
 
@@ -88,8 +95,9 @@ public abstract class Constant implements Cloneable, Node, Serializable {
     /**
      * @return String representation.
      */
+    @Override
     public String toString() {
-        return Constants.CONSTANT_NAMES[tag] + "[" + tag + "]";
+        return Const.getConstantName(tag) + "[" + tag + "]";
     }
 
 
@@ -99,49 +107,66 @@ public abstract class Constant implements Cloneable, Node, Serializable {
     public Constant copy() {
         try {
             return (Constant) super.clone();
-        } catch (CloneNotSupportedException e) {
+        } catch (final CloneNotSupportedException e) {
+            // TODO should this throw?
         }
         return null;
     }
 
 
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new Error("Clone Not Supported"); // never happens
+        }
     }
 
 
     /**
-     * Read one constant from the given file, the type depends on a tag byte.
+     * Read one constant from the given input, the type depends on a tag byte.
      *
-     * @param file Input stream
+     * @param input Input stream
      * @return Constant object
+     * @since 6.0 made public
      */
-    static final Constant readConstant( DataInputStream file ) throws IOException,
+    public static Constant readConstant( final DataInput input ) throws IOException,
             ClassFormatException {
-        byte b = file.readByte(); // Read tag byte
+        final byte b = input.readByte(); // Read tag byte
         switch (b) {
-            case Constants.CONSTANT_Class:
-                return new ConstantClass(file);
-            case Constants.CONSTANT_Fieldref:
-                return new ConstantFieldref(file);
-            case Constants.CONSTANT_Methodref:
-                return new ConstantMethodref(file);
-            case Constants.CONSTANT_InterfaceMethodref:
-                return new ConstantInterfaceMethodref(file);
-            case Constants.CONSTANT_String:
-                return new ConstantString(file);
-            case Constants.CONSTANT_Integer:
-                return new ConstantInteger(file);
-            case Constants.CONSTANT_Float:
-                return new ConstantFloat(file);
-            case Constants.CONSTANT_Long:
-                return new ConstantLong(file);
-            case Constants.CONSTANT_Double:
-                return new ConstantDouble(file);
-            case Constants.CONSTANT_NameAndType:
-                return new ConstantNameAndType(file);
-            case Constants.CONSTANT_Utf8:
-                return new ConstantUtf8(file);
+            case Const.CONSTANT_Class:
+                return new ConstantClass(input);
+            case Const.CONSTANT_Fieldref:
+                return new ConstantFieldref(input);
+            case Const.CONSTANT_Methodref:
+                return new ConstantMethodref(input);
+            case Const.CONSTANT_InterfaceMethodref:
+                return new ConstantInterfaceMethodref(input);
+            case Const.CONSTANT_String:
+                return new ConstantString(input);
+            case Const.CONSTANT_Integer:
+                return new ConstantInteger(input);
+            case Const.CONSTANT_Float:
+                return new ConstantFloat(input);
+            case Const.CONSTANT_Long:
+                return new ConstantLong(input);
+            case Const.CONSTANT_Double:
+                return new ConstantDouble(input);
+            case Const.CONSTANT_NameAndType:
+                return new ConstantNameAndType(input);
+            case Const.CONSTANT_Utf8:
+                return ConstantUtf8.getInstance(input);
+            case Const.CONSTANT_MethodHandle:
+                return new ConstantMethodHandle(input);
+            case Const.CONSTANT_MethodType:
+                return new ConstantMethodType(input);
+            case Const.CONSTANT_InvokeDynamic:
+                return new ConstantInvokeDynamic(input);
+            case Const.CONSTANT_Module:
+                return new ConstantModule(input);
+            case Const.CONSTANT_Package:
+                return new ConstantPackage(input);
             default:
                 throw new ClassFormatException("Invalid byte tag in constant pool: " + b);
         }
@@ -152,15 +177,15 @@ public abstract class Constant implements Cloneable, Node, Serializable {
      * @return Comparison strategy object
      */
     public static BCELComparator getComparator() {
-        return _cmp;
+        return bcelComparator;
     }
 
 
     /**
      * @param comparator Comparison strategy object
      */
-    public static void setComparator( BCELComparator comparator ) {
-        _cmp = comparator;
+    public static void setComparator( final BCELComparator comparator ) {
+        bcelComparator = comparator;
     }
 
 
@@ -168,21 +193,23 @@ public abstract class Constant implements Cloneable, Node, Serializable {
      * Return value as defined by given BCELComparator strategy.
      * By default two Constant objects are said to be equal when
      * the result of toString() is equal.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean equals( Object obj ) {
-        return _cmp.equals(this, obj);
+    @Override
+    public boolean equals( final Object obj ) {
+        return bcelComparator.equals(this, obj);
     }
 
 
     /**
      * Return value as defined by given BCELComparator strategy.
      * By default return the hashcode of the result of toString().
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
-        return _cmp.hashCode(this);
+        return bcelComparator.hashCode(this);
     }
 }

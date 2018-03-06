@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,37 +12,38 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+
 import org.apache.bcel.util.ByteSequence;
 
-/** 
+/**
  * LOOKUPSWITCH - Switch with unordered set of values
  *
- * @version $Id: LOOKUPSWITCH.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: LOOKUPSWITCH.java 1812166 2017-10-13 23:48:11Z ggregory $
  * @see SWITCH
  */
 public class LOOKUPSWITCH extends Select {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     LOOKUPSWITCH() {
     }
 
 
-    public LOOKUPSWITCH(int[] match, InstructionHandle[] targets, InstructionHandle defaultTarget) {
-        super(org.apache.bcel.Constants.LOOKUPSWITCH, match, targets, defaultTarget);
-        length = (short) (9 + match_length * 8); /* alignment remainder assumed
-         * 0 here, until dump time. */
-        fixed_length = length;
+    public LOOKUPSWITCH(final int[] match, final InstructionHandle[] targets, final InstructionHandle defaultTarget) {
+        super(org.apache.bcel.Const.LOOKUPSWITCH, match, targets, defaultTarget);
+        /* alignment remainder assumed 0 here, until dump time. */
+        final short _length = (short) (9 + getMatch_length() * 8);
+        super.setLength(_length);
+        setFixed_length(_length);
     }
 
 
@@ -49,12 +51,14 @@ public class LOOKUPSWITCH extends Select {
      * Dump instruction as byte code to stream out.
      * @param out Output stream
      */
-    public void dump( DataOutputStream out ) throws IOException {
+    @Override
+    public void dump( final DataOutputStream out ) throws IOException {
         super.dump(out);
-        out.writeInt(match_length); // npairs
-        for (int i = 0; i < match_length; i++) {
-            out.writeInt(match[i]); // match-offset pairs
-            out.writeInt(indices[i] = getTargetOffset(targets[i]));
+        final int _match_length = getMatch_length();
+        out.writeInt(_match_length); // npairs
+        for (int i = 0; i < _match_length; i++) {
+            out.writeInt(super.getMatch(i)); // match-offset pairs
+            out.writeInt(setIndices(i, getTargetOffset(super.getTarget(i))));
         }
     }
 
@@ -62,17 +66,21 @@ public class LOOKUPSWITCH extends Select {
     /**
      * Read needed data (e.g. index) from file.
      */
-    protected void initFromFile( ByteSequence bytes, boolean wide ) throws IOException {
+    @Override
+    protected void initFromFile( final ByteSequence bytes, final boolean wide ) throws IOException {
         super.initFromFile(bytes, wide); // reads padding
-        match_length = bytes.readInt();
-        fixed_length = (short) (9 + match_length * 8);
-        length = (short) (fixed_length + padding);
-        match = new int[match_length];
-        indices = new int[match_length];
-        targets = new InstructionHandle[match_length];
-        for (int i = 0; i < match_length; i++) {
-            match[i] = bytes.readInt();
-            indices[i] = bytes.readInt();
+        final int _match_length = bytes.readInt();
+        setMatch_length(_match_length);
+        final short _fixed_length = (short) (9 + _match_length * 8);
+        setFixed_length(_fixed_length);
+        final short _length = (short) (_match_length + super.getPadding());
+        super.setLength(_length);
+        super.setMatches(new int[_match_length]);
+        super.setIndices(new int[_match_length]);
+        super.setTargets(new InstructionHandle[_match_length]);
+        for (int i = 0; i < _match_length; i++) {
+            super.setMatch(i, bytes.readInt());
+            super.setIndices(i, bytes.readInt());
         }
     }
 
@@ -85,9 +93,10 @@ public class LOOKUPSWITCH extends Select {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitVariableLengthInstruction(this);
-        v.visitStackProducer(this);
+        v.visitStackConsumer(this);
         v.visitBranchInstruction(this);
         v.visitSelect(this);
         v.visitLOOKUPSWITCH(this);

@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -103,8 +103,8 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected void createAdvancedControls(Composite parent) {
-		updateExistingModelBtn = 
-			createCheckbox(parent, JarToUMLResources.getString("AbstractImportWizardPage.updateExisting"), false); //$NON-NLS-1$
+		updateExistingModelBtn =
+				createCheckbox(parent, JarToUMLResources.getString("AbstractImportWizardPage.updateExisting"), false); //$NON-NLS-1$
 		updateExistingModelBtn.setEnabled(isFileExists());
 	}
 
@@ -133,28 +133,23 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		final InputStream initialContents = getInitialContents();
 
 		createLinkTarget();
-		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
+		final WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 			@Override
 			protected void execute(IProgressMonitor monitor)
-			throws CoreException {
-				try {
-					monitor.beginTask(JarToUMLResources.getString("AbstractImportWizardPage.taskName"), 100); //$NON-NLS-1$
-					ContainerGenerator generator = new ContainerGenerator(
-							containerPath);
-					generator.generateContainer(new SubProgressMonitor(monitor,
-							100));
-					//postpone file creation to a background job
-				} finally {
-					monitor.done();
-				}
+					throws CoreException {
+				final SubMonitor subMonitor = SubMonitor.convert(monitor,
+						JarToUMLResources.getString("AbstractImportWizardPage.taskName"), 100); //$NON-NLS-1$
+				final ContainerGenerator generator = new ContainerGenerator(containerPath);
+				generator.generateContainer(subMonitor.split(100));
+				// postpone file creation to a background job
 			}
 		};
 
 		try {
 			getContainer().run(true, true, op);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			return null;
-		} catch (InvocationTargetException e) {
+		} catch (final InvocationTargetException e) {
 			if (e.getTargetException() instanceof CoreException) {
 				ErrorDialog
 				.openError(
@@ -166,7 +161,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 			} else {
 				// CoreExceptions are handled above, but unexpected runtime exceptions and errors may still occur.
 				logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-				StringBuffer body = new StringBuffer();
+				final StringBuffer body = new StringBuffer();
 				body.append(JarToUMLResources.getString("AbstractImportWizardPage.internalError")); //$NON-NLS-1$
 				body.append(' ');
 				body.append(e.getTargetException().getMessage());
@@ -187,18 +182,18 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 				try {
 					createFile(newFileHandle, initialContents, monitor);
 					st = new Status(
-							IStatus.OK, 
-							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
+							IStatus.OK,
+							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(),
 							String.format(
-									JarToUMLResources.getString("AbstractImportWizardPage.taskCompleted"), 
+									JarToUMLResources.getString("AbstractImportWizardPage.taskCompleted"),
 									getName())); //$NON-NLS-1$
-				} catch (OperationCanceledException e) {
+				} catch (final OperationCanceledException e) {
 					st = Status.CANCEL_STATUS;
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					JarToUMLPlugin.getPlugin().report(e);
 					st = new Status(
-							IStatus.ERROR, 
-							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
+							IStatus.ERROR,
+							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(),
 							e.getLocalizedMessage(),
 							e);
 				} finally {
@@ -230,10 +225,10 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	@Override
 	protected IStatus validateLinkedResource() {
 		return new Status(
-				IStatus.OK, 
-				JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
-				IStatus.OK, 
-				"", 
+				IStatus.OK,
+				JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(),
+				IStatus.OK,
+				"",
 				null); //$NON-NLS-1$
 	}
 
@@ -249,7 +244,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 */
 	@Override
 	protected void createFile(IFile fileHandle, InputStream contents, IProgressMonitor monitor)
-	throws CoreException {
+			throws CoreException {
 		final IPath path = fileHandle.getFullPath();
 		jarToUML.setOutputFile(path.toString());
 		jarToUML.setOutputModelName(path.removeFileExtension().lastSegment());
@@ -258,7 +253,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		if (jarToUML.isRunComplete()) {
 			try {
 				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -278,7 +273,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		final FilesFieldEditor editor = createFilesFieldEditor(parent);
 		editor.getTextControl(parent).addModifyListener(new ModifyListener(){
 			public void modifyText(ModifyEvent e) {
-				IPath path = new Path(editor.getStringValue());
+				final IPath path = new Path(editor.getStringValue());
 				setFileName(path.removeFileExtension().lastSegment() + fileExtension);
 			}
 		});
@@ -294,7 +289,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 				"fileSelect",
 				JarToUMLResources.getString("AbstractImportWizardPage.selectFile"),
 				parent); //$NON-NLS-1$ //$NON-NLS-2$
-		String[] extensions = new String[] { "*.zip;*.jar;*.war;*.ear;*.sar;*.rar" }; //$NON-NLS-1$
+		final String[] extensions = new String[] { "*.zip;*.jar;*.war;*.ear;*.sar;*.rar" }; //$NON-NLS-1$
 		editor.setFileExtensions(extensions);
 		return editor;
 	}
@@ -327,7 +322,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	 * @return A checkbox
 	 */
 	protected Button createCheckbox(Composite parent, String text, boolean enabled) {
-		Button btn = new Button(parent, SWT.CHECK | SWT.LEFT);
+		final Button btn = new Button(parent, SWT.CHECK | SWT.LEFT);
 		btn.setText(text);
 		btn.setSelection(enabled);
 		return btn;
@@ -336,12 +331,12 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	/**
 	 * Adds all relevant Java projects based on {@link #getContainerFullPath()}
 	 * @param includeWorkspaceReferences Include referenced projects and jar files in workspace
-	 * @throws IOException 
-	 * @throws JavaModelException 
+	 * @throws IOException
+	 * @throws JavaModelException
 	 */
 	protected void addAllJavaProjects(boolean includeWorkspaceReferences) throws JavaModelException, IOException {
-		IPath path = getContainerFullPath();
-		IJavaProject javaProject = JarToUML.getJavaProject(path);
+		final IPath path = getContainerFullPath();
+		final IJavaProject javaProject = JarToUML.getJavaProject(path);
 		jarToUML.addPaths(javaProject, includeWorkspaceReferences);
 	}
 
@@ -377,7 +372,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	protected boolean validatePage() {
 		try {
 			setFileExists(getFileHandle().exists());
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			setFileExists(false);
 		}
 		return super.validatePage();

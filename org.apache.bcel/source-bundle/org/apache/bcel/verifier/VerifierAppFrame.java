@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.verifier;
@@ -22,6 +23,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -36,6 +38,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
+
 import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
 
@@ -43,50 +46,51 @@ import org.apache.bcel.classfile.JavaClass;
  * This class implements a machine-generated frame for use with
  * the GraphicalVerfifier.
  *
- * @version $Id: VerifierAppFrame.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author Enver Haase
+ * @version $Id: VerifierAppFrame.java 1749603 2016-06-21 20:50:19Z ggregory $
  * @see GraphicalVerifier
  */
 public class VerifierAppFrame extends JFrame {
 
-    JPanel contentPane;
-    JSplitPane jSplitPane1 = new JSplitPane();
-    JPanel jPanel1 = new JPanel();
-    JPanel jPanel2 = new JPanel();
-    JSplitPane jSplitPane2 = new JSplitPane();
-    JPanel jPanel3 = new JPanel();
-    JList classNamesJList = new JList();
-    GridLayout gridLayout1 = new GridLayout();
-    JPanel messagesPanel = new JPanel();
-    GridLayout gridLayout2 = new GridLayout();
-    JMenuBar jMenuBar1 = new JMenuBar();
-    JMenu jMenu1 = new JMenu();
-    JScrollPane jScrollPane1 = new JScrollPane();
-    JScrollPane messagesScrollPane = new JScrollPane();
-    JScrollPane jScrollPane3 = new JScrollPane();
-    GridLayout gridLayout4 = new GridLayout();
-    JScrollPane jScrollPane4 = new JScrollPane();
-    CardLayout cardLayout1 = new CardLayout();
-    private String JUSTICE_VERSION = "JustIce by Enver Haase";
+    private static final long serialVersionUID = -542458133073307640L;
+    private static final String JUSTICE_VERSION = "JustIce by Enver Haase";
+
+    private JPanel contentPane;
+    private final JSplitPane jSplitPane1 = new JSplitPane();
+    private final JPanel jPanel1 = new JPanel();
+    private final JPanel jPanel2 = new JPanel();
+    private final JSplitPane jSplitPane2 = new JSplitPane();
+    private final JPanel jPanel3 = new JPanel();
+    private final JList<String> classNamesJList = new JList<>();
+    private final GridLayout gridLayout1 = new GridLayout();
+    private final JPanel messagesPanel = new JPanel();
+    private final GridLayout gridLayout2 = new GridLayout();
+    private final JMenuBar jMenuBar1 = new JMenuBar();
+    private final JMenu jMenu1 = new JMenu();
+    private final JScrollPane jScrollPane1 = new JScrollPane();
+    private final JScrollPane messagesScrollPane = new JScrollPane();
+    private final JScrollPane jScrollPane3 = new JScrollPane();
+    private final GridLayout gridLayout4 = new GridLayout();
+    private final JScrollPane jScrollPane4 = new JScrollPane();
+    private final CardLayout cardLayout1 = new CardLayout();
     private String current_class;
-    GridLayout gridLayout3 = new GridLayout();
-    JTextPane pass1TextPane = new JTextPane();
-    JTextPane pass2TextPane = new JTextPane();
-    JTextPane messagesTextPane = new JTextPane();
-    JMenuItem newFileMenuItem = new JMenuItem();
-    JSplitPane jSplitPane3 = new JSplitPane();
-    JSplitPane jSplitPane4 = new JSplitPane();
-    JScrollPane jScrollPane2 = new JScrollPane();
-    JScrollPane jScrollPane5 = new JScrollPane();
-    JScrollPane jScrollPane6 = new JScrollPane();
-    JScrollPane jScrollPane7 = new JScrollPane();
-    JList pass3aJList = new JList();
-    JList pass3bJList = new JList();
-    JTextPane pass3aTextPane = new JTextPane();
-    JTextPane pass3bTextPane = new JTextPane();
-    JMenu jMenu2 = new JMenu();
-    JMenuItem whatisMenuItem = new JMenuItem();
-    JMenuItem aboutMenuItem = new JMenuItem();
+    private final GridLayout gridLayout3 = new GridLayout();
+    private final JTextPane pass1TextPane = new JTextPane();
+    private final JTextPane pass2TextPane = new JTextPane();
+    private final JTextPane messagesTextPane = new JTextPane();
+    private final JMenuItem newFileMenuItem = new JMenuItem();
+    private final JSplitPane jSplitPane3 = new JSplitPane();
+    private final JSplitPane jSplitPane4 = new JSplitPane();
+    private final JScrollPane jScrollPane2 = new JScrollPane();
+    private final JScrollPane jScrollPane5 = new JScrollPane();
+    private final JScrollPane jScrollPane6 = new JScrollPane();
+    private final JScrollPane jScrollPane7 = new JScrollPane();
+    private final JList<String> pass3aJList = new JList<>();
+    private final JList<String> pass3bJList = new JList<>();
+    private final JTextPane pass3aTextPane = new JTextPane();
+    private final JTextPane pass3bTextPane = new JTextPane();
+    private final JMenu jMenu2 = new JMenu();
+    private final JMenuItem whatisMenuItem = new JMenuItem();
+    private final JMenuItem aboutMenuItem = new JMenuItem();
 
 
     /** Constructor. */
@@ -94,7 +98,7 @@ public class VerifierAppFrame extends JFrame {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             jbInit();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
     }
@@ -125,7 +129,8 @@ public class VerifierAppFrame extends JFrame {
         messagesScrollPane.setPreferredSize(new Dimension(10, 10));
         classNamesJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
 
-            public void valueChanged( ListSelectionEvent e ) {
+            @Override
+            public void valueChanged( final ListSelectionEvent e ) {
                 classNamesJList_valueChanged(e);
             }
         });
@@ -146,10 +151,11 @@ public class VerifierAppFrame extends JFrame {
         messagesTextPane.setEditable(false);
         newFileMenuItem.setText("New...");
         newFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(78,
-                java.awt.event.KeyEvent.CTRL_MASK, true));
+                InputEvent.CTRL_MASK, true));
         newFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed( ActionEvent e ) {
+            @Override
+            public void actionPerformed( final ActionEvent e ) {
                 newFileMenuItem_actionPerformed(e);
             }
         });
@@ -157,13 +163,15 @@ public class VerifierAppFrame extends JFrame {
         pass3bTextPane.setEditable(false);
         pass3aJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
 
-            public void valueChanged( ListSelectionEvent e ) {
+            @Override
+            public void valueChanged( final ListSelectionEvent e ) {
                 pass3aJList_valueChanged(e);
             }
         });
         pass3bJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
 
-            public void valueChanged( ListSelectionEvent e ) {
+            @Override
+            public void valueChanged( final ListSelectionEvent e ) {
                 pass3bJList_valueChanged(e);
             }
         });
@@ -171,14 +179,16 @@ public class VerifierAppFrame extends JFrame {
         whatisMenuItem.setText("What is...");
         whatisMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed( ActionEvent e ) {
+            @Override
+            public void actionPerformed( final ActionEvent e ) {
                 whatisMenuItem_actionPerformed(e);
             }
         });
         aboutMenuItem.setText("About");
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed( ActionEvent e ) {
+            @Override
+            public void actionPerformed( final ActionEvent e ) {
                 aboutMenuItem_actionPerformed(e);
             }
         });
@@ -218,7 +228,8 @@ public class VerifierAppFrame extends JFrame {
 
 
     /** Overridden to stop the application on a closing window. */
-    protected void processWindowEvent( WindowEvent e ) {
+    @Override
+    protected void processWindowEvent( final WindowEvent e ) {
         super.processWindowEvent(e);
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             System.exit(0);
@@ -226,14 +237,14 @@ public class VerifierAppFrame extends JFrame {
     }
 
 
-    synchronized void classNamesJList_valueChanged( ListSelectionEvent e ) {
+    synchronized void classNamesJList_valueChanged( final ListSelectionEvent e ) {
         if (e.getValueIsAdjusting()) {
             return;
         }
-        current_class = classNamesJList.getSelectedValue().toString();
+        current_class = classNamesJList.getSelectedValue();
         try {
             verify();
-        } catch (ClassNotFoundException ex) {
+        } catch (final ClassNotFoundException ex) {
             // FIXME: report the error using the GUI
             ex.printStackTrace();
         }
@@ -243,7 +254,7 @@ public class VerifierAppFrame extends JFrame {
 
     private void verify() throws ClassNotFoundException {
         setTitle("PLEASE WAIT");
-        Verifier v = VerifierFactory.getVerifier(current_class);
+        final Verifier v = VerifierFactory.getVerifier(current_class);
         v.flush(); // Don't cache the verification result for this class.
         VerificationResult vr;
         vr = v.doPass1();
@@ -253,10 +264,10 @@ public class VerifierAppFrame extends JFrame {
             pass2TextPane.setText("");
             pass2TextPane.setBackground(Color.yellow);
             pass3aTextPane.setText("");
-            pass3aJList.setListData(new Object[0]);
+            pass3aJList.setListData(new String[0]);
             pass3aTextPane.setBackground(Color.yellow);
             pass3bTextPane.setText("");
-            pass3bJList.setListData(new Object[0]);
+            pass3bJList.setListData(new String[0]);
             pass3bTextPane.setBackground(Color.yellow);
         } else { // Must be VERIFIED_OK, Pass 1 does not know VERIFIED_NOTYET
             pass1TextPane.setBackground(Color.green);
@@ -267,21 +278,21 @@ public class VerifierAppFrame extends JFrame {
                 pass2TextPane.setBackground(Color.red);
                 pass3aTextPane.setText("");
                 pass3aTextPane.setBackground(Color.yellow);
-                pass3aJList.setListData(new Object[0]);
+                pass3aJList.setListData(new String[0]);
                 pass3bTextPane.setText("");
                 pass3bTextPane.setBackground(Color.yellow);
-                pass3bJList.setListData(new Object[0]);
+                pass3bJList.setListData(new String[0]);
             } else { // must be Verified_OK, because Pass1 was OK (cannot be Verified_NOTYET).
                 pass2TextPane.setText(vr.getMessage());
                 pass2TextPane.setBackground(Color.green);
-                JavaClass jc = Repository.lookupClass(current_class);
+                final JavaClass jc = Repository.lookupClass(current_class);
                 /*
                  boolean all3aok = true;
                  boolean all3bok = true;
                  String all3amsg = "";
                  String all3bmsg = "";
                  */
-                String[] methodnames = new String[jc.getMethods().length];
+                final String[] methodnames = new String[jc.getMethods().length];
                 for (int i = 0; i < jc.getMethods().length; i++) {
                     methodnames[i] = jc.getMethods()[i].toString().replace('\n', ' ').replace('\t',
                             ' ');
@@ -292,22 +303,22 @@ public class VerifierAppFrame extends JFrame {
                 pass3bJList.setSelectionInterval(0, jc.getMethods().length - 1);
             }
         }
-        String[] msgs = v.getMessages();
+        final String[] msgs = v.getMessages();
         messagesTextPane.setBackground(msgs.length == 0 ? Color.green : Color.yellow);
-        String allmsgs = "";
+        final StringBuilder allmsgs = new StringBuilder();
         for (int i = 0; i < msgs.length; i++) {
             msgs[i] = msgs[i].replace('\n', ' ');
-            allmsgs += msgs[i] + "\n\n";
+            allmsgs.append(msgs[i]).append("\n\n");
         }
-        messagesTextPane.setText(allmsgs);
+        messagesTextPane.setText(allmsgs.toString());
         setTitle(current_class + " - " + JUSTICE_VERSION);
     }
 
 
-    void newFileMenuItem_actionPerformed( ActionEvent e ) {
-        String classname = JOptionPane
+    void newFileMenuItem_actionPerformed( final ActionEvent e ) {
+        final String classname = JOptionPane
                 .showInputDialog("Please enter the fully qualified name of a class or interface to verify:");
-        if ((classname == null) || (classname.equals(""))) {
+        if ((classname == null) || (classname.isEmpty())) {
             return;
         }
         VerifierFactory.getVerifier(classname); // let observers do the rest.
@@ -315,17 +326,17 @@ public class VerifierAppFrame extends JFrame {
     }
 
 
-    synchronized void pass3aJList_valueChanged( ListSelectionEvent e ) {
+    synchronized void pass3aJList_valueChanged( final ListSelectionEvent e ) {
         if (e.getValueIsAdjusting()) {
             return;
         }
-        Verifier v = VerifierFactory.getVerifier(current_class);
-        String all3amsg = "";
+        final Verifier v = VerifierFactory.getVerifier(current_class);
+        final StringBuilder all3amsg = new StringBuilder();
         boolean all3aok = true;
         boolean rejected = false;
         for (int i = 0; i < pass3aJList.getModel().getSize(); i++) {
             if (pass3aJList.isSelectedIndex(i)) {
-                VerificationResult vr = v.doPass3a(i);
+                final VerificationResult vr = v.doPass3a(i);
                 if (vr.getStatus() == VerificationResult.VERIFIED_REJECTED) {
                     all3aok = false;
                     rejected = true;
@@ -333,30 +344,30 @@ public class VerifierAppFrame extends JFrame {
                 JavaClass jc = null;
                 try {
                     jc = Repository.lookupClass(v.getClassName());
-                    all3amsg += "Method '" + jc.getMethods()[i] + "': "
-                            + vr.getMessage().replace('\n', ' ') + "\n\n";
-                } catch (ClassNotFoundException ex) {
+                    all3amsg.append("Method '").append(jc.getMethods()[i]).append("': ")
+                            .append(vr.getMessage().replace('\n', ' ') ).append("\n\n");
+                } catch (final ClassNotFoundException ex) {
                     // FIXME: handle the error
                     ex.printStackTrace();
                 }
             }
         }
-        pass3aTextPane.setText(all3amsg);
+        pass3aTextPane.setText(all3amsg.toString());
         pass3aTextPane.setBackground(all3aok ? Color.green : (rejected ? Color.red : Color.yellow));
     }
 
 
-    synchronized void pass3bJList_valueChanged( ListSelectionEvent e ) {
+    synchronized void pass3bJList_valueChanged( final ListSelectionEvent e ) {
         if (e.getValueIsAdjusting()) {
             return;
         }
-        Verifier v = VerifierFactory.getVerifier(current_class);
-        String all3bmsg = "";
+        final Verifier v = VerifierFactory.getVerifier(current_class);
+        final StringBuilder all3bmsg = new StringBuilder();
         boolean all3bok = true;
         boolean rejected = false;
         for (int i = 0; i < pass3bJList.getModel().getSize(); i++) {
             if (pass3bJList.isSelectedIndex(i)) {
-                VerificationResult vr = v.doPass3b(i);
+                final VerificationResult vr = v.doPass3b(i);
                 if (vr.getStatus() == VerificationResult.VERIFIED_REJECTED) {
                     all3bok = false;
                     rejected = true;
@@ -364,33 +375,47 @@ public class VerifierAppFrame extends JFrame {
                 JavaClass jc = null;
                 try {
                     jc = Repository.lookupClass(v.getClassName());
-                    all3bmsg += "Method '" + jc.getMethods()[i] + "': "
-                            + vr.getMessage().replace('\n', ' ') + "\n\n";
-                } catch (ClassNotFoundException ex) {
+                    all3bmsg.append("Method '").append(jc.getMethods()[i]).append("': ")
+                            .append(vr.getMessage().replace('\n', ' ')).append("\n\n");
+                } catch (final ClassNotFoundException ex) {
                     // FIXME: handle the error
                     ex.printStackTrace();
                 }
             }
         }
-        pass3bTextPane.setText(all3bmsg);
+        pass3bTextPane.setText(all3bmsg.toString());
         pass3bTextPane.setBackground(all3bok ? Color.green : (rejected ? Color.red : Color.yellow));
     }
 
 
-    void aboutMenuItem_actionPerformed( ActionEvent e ) {
+    void aboutMenuItem_actionPerformed( final ActionEvent e ) {
         JOptionPane
                 .showMessageDialog(
                         this,
-                        "JustIce is a Java class file verifier.\nIt was implemented by Enver Haase in 2001, 2002.\n<http://jakarta.apache.org/bcel/index.html>",
+                        "JustIce is a Java class file verifier.\n"+
+                        "It was implemented by Enver Haase in 2001, 2002.\n<http://commons.apache.org/bcel/>",
                         JUSTICE_VERSION, JOptionPane.INFORMATION_MESSAGE);
     }
 
 
-    void whatisMenuItem_actionPerformed( ActionEvent e ) {
+    void whatisMenuItem_actionPerformed( final ActionEvent e ) {
         JOptionPane
                 .showMessageDialog(
                         this,
-                        "The upper four boxes to the right reflect verification passes according to The Java Virtual Machine Specification.\nThese are (in that order): Pass one, Pass two, Pass three (before data flow analysis), Pass three (data flow analysis).\nThe bottom box to the right shows (warning) messages; warnings do not cause a class to be rejected.",
+                        "The upper four boxes to the right reflect verification passes according to"+
+                        " The Java Virtual Machine Specification.\nThese are (in that order):"+
+                        " Pass one, Pass two, Pass three (before data flow analysis), Pass three (data flow analysis).\n"+
+                        "The bottom box to the right shows (warning) messages; warnings do not cause a class to be rejected.",
                         JUSTICE_VERSION, JOptionPane.INFORMATION_MESSAGE);
     }
+
+
+    /**
+     * @return the classNamesJList
+     */
+    JList<String> getClassNamesJList() {
+        return classNamesJList;
+    }
+
+
 }

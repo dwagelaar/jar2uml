@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.util;
@@ -19,51 +20,51 @@ package org.apache.bcel.util;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.bcel.classfile.JavaClass;
 
-/** 
+/**
  * Utility class implementing a (typesafe) set of JavaClass objects.
  * Since JavaClass has no equals() method, the name of the class is
  * used for comparison.
  *
- * @version $Id: ClassSet.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A> 
+ * @version $Id: ClassSet.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see ClassStack
  */
-public class ClassSet implements java.io.Serializable {
+public class ClassSet {
 
-    private Map _map = new HashMap();
+    private final Map<String, JavaClass> map = new HashMap<>();
 
 
-    public boolean add( JavaClass clazz ) {
+    public boolean add( final JavaClass clazz ) {
         boolean result = false;
-        if (!_map.containsKey(clazz.getClassName())) {
+        if (!map.containsKey(clazz.getClassName())) {
             result = true;
-            _map.put(clazz.getClassName(), clazz);
+            map.put(clazz.getClassName(), clazz);
         }
         return result;
     }
 
 
-    public void remove( JavaClass clazz ) {
-        _map.remove(clazz.getClassName());
+    public void remove( final JavaClass clazz ) {
+        map.remove(clazz.getClassName());
     }
 
 
     public boolean empty() {
-        return _map.isEmpty();
+        return map.isEmpty();
     }
 
 
     public JavaClass[] toArray() {
-        Collection values = _map.values();
-        JavaClass[] classes = new JavaClass[values.size()];
+        final Collection<JavaClass> values = map.values();
+        final JavaClass[] classes = new JavaClass[values.size()];
         values.toArray(classes);
         return classes;
     }
 
 
     public String[] getClassNames() {
-        return (String[]) _map.keySet().toArray(new String[_map.keySet().size()]);
+        return map.keySet().toArray(new String[map.size()]);
     }
 }

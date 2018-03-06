@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,19 +17,18 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.bcel.Constants;
 
-/** 
- * This class is derived from the abstract 
- * <A HREF="org.apache.bcel.classfile.Constant.html">Constant</A> class 
+import org.apache.bcel.Const;
+
+/**
+ * This class is derived from the abstract {@link Constant}
  * and represents a reference to the name and signature
  * of a field or method.
  *
- * @version $Id: ConstantNameAndType.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ConstantNameAndType.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see     Constant
  */
 public final class ConstantNameAndType extends Constant {
@@ -40,7 +40,7 @@ public final class ConstantNameAndType extends Constant {
     /**
      * Initialize from another object.
      */
-    public ConstantNameAndType(ConstantNameAndType c) {
+    public ConstantNameAndType(final ConstantNameAndType c) {
         this(c.getNameIndex(), c.getSignatureIndex());
     }
 
@@ -51,7 +51,7 @@ public final class ConstantNameAndType extends Constant {
      * @param file Input stream
      * @throws IOException
      */
-    ConstantNameAndType(DataInputStream file) throws IOException {
+    ConstantNameAndType(final DataInput file) throws IOException {
         this(file.readUnsignedShort(), file.readUnsignedShort());
     }
 
@@ -60,8 +60,8 @@ public final class ConstantNameAndType extends Constant {
      * @param name_index Name of field/method
      * @param signature_index and its signature
      */
-    public ConstantNameAndType(int name_index, int signature_index) {
-        super(Constants.CONSTANT_NameAndType);
+    public ConstantNameAndType(final int name_index, final int signature_index) {
+        super(Const.CONSTANT_NameAndType);
         this.name_index = name_index;
         this.signature_index = signature_index;
     }
@@ -74,7 +74,8 @@ public final class ConstantNameAndType extends Constant {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitConstantNameAndType(this);
     }
 
@@ -85,8 +86,9 @@ public final class ConstantNameAndType extends Constant {
      * @param file Output file stream
      * @throws IOException
      */
-    public final void dump( DataOutputStream file ) throws IOException {
-        file.writeByte(tag);
+    @Override
+    public final void dump( final DataOutputStream file ) throws IOException {
+        file.writeByte(super.getTag());
         file.writeShort(name_index);
         file.writeShort(signature_index);
     }
@@ -102,8 +104,8 @@ public final class ConstantNameAndType extends Constant {
 
     /** @return name
      */
-    public final String getName( ConstantPool cp ) {
-        return cp.constantToString(getNameIndex(), Constants.CONSTANT_Utf8);
+    public final String getName( final ConstantPool cp ) {
+        return cp.constantToString(getNameIndex(), Const.CONSTANT_Utf8);
     }
 
 
@@ -117,15 +119,15 @@ public final class ConstantNameAndType extends Constant {
 
     /** @return signature
      */
-    public final String getSignature( ConstantPool cp ) {
-        return cp.constantToString(getSignatureIndex(), Constants.CONSTANT_Utf8);
+    public final String getSignature( final ConstantPool cp ) {
+        return cp.constantToString(getSignatureIndex(), Const.CONSTANT_Utf8);
     }
 
 
     /**
      * @param name_index the name index of this constant
      */
-    public final void setNameIndex( int name_index ) {
+    public final void setNameIndex( final int name_index ) {
         this.name_index = name_index;
     }
 
@@ -133,7 +135,7 @@ public final class ConstantNameAndType extends Constant {
     /**
      * @param signature_index the signature index in the constant pool of this type
      */
-    public final void setSignatureIndex( int signature_index ) {
+    public final void setSignatureIndex( final int signature_index ) {
         this.signature_index = signature_index;
     }
 
@@ -141,6 +143,7 @@ public final class ConstantNameAndType extends Constant {
     /**
      * @return String representation
      */
+    @Override
     public final String toString() {
         return super.toString() + "(name_index = " + name_index + ", signature_index = "
                 + signature_index + ")";

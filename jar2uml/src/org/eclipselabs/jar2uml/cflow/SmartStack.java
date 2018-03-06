@@ -78,7 +78,7 @@ public class SmartStack extends OperandStack {
 	 * @throws UnsupportedOperationException
 	 */
 	@Override
-	protected Object clone() {
+	public Object clone() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -110,9 +110,9 @@ public class SmartStack extends OperandStack {
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof SmartStack)) {
-            return false;
-        }
-		SmartStack s = (SmartStack) o;
+			return false;
+		}
+		final SmartStack s = (SmartStack) o;
 		return frame.equals(s.frame) && super.equals(o);
 	}
 

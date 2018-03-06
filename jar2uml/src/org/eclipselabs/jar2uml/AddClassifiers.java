@@ -73,7 +73,7 @@ public class AddClassifiers extends AddToModel {
 	 * @throws IOException
 	 */
 	public void addAllClassifiers(Collection<JavaClass> parsedClasses) throws IOException {
-		for (JavaClass javaClass : parsedClasses) {
+		for (final JavaClass javaClass : parsedClasses) {
 			addClassifier(javaClass, false);
 			worked();
 		}
@@ -91,7 +91,7 @@ public class AddClassifiers extends AddToModel {
 		do {
 			processClasses.removeAll(addedClasses);
 			addedClasses.clear();
-			for (JavaClass javaClass : processClasses) {
+			for (final JavaClass javaClass : processClasses) {
 				if (addClassifier(javaClass, true)) {
 					addedClasses.add(javaClass);
 				}
@@ -124,7 +124,7 @@ public class AddClassifiers extends AddToModel {
 			}
 		} else {
 			classifier = findContainedClassifier.findClassifier(
-					getModel(), className, javaClass.isInterface() ? 
+					getModel(), className, javaClass.isInterface() ?
 							UMLPackage.eINSTANCE.getInterface() : UMLPackage.eINSTANCE.getClass_());
 		}
 		assert classifier != null;
@@ -158,7 +158,7 @@ public class AddClassifiers extends AddToModel {
 	 * @param javaClass the Java class file to convert.
 	 */
 	public void addReferencedInterfaces(JavaClass javaClass) {
-		String interfaces[] = javaClass.getInterfaceNames();
+		final String interfaces[] = javaClass.getInterfaceNames();
 		for (int i = 0; i < interfaces.length; i++) {
 			Classifier iface = findContainedClassifier.findClassifier(
 					getModel(), interfaces[i], UMLPackage.eINSTANCE.getInterface());
@@ -198,9 +198,9 @@ public class AddClassifiers extends AddToModel {
 	 */
 	public void addInterfaceRealizations(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
-		String interfaces[] = javaClass.getInterfaceNames();
+		final String interfaces[] = javaClass.getInterfaceNames();
 		for (int i = 0; i < interfaces.length; i++) {
-			Classifier iface = findContainedClassifier.findClassifier(
+			final Classifier iface = findContainedClassifier.findClassifier(
 					getModel(), interfaces[i], null);
 			assert iface instanceof Interface;
 			addClassifierInterface.setIface((Interface) iface);
@@ -219,8 +219,9 @@ public class AddClassifiers extends AddToModel {
 		if (classifier instanceof Interface) {
 			return;
 		}
-		if (!classifier.getQualifiedName().endsWith("java::lang::Object")) { //$NON-NLS-1$
-			Classifier superClass = findContainedClassifier.findClassifier(
+		final String qualifiedName = classifier.getQualifiedName();
+		if (qualifiedName != null && !qualifiedName.endsWith("java::lang::Object")) { //$NON-NLS-1$
+			final Classifier superClass = findContainedClassifier.findClassifier(
 					getModel(), javaClass.getSuperclassName(), UMLPackage.eINSTANCE.getClass_());
 			assert superClass instanceof Class;
 			classifier.getGeneralization(superClass, true);
@@ -234,7 +235,7 @@ public class AddClassifiers extends AddToModel {
 	 */
 	public void addPropertyTypes(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
-		Field[] fields = javaClass.getFields();
+		final Field[] fields = javaClass.getFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (!filter(fields[i])) {
 				continue;
@@ -252,7 +253,7 @@ public class AddClassifiers extends AddToModel {
 	 */
 	public void addOperationReferences(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
-		Method[] methods = javaClass.getMethods();
+		final Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (getFilter() != null) {
 				if (!getFilter().filter(methods[i])) {
@@ -274,7 +275,7 @@ public class AddClassifiers extends AddToModel {
 	 */
 	public void addOpCodeReferences(Classifier classifier, JavaClass javaClass) {
 		assert classifier != null;
-		Method[] methods = javaClass.getMethods();
+		final Method[] methods = javaClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (getFilter() != null) {
 				if (!getFilter().filter(methods[i])) {
@@ -299,13 +300,13 @@ public class AddClassifiers extends AddToModel {
 		//types in the local variable table should be added to the model
 		final LocalVariableTable lvt = method.getLocalVariableTable();
 		if (lvt != null) {
-			for (LocalVariable local : lvt.getLocalVariableTable()) {
+			for (final LocalVariable local : lvt.getLocalVariableTable()) {
 				typeToClassifier.doSwitch(Type.getType(local.getSignature()));
 			}
 		}
 		addInstructionReferences.setCp(method.getConstantPool());
-		InstructionList instrList = new InstructionList(method.getCode().getCode());
-		Instruction[] instr = instrList.getInstructions();
+		final InstructionList instrList = new InstructionList(method.getCode().getCode());
+		final Instruction[] instr = instrList.getInstructions();
 		for (int i = 0; i < instr.length; i++) {
 			instr[i].accept(addInstructionReferences);
 		}

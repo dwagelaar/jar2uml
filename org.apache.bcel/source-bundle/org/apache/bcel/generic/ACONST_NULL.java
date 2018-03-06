@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,31 +12,31 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-/** 
+/**
  * ACONST_NULL - Push null reference
  * <PRE>Stack: ... -&gt; ..., null</PRE>
  *
- * @version $Id: ACONST_NULL.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ACONST_NULL.java 1806200 2017-08-25 16:33:06Z ggregory $
  */
 public class ACONST_NULL extends Instruction implements PushInstruction, TypedInstruction {
 
-    /** 
+    /**
      * Push null reference
      */
     public ACONST_NULL() {
-        super(org.apache.bcel.Constants.ACONST_NULL, (short) 1);
+        super(org.apache.bcel.Const.ACONST_NULL, (short) 1);
     }
 
 
     /** @return Type.NULL
      */
-    public Type getType( ConstantPoolGen cp ) {
+    @Override
+    public Type getType( final ConstantPoolGen cp ) {
         return Type.NULL;
     }
 
@@ -48,7 +49,8 @@ public class ACONST_NULL extends Instruction implements PushInstruction, TypedIn
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitStackProducer(this);
         v.visitPushInstruction(this);
         v.visitTypedInstruction(this);

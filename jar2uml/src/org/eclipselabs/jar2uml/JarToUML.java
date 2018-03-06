@@ -54,7 +54,7 @@ import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipselabs.jar2uml.ui.JarToUMLPlugin;
 
 /**
- * Main class for the jar to UML converter. Start conversion by invoking {@link #run()}. 
+ * Main class for the jar to UML converter. Start conversion by invoking {@link #run()}.
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public final class JarToUML extends JarToUMLRunnable {
@@ -79,7 +79,7 @@ public final class JarToUML extends JarToUMLRunnable {
 	 */
 	public static void main(String[] args) {
 		try {
-			JarToUML jarToUML = new JarToUML();
+			final JarToUML jarToUML = new JarToUML();
 			jarToUML.setFilter(new JavaAPIFilter());
 			jarToUML.addJar(new JarFile(args[0]));
 			jarToUML.setOutputFile(args[1]);
@@ -88,7 +88,7 @@ public final class JarToUML extends JarToUMLRunnable {
 			if (jarToUML.isRunComplete()) {
 				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			JarToUMLResources.report(e);
 			JarToUMLResources.logger.severe(JarToUMLResources.getString("JarToUML.usage")); //$NON-NLS-1$
 		}
@@ -99,9 +99,9 @@ public final class JarToUML extends JarToUMLRunnable {
 	 * @return The Java project for the given path, or null
 	 */
 	public static IJavaProject getJavaProject(IPath path) {
-		IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
-		IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
-		IProject project = resource.getProject();
+		final IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
+		final IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+		final IProject project = resource.getProject();
 		return model.getJavaProject(project.getName());
 	}
 
@@ -112,17 +112,17 @@ public final class JarToUML extends JarToUMLRunnable {
 	 */
 	public static void findJavaProjectReferences(IJavaProject javaProject, Set<IJavaProject> refs) {
 		try {
-			for (IClasspathEntry cpe : javaProject.getResolvedClasspath(true)) {
+			for (final IClasspathEntry cpe : javaProject.getResolvedClasspath(true)) {
 				IPath cpePath;
 				switch (cpe.getEntryKind()) {
 				case IClasspathEntry.CPE_PROJECT:
 					cpePath = cpe.getPath();
-					IJavaProject ref = getJavaProject(cpePath);
+					final IJavaProject ref = getJavaProject(cpePath);
 					refs.add(ref);
 					break;
 				}
 			}
-		} catch (JavaModelException e) {
+		} catch (final JavaModelException e) {
 			JarToUMLPlugin.getPlugin().report(e);
 		}
 	}
@@ -131,7 +131,7 @@ public final class JarToUML extends JarToUMLRunnable {
 	 * @return A new ResourceSet with support for UML models outside Eclipse
 	 */
 	public static ResourceSet createResourceSet() {
-		ResourceSet resourceSet = new ResourceSetImpl();
+		final ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put(UMLPackage.eNS_URI,
 				UMLPackage.eINSTANCE);
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().
@@ -149,7 +149,7 @@ public final class JarToUML extends JarToUMLRunnable {
 		try {
 			Integer.parseInt(leafName);
 			return false;
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 			//everything allright, not an anonymous class
 		}
 		return true;
@@ -177,6 +177,9 @@ public final class JarToUML extends JarToUMLRunnable {
 	 */
 	public static String qualifiedName(final NamedElement element) {
 		final String qName = element.getQualifiedName();
+		if (qName == null) {
+			return "<unnamed>";
+		}
 		final int sepIndex = qName.indexOf("::");
 		if (sepIndex > 0) {
 			return qName.substring(sepIndex + 2);
@@ -190,8 +193,8 @@ public final class JarToUML extends JarToUMLRunnable {
 	 * @return A {@link List} of the qualified names of elements.
 	 */
 	public static List<String> getNameList(Collection<? extends NamedElement> elements) {
-		List<String> list = new ArrayList<String>();
-		for (NamedElement e : elements) {
+		final List<String> list = new ArrayList<String>();
+		for (final NamedElement e : elements) {
 			list.add(qualifiedName(e));
 		}
 		return list;
@@ -255,7 +258,7 @@ public final class JarToUML extends JarToUMLRunnable {
 	 * @return the {@link Comment} owned by element containing the comment string
 	 */
 	public static Comment getOwnedComment(Element element, String comment) {
-		for (Comment c : element.getOwnedComments()) {
+		for (final Comment c : element.getOwnedComments()) {
 			if (comment.equals(c.getBody())) {
 				return c;
 			}
@@ -265,15 +268,15 @@ public final class JarToUML extends JarToUMLRunnable {
 		return c;
 	}
 
-	private FindReferredTypesSwitch findReferredTypes = new FindReferredTypesSwitch();
+	private final FindReferredTypesSwitch findReferredTypes = new FindReferredTypesSwitch();
 
 	private Model model;
-	private List<JarFile> jars = new ArrayList<JarFile>();
-	private List<IContainer> paths = new ArrayList<IContainer>();
-	private List<JarFile> cpJars = new ArrayList<JarFile>();
-	private List<IContainer> cpPaths = new ArrayList<IContainer>();
-	private List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
-	private List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
+	private final List<JarFile> jars = new ArrayList<JarFile>();
+	private final List<IContainer> paths = new ArrayList<IContainer>();
+	private final List<JarFile> cpJars = new ArrayList<JarFile>();
+	private final List<IContainer> cpPaths = new ArrayList<IContainer>();
+	private final List<JavaClass> parsedClasses = new ArrayList<JavaClass>();
+	private final List<JavaClass> parsedCpClasses = new ArrayList<JavaClass>();
 	private Filter filter;
 	private String outputFile = "api.uml"; //$NON-NLS-1$
 	private String outputModelName = "api"; //$NON-NLS-1$
@@ -286,6 +289,7 @@ public final class JarToUML extends JarToUMLRunnable {
 	/**
 	 * Performs the actual jar to UML conversion.
 	 */
+	@Override
 	protected void runWithMonitor(final IProgressMonitor monitor) {
 		try {
 			assert getOutputFile() != null : JarToUMLResources.getString("JarToUML.nullOutputFile"); //$NON-NLS-1$
@@ -330,7 +334,7 @@ public final class JarToUML extends JarToUMLRunnable {
 			final List<JavaClass> parsedClasses = getParsedClasses();
 			final List<JavaClass> parsedCpClasses = getParsedCpClasses();
 			parseClasses.beginTask(
-					JarToUMLResources.getString("JarToUML.parsing"), 
+					JarToUMLResources.getString("JarToUML.parsing"),
 					ParseClasses.getJarWork(getJars()) + ParseClasses.getJarWork(getCpJars()) + ParseClasses.getPathWork(getPaths()) + ParseClasses.getPathWork(getCpPaths())); //$NON-NLS-1$
 			List<JarFile> jars = getJars();
 			List<IContainer> paths = getPaths();
@@ -343,19 +347,19 @@ public final class JarToUML extends JarToUMLRunnable {
 				cpJars = Collections.emptyList();
 				cpPaths = Collections.emptyList();
 			}
-			for (JarFile jar : jars) {
+			for (final JarFile jar : jars) {
 				parseClasses.parseClasses(jar, parsedClasses, parsedCpClasses);
 				checkCancelled(monitor);
 			}
-			for (IContainer path : paths) {
+			for (final IContainer path : paths) {
 				parseClasses.parseClasses(path, parsedClasses);
 				checkCancelled(monitor);
 			}
-			for (JarFile jar : cpJars) {
+			for (final JarFile jar : cpJars) {
 				parseClasses.parseClasses(jar, parsedCpClasses, parsedCpClasses);
 				checkCancelled(monitor);
 			}
-			for (IContainer path : cpPaths) {
+			for (final IContainer path : cpPaths) {
 				parseClasses.parseClasses(path, parsedCpClasses);
 				checkCancelled(monitor);
 			}
@@ -368,7 +372,7 @@ public final class JarToUML extends JarToUMLRunnable {
 			final boolean includeInstructionReferences = isIncludeInstructionReferences();
 			final AddClassifiers addClassifiers = new AddClassifiers(filter, monitor, WORK_ADD_CLASSIFIERS,	model, includeFeatures,	includeInstructionReferences);
 			addClassifiers.beginTask(
-					JarToUMLResources.getString("JarToUML.addingClassifiers"), 
+					JarToUMLResources.getString("JarToUML.addingClassifiers"),
 					parsedClasses.size() + parsedCpClasses.size()); //$NON-NLS-1$
 			addClassifiers.addAllClassifiers(parsedClasses);
 			final List<JavaClass> skippedClasses = addClassifiers.addClassifiersClosure(parsedCpClasses);
@@ -380,7 +384,7 @@ public final class JarToUML extends JarToUMLRunnable {
 			subTask(monitor, JarToUMLResources.getString("JarToUML.addingProperties")); //$NON-NLS-1$
 			final AddProperties addProperties = new AddProperties(filter, monitor, WORK_ADD_PROPERTIES, model, includeFeatures, includeInstructionReferences);
 			addProperties.beginTask(
-					JarToUMLResources.getString("JarToUML.addingProperties"), 
+					JarToUMLResources.getString("JarToUML.addingProperties"),
 					parsedClasses.size() + parsedCpClasses.size()); //$NON-NLS-1$
 			addProperties.addAllProperties(parsedClasses);
 			addProperties.addAllProperties(parsedCpClasses);
@@ -430,7 +434,7 @@ public final class JarToUML extends JarToUMLRunnable {
 			subTask(monitor, JarToUMLResources.getString("JarToUML.addingMetadata")); //$NON-NLS-1$
 			if (isIncludeComment()) {
 				getOwnedComment(model, String.format(
-						JarToUMLResources.getString("JarToUML.generatedBy"), 
+						JarToUMLResources.getString("JarToUML.generatedBy"),
 						JarToUMLPlugin.getPlugin().getBundle().getVersion(),
 						getInputList())); //$NON-NLS-1$
 			}
@@ -438,9 +442,9 @@ public final class JarToUML extends JarToUMLRunnable {
 			annotate(model, MINOR_BYTECODE_FORMAT_VERSION, String.valueOf(parseClasses.getMinorFormatVersion())); //$NON-NLS-1$
 			annotate(model, PREVERIFIED, String.valueOf(addProperties.isPreverified())); //$NON-NLS-1$
 			worked(monitor, JarToUMLResources.getString("JarToUML.addedMetadata"));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new JarToUMLException(e);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			throw new JarToUMLException(e);
 		}
 	}
@@ -457,20 +461,20 @@ public final class JarToUML extends JarToUMLRunnable {
 			jars = getCpJars();
 			paths = getCpPaths();
 		}
-		for (JarFile jar : jars) {
+		for (final JarFile jar : jars) {
 			if (b == null) {
 				b = new StringBuffer();
 			} else {
-				b.append(", ");	
+				b.append(", ");
 			}
-			String jarName = jar.getName();
-			b.append(jarName.substring(jarName.lastIndexOf('/') + 1));	
+			final String jarName = jar.getName();
+			b.append(jarName.substring(jarName.lastIndexOf('/') + 1));
 		}
-		for (IContainer path : paths) {
+		for (final IContainer path : paths) {
 			if (b == null) {
 				b = new StringBuffer();
 			} else {
-				b.append(", ");	
+				b.append(", ");
 			}
 			b.append(path.getFullPath());
 		}
@@ -656,11 +660,11 @@ public final class JarToUML extends JarToUMLRunnable {
 	 * Adds all relevant class file paths for javaProject
 	 * @param javaProject
 	 * @param includeWorkspaceReferences Include referenced projects and jar files in workspace
-	 * @throws JavaModelException 
-	 * @throws IOException 
+	 * @throws JavaModelException
+	 * @throws IOException
 	 */
 	public void addPaths(IJavaProject javaProject, boolean includeWorkspaceReferences) throws JavaModelException, IOException {
-		for (IClasspathEntry cpe : javaProject.getResolvedClasspath(true)) {
+		for (final IClasspathEntry cpe : javaProject.getResolvedClasspath(true)) {
 			IPath cpePath;
 			switch (cpe.getEntryKind()) {
 			case IClasspathEntry.CPE_SOURCE:
@@ -668,16 +672,16 @@ public final class JarToUML extends JarToUMLRunnable {
 				if (cpePath == null) {
 					cpePath = javaProject.getOutputLocation();
 				}
-				IContainer container = (IContainer) 
-				ResourcesPlugin.getWorkspace().getRoot().findMember(cpePath);
+				final IContainer container = (IContainer)
+						ResourcesPlugin.getWorkspace().getRoot().findMember(cpePath);
 				addPath(container);
 				break;
 			case IClasspathEntry.CPE_LIBRARY:
 				cpePath = cpe.getPath();
-				IResource resource = 
-					ResourcesPlugin.getWorkspace().getRoot().findMember(cpePath);
-				if ((resource != null) && 
-						(includeWorkspaceReferences 
+				final IResource resource =
+						ResourcesPlugin.getWorkspace().getRoot().findMember(cpePath);
+				if ((resource != null) &&
+						(includeWorkspaceReferences
 								|| javaProject.getProject().equals(resource.getProject()))) {
 					if (resource instanceof IFile) {
 						addCpJar(new JarFile(resource.getLocation().toFile()));
@@ -685,7 +689,7 @@ public final class JarToUML extends JarToUMLRunnable {
 						addCpPath((IContainer) resource);
 					} else {
 						throw new IOException(String.format(
-								JarToUMLResources.getString("JarToUML.unexpectedResourceKind"), 
+								JarToUMLResources.getString("JarToUML.unexpectedResourceKind"),
 								resource)); //$NON-NLS-1$
 					}
 				}
@@ -693,9 +697,9 @@ public final class JarToUML extends JarToUMLRunnable {
 			}
 		}
 		if (includeWorkspaceReferences) {
-			Set<IJavaProject> refs = new HashSet<IJavaProject>();
+			final Set<IJavaProject> refs = new HashSet<IJavaProject>();
 			findJavaProjectReferences(javaProject, refs);
-			for (IJavaProject ref : refs) {
+			for (final IJavaProject ref : refs) {
 				addPaths(ref, includeWorkspaceReferences);
 			}
 		}

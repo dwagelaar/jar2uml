@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,24 +12,27 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.bcel.Constants;
-import org.apache.bcel.ExceptionConstants;
+
+import org.apache.bcel.Const;
+import org.apache.bcel.ExceptionConst;
 import org.apache.bcel.classfile.ConstantPool;
 import org.apache.bcel.util.ByteSequence;
 
-/** 
+/**
  * INVOKEINTERFACE - Invoke interface method
  * <PRE>Stack: ..., objectref, [arg1, [arg2 ...]] -&gt; ...</PRE>
  *
- * @version $Id: INVOKEINTERFACE.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: INVOKEINTERFACE.java 1812166 2017-10-13 23:48:11Z ggregory $
+ * @see
+ * <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.invokeinterface">
+ * The invokeinterface instruction in The Java Virtual Machine Specification</a>
  */
 public final class INVOKEINTERFACE extends InvokeInstruction {
 
@@ -36,16 +40,16 @@ public final class INVOKEINTERFACE extends InvokeInstruction {
 
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     INVOKEINTERFACE() {
     }
 
 
-    public INVOKEINTERFACE(int index, int nargs) {
-        super(Constants.INVOKEINTERFACE, index);
-        length = 5;
+    public INVOKEINTERFACE(final int index, final int nargs) {
+        super(Const.INVOKEINTERFACE, index);
+        super.setLength(5);
         if (nargs < 1) {
             throw new ClassGenException("Number of arguments must be > 0 " + nargs);
         }
@@ -57,9 +61,10 @@ public final class INVOKEINTERFACE extends InvokeInstruction {
      * Dump instruction as byte code to stream out.
      * @param out Output stream
      */
-    public void dump( DataOutputStream out ) throws IOException {
-        out.writeByte(opcode);
-        out.writeShort(index);
+    @Override
+    public void dump( final DataOutputStream out ) throws IOException {
+        out.writeByte(super.getOpcode());
+        out.writeShort(super.getIndex());
         out.writeByte(nargs);
         out.writeByte(0);
     }
@@ -77,9 +82,10 @@ public final class INVOKEINTERFACE extends InvokeInstruction {
     /**
      * Read needed data (i.e., index) from file.
      */
-    protected void initFromFile( ByteSequence bytes, boolean wide ) throws IOException {
+    @Override
+    protected void initFromFile( final ByteSequence bytes, final boolean wide ) throws IOException {
         super.initFromFile(bytes, wide);
-        length = 5;
+        super.setLength(5);
         nargs = bytes.readUnsignedByte();
         bytes.readByte(); // Skip 0 byte
     }
@@ -88,25 +94,25 @@ public final class INVOKEINTERFACE extends InvokeInstruction {
     /**
      * @return mnemonic for instruction with symbolic references resolved
      */
-    public String toString( ConstantPool cp ) {
+    @Override
+    public String toString( final ConstantPool cp ) {
         return super.toString(cp) + " " + nargs;
     }
 
 
-    public int consumeStack( ConstantPoolGen cpg ) { // nargs is given in byte-code
+    @Override
+    public int consumeStack( final ConstantPoolGen cpg ) { // nargs is given in byte-code
         return nargs; // nargs includes this reference
     }
 
 
-    public Class[] getExceptions() {
-        Class[] cs = new Class[4 + ExceptionConstants.EXCS_INTERFACE_METHOD_RESOLUTION.length];
-        System.arraycopy(ExceptionConstants.EXCS_INTERFACE_METHOD_RESOLUTION, 0, cs, 0,
-                ExceptionConstants.EXCS_INTERFACE_METHOD_RESOLUTION.length);
-        cs[ExceptionConstants.EXCS_INTERFACE_METHOD_RESOLUTION.length + 3] = ExceptionConstants.INCOMPATIBLE_CLASS_CHANGE_ERROR;
-        cs[ExceptionConstants.EXCS_INTERFACE_METHOD_RESOLUTION.length + 2] = ExceptionConstants.ILLEGAL_ACCESS_ERROR;
-        cs[ExceptionConstants.EXCS_INTERFACE_METHOD_RESOLUTION.length + 1] = ExceptionConstants.ABSTRACT_METHOD_ERROR;
-        cs[ExceptionConstants.EXCS_INTERFACE_METHOD_RESOLUTION.length] = ExceptionConstants.UNSATISFIED_LINK_ERROR;
-        return cs;
+    @Override
+    public Class<?>[] getExceptions() {
+        return ExceptionConst.createExceptions(ExceptionConst.EXCS.EXCS_INTERFACE_METHOD_RESOLUTION,
+            ExceptionConst.UNSATISFIED_LINK_ERROR,
+            ExceptionConst.ABSTRACT_METHOD_ERROR,
+            ExceptionConst.ILLEGAL_ACCESS_ERROR,
+            ExceptionConst.INCOMPATIBLE_CLASS_CHANGE_ERROR);
     }
 
 
@@ -118,7 +124,8 @@ public final class INVOKEINTERFACE extends InvokeInstruction {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitExceptionThrower(this);
         v.visitTypedInstruction(this);
         v.visitStackConsumer(this);

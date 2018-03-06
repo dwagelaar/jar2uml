@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.util;
@@ -19,6 +20,8 @@ package org.apache.bcel.util;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import org.apache.bcel.Const;
 import org.apache.bcel.classfile.Attribute;
 import org.apache.bcel.classfile.Code;
 import org.apache.bcel.classfile.ConstantValue;
@@ -30,20 +33,19 @@ import org.apache.bcel.classfile.Utility;
 /**
  * Convert methods and fields into HTML file.
  *
- * @version $Id: MethodHTML.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
- * 
+ * @version $Id: MethodHTML.java 1806200 2017-08-25 16:33:06Z ggregory $
+ *
  */
-final class MethodHTML implements org.apache.bcel.Constants {
+final class MethodHTML {
 
-    private String class_name; // name of current class
-    private PrintWriter file; // file to write to
-    private ConstantHTML constant_html;
-    private AttributeHTML attribute_html;
+    private final String class_name; // name of current class
+    private final PrintWriter file; // file to write to
+    private final ConstantHTML constant_html;
+    private final AttributeHTML attribute_html;
 
 
-    MethodHTML(String dir, String class_name, Method[] methods, Field[] fields,
-            ConstantHTML constant_html, AttributeHTML attribute_html) throws IOException {
+    MethodHTML(final String dir, final String class_name, final Method[] methods, final Field[] fields,
+            final ConstantHTML constant_html, final AttributeHTML attribute_html) throws IOException {
         this.class_name = class_name;
         this.attribute_html = attribute_html;
         this.constant_html = constant_html;
@@ -51,8 +53,8 @@ final class MethodHTML implements org.apache.bcel.Constants {
         file.println("<HTML><BODY BGCOLOR=\"#C0C0C0\"><TABLE BORDER=0>");
         file.println("<TR><TH ALIGN=LEFT>Access&nbsp;flags</TH><TH ALIGN=LEFT>Type</TH>"
                 + "<TH ALIGN=LEFT>Field&nbsp;name</TH></TR>");
-        for (int i = 0; i < fields.length; i++) {
-            writeField(fields[i]);
+        for (final Field field : fields) {
+            writeField(field);
         }
         file.println("</TABLE>");
         file.println("<TABLE BORDER=0><TR><TH ALIGN=LEFT>Access&nbsp;flags</TH>"
@@ -70,11 +72,11 @@ final class MethodHTML implements org.apache.bcel.Constants {
      * Print field of class.
      *
      * @param field field to print
-     * @exception java.io.IOException
+     * @throws java.io.IOException
      */
-    private void writeField( Field field ) throws IOException {
-        String type = Utility.signatureToString(field.getSignature());
-        String name = field.getName();
+    private void writeField( final Field field ) throws IOException {
+        final String type = Utility.signatureToString(field.getSignature());
+        final String name = field.getName();
         String access = Utility.accessToString(field.getAccessFlags());
         Attribute[] attributes;
         access = Utility.replace(access, " ", "&nbsp;");
@@ -87,8 +89,8 @@ final class MethodHTML implements org.apache.bcel.Constants {
             attribute_html.writeAttribute(attributes[i], name + "@" + i);
         }
         for (int i = 0; i < attributes.length; i++) {
-            if (attributes[i].getTag() == ATTR_CONSTANT_VALUE) { // Default value
-                String str = ((ConstantValue) attributes[i]).toString();
+            if (attributes[i].getTag() == Const.ATTR_CONSTANT_VALUE) { // Default value
+                final String str = ((ConstantValue) attributes[i]).toString();
                 // Reference attribute in _attributes.html
                 file.print("<TD>= <A HREF=\"" + class_name + "_attributes.html#" + name + "@" + i
                         + "\" TARGET=\"Attributes\">" + str + "</TD>\n");
@@ -99,19 +101,20 @@ final class MethodHTML implements org.apache.bcel.Constants {
     }
 
 
-    private final void writeMethod( Method method, int method_number ) throws IOException {
+    private void writeMethod( final Method method, final int method_number ) {
         // Get raw signature
-        String signature = method.getSignature();
-        // Get array of strings containing the argument types 
-        String[] args = Utility.methodSignatureArgumentTypes(signature, false);
+        final String signature = method.getSignature();
+        // Get array of strings containing the argument types
+        final String[] args = Utility.methodSignatureArgumentTypes(signature, false);
         // Get return type string
-        String type = Utility.methodSignatureReturnType(signature, false);
+        final String type = Utility.methodSignatureReturnType(signature, false);
         // Get method name
-        String name = method.getName(), html_name;
+        final String name = method.getName();
+        String html_name;
         // Get method's access flags
         String access = Utility.accessToString(method.getAccessFlags());
         // Get the method's attributes, the Code Attribute in particular
-        Attribute[] attributes = method.getAttributes();
+        final Attribute[] attributes = method.getAttributes();
         /* HTML doesn't like names like <clinit> and spaces are places to break
          * lines. Both we don't want...
          */
@@ -133,10 +136,10 @@ final class MethodHTML implements org.apache.bcel.Constants {
         for (int i = 0; i < attributes.length; i++) {
             attribute_html.writeAttribute(attributes[i], "method" + method_number + "@" + i,
                     method_number);
-            byte tag = attributes[i].getTag();
-            if (tag == ATTR_EXCEPTIONS) {
+            final byte tag = attributes[i].getTag();
+            if (tag == Const.ATTR_EXCEPTIONS) {
                 file.print("<TR VALIGN=TOP><TD COLSPAN=2></TD><TH ALIGN=LEFT>throws</TH><TD>");
-                int[] exceptions = ((ExceptionTable) attributes[i]).getExceptionIndexTable();
+                final int[] exceptions = ((ExceptionTable) attributes[i]).getExceptionIndexTable();
                 for (int j = 0; j < exceptions.length; j++) {
                     file.print(constant_html.referenceConstant(exceptions[j]));
                     if (j < exceptions.length - 1) {
@@ -144,8 +147,8 @@ final class MethodHTML implements org.apache.bcel.Constants {
                     }
                 }
                 file.println("</TD></TR>");
-            } else if (tag == ATTR_CODE) {
-                Attribute[] c_a = ((Code) attributes[i]).getAttributes();
+            } else if (tag == Const.ATTR_CODE) {
+                final Attribute[] c_a = ((Code) attributes[i]).getAttributes();
                 for (int j = 0; j < c_a.length; j++) {
                     attribute_html.writeAttribute(c_a[j], "method" + method_number + "@" + i + "@"
                             + j, method_number);

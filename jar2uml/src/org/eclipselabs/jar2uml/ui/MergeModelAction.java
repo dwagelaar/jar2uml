@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -54,7 +54,7 @@ public class MergeModelAction extends SelectionAction {
 	 * @return the root {@link Model} element in res, if any, <code>null</code> otherwise
 	 */
 	public static final Model findRootModel(Resource res) {
-		for (EObject rootEl : res.getContents()) {
+		for (final EObject rootEl : res.getContents()) {
 			if (rootEl instanceof Model) {
 				return (Model) rootEl;
 			}
@@ -69,16 +69,17 @@ public class MergeModelAction extends SelectionAction {
 		final IFile baseModelFile = (IFile) ((IStructuredSelection) selection).getFirstElement();
 		final String baseModelName = baseModelFile.getName();
 		final CheckedTreeSelectionDialog dlg = new CheckedTreeSelectionDialog(
-				JarToUMLPlugin.getPlugin().getShell(), 
-				new WorkbenchLabelProvider(), 
+				JarToUMLPlugin.getPlugin().getShell(),
+				new WorkbenchLabelProvider(),
 				new WorkbenchContentProvider());
 		dlg.setInput(ResourcesPlugin.getWorkspace().getRoot());
 		dlg.setContainerMode(true);
 		dlg.setHelpAvailable(false);
 		dlg.addFilter(new ViewerFilter() {
+			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
 				if (element instanceof IResource) {
-					IResource resource = (IResource) element;
+					final IResource resource = (IResource) element;
 					if (resource.getType() == IResource.FILE) {
 						return resource.getFileExtension().toLowerCase().equals("uml"); //$NON-NLS-1$
 					}
@@ -89,7 +90,7 @@ public class MergeModelAction extends SelectionAction {
 		});
 		dlg.setTitle(JarToUMLResources.getString("MergeModelAction.dlgTitle")); //$NON-NLS-1$
 		dlg.setMessage(String.format(
-				JarToUMLResources.getString("MergeModelAction.dlgMessage"), 
+				JarToUMLResources.getString("MergeModelAction.dlgMessage"),
 				baseModelName)); //$NON-NLS-1$
 		JarToUMLPlugin.getPlugin().getWorkbench().getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -100,9 +101,9 @@ public class MergeModelAction extends SelectionAction {
 			return;
 		}
 		final Object[] selectedResources = dlg.getResult();
-		
+
 		final WorkspaceJob job = new WorkspaceJob(String.format(
-				JarToUMLResources.getString("MergeModelAction.jobTitle"), 
+				JarToUMLResources.getString("MergeModelAction.jobTitle"),
 				baseModelName)) { //$NON-NLS-1$
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor)
@@ -111,18 +112,18 @@ public class MergeModelAction extends SelectionAction {
 				try {
 					mergeModels(baseModelFile, selectedResources, monitor);
 					st = new Status(
-							IStatus.OK, 
-							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
+							IStatus.OK,
+							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(),
 							String.format(
-									JarToUMLResources.getString("MergeModelAction.jobResult"), 
+									JarToUMLResources.getString("MergeModelAction.jobResult"),
 									baseModelName)); //$NON-NLS-1$
-				} catch (OperationCanceledException e) {
+				} catch (final OperationCanceledException e) {
 					st = Status.CANCEL_STATUS;
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					JarToUMLPlugin.getPlugin().report(e);
 					st = new Status(
-							IStatus.ERROR, 
-							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(), 
+							IStatus.ERROR,
+							JarToUMLPlugin.getPlugin().getBundle().getSymbolicName(),
 							e.getLocalizedMessage(),
 							e);
 				} finally {
@@ -141,7 +142,7 @@ public class MergeModelAction extends SelectionAction {
 	 * @param baseFile the file containing the base model
 	 * @param resources the resources to merge
 	 * @param monitor the progress monitor
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	protected void mergeModels(IFile baseFile, Object[] resources, IProgressMonitor monitor) throws IOException {
 		assert monitor != null;
@@ -149,52 +150,51 @@ public class MergeModelAction extends SelectionAction {
 			throw new JarToUMLException(JarToUMLResources.getString("MergeModelAction.noModelsSelected")); //$NON-NLS-1$
 		}
 		final List<IFile> files = new ArrayList<IFile>(resources.length);
-		for (Object resource : resources) {
+		for (final Object resource : resources) {
 			if (resource instanceof IFile) {
 				files.add((IFile) resource);
 			}
 		}
 
-		monitor.beginTask(
-				String.format(
-						JarToUMLResources.getString("MergeModelAction.mergingStart"), 
-						baseFile.getName()), 
-				2 + files.size() * 10); //$NON-NLS-1$
-		monitor.subTask(JarToUMLResources.getString("MergeModelAction.loadingBase")); //$NON-NLS-1$
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				String.format(JarToUMLResources.getString("MergeModelAction.mergingStart"), baseFile.getName()),
+				2 + files.size() * 10); // $NON-NLS-1$
+		subMonitor.subTask(JarToUMLResources.getString("MergeModelAction.loadingBase")); //$NON-NLS-1$
 		final ResourceSet rs = new ResourceSetImpl();
 		final URI baseURI = URI.createPlatformResourceURI(
 				baseFile.getProject().getName() + '/' +
-				baseFile.getProjectRelativePath().toString(), 
+				baseFile.getProjectRelativePath().toString(),
 				true);
 		final Resource baseRes = rs.getResource(baseURI, true);
 		final Model base = findRootModel(baseRes);
 		assert base != null;
 		final MergeModel mergeModel = new MergeModel();
 		mergeModel.setBaseModel(base);
-		monitor.worked(1);
+		subMonitor.worked(1);
 
-		for (IFile mergeFile : files) {
-			monitor.subTask(String.format(
-					JarToUMLResources.getString("MergeModelAction.merging"), 
-					mergeFile.getName())); //$NON-NLS-1$
-			URI mergeURI = URI.createPlatformResourceURI(
+		for (final IFile mergeFile : files) {
+			subMonitor.subTask(
+					String.format(
+							JarToUMLResources.getString("MergeModelAction.merging"),
+							mergeFile.getName())); //$NON-NLS-1$
+			final URI mergeURI = URI.createPlatformResourceURI(
 					mergeFile.getProject().getName() + '/' +
-					mergeFile.getProjectRelativePath().toString(), 
+					mergeFile.getProjectRelativePath().toString(),
 					true);
-			Resource mergeRes = rs.getResource(mergeURI, true);
-			Model merge = findRootModel(mergeRes);
+			final Resource mergeRes = rs.getResource(mergeURI, true);
+			final Model merge = findRootModel(mergeRes);
 			assert merge != null;
 			mergeModel.setMergeModel(merge);
-			mergeModel.setMonitor(new SubProgressMonitor(monitor, 10));
+			mergeModel.setMonitor(subMonitor.split(10));
 			mergeModel.run();
-			if (monitor.isCanceled()) {
+			if (subMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 		}
 
-		monitor.subTask(JarToUMLResources.getString("MergeModelAction.saving")); //$NON-NLS-1$
+		subMonitor.subTask(JarToUMLResources.getString("MergeModelAction.saving")); //$NON-NLS-1$
 		baseRes.save(Collections.emptyMap());
-		monitor.worked(1);
+		subMonitor.worked(1);
 	}
 
 }
