@@ -56,12 +56,12 @@ public class ParseClasses extends JarToUMLOperation {
 	 * @throws CoreException
 	 */
 	public static void findClassFilesIn(IContainer parent, List<IFile> cfs)
-	throws CoreException {
-		for (IResource r : parent.members()) {
+			throws CoreException {
+		for (final IResource r : parent.members()) {
 			switch (r.getType()) {
 			case IResource.FILE:
-				IFile file = (IFile) r;
-				if (file.getFileExtension().equals("class")) { //$NON-NLS-1$
+				final IFile file = (IFile) r;
+				if ("class".equals(file.getFileExtension())) { //$NON-NLS-1$
 					cfs.add(file);
 				}
 				break;
@@ -79,7 +79,7 @@ public class ParseClasses extends JarToUMLOperation {
 	 */
 	public static int getJarWork(final Collection<JarFile> jars) {
 		int work = 0;
-		for (JarFile jar : jars) {
+		for (final JarFile jar : jars) {
 			work += jar.size();
 		}
 		return work;
@@ -92,7 +92,7 @@ public class ParseClasses extends JarToUMLOperation {
 	 */
 	public static int getPathWork(final Collection<IContainer> paths) throws CoreException {
 		final List<IFile> classFiles = new ArrayList<IFile>();
-		for (IContainer path : paths) {
+		for (final IContainer path : paths) {
 			findClassFilesIn(path, classFiles);
 		}
 		return classFiles.size();
@@ -108,26 +108,26 @@ public class ParseClasses extends JarToUMLOperation {
 	 * @param parsedCpClasses Collection of classes parsed from nested jars in jar.
 	 * @throws IOException
 	 */
-	public void parseClasses(JarFile jar, Collection<JavaClass> parsedClasses, 
+	public void parseClasses(JarFile jar, Collection<JavaClass> parsedClasses,
 			Collection<JavaClass> parsedCpClasses) throws IOException {
 		assert jar != null;
-		for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
-			JarEntry entry = entries.nextElement();
-			String name = entry.getName();
+		for (final Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
+			final JarEntry entry = entries.nextElement();
+			final String name = entry.getName();
 			if (classFileName.matcher(name).matches()) {
 				if (!filter(entry.getName())) {
 					continue;
 				}
-				InputStream input = jar.getInputStream(entry);
-				ClassParser parser = new ClassParser(input, entry.getName());
-				JavaClass javaClass = parser.parse();
+				final InputStream input = jar.getInputStream(entry);
+				final ClassParser parser = new ClassParser(input, entry.getName());
+				final JavaClass javaClass = parser.parse();
 				setMajorFormatVersion(javaClass.getMajor());
 				setMinorFormatVersion(javaClass.getMinor());
 				input.close();
 				parsedClasses.add(javaClass);
 			} else if (jarFileName.matcher(name).matches()) {
-				InputStream input = jar.getInputStream(entry);
-				JarInputStream nestedJar = new JarInputStream(input);
+				final InputStream input = jar.getInputStream(entry);
+				final JarInputStream nestedJar = new JarInputStream(input);
 				// switch to classpath classes collection
 				parseClasses(nestedJar, parsedCpClasses, parsedCpClasses);
 				nestedJar.close();
@@ -143,22 +143,22 @@ public class ParseClasses extends JarToUMLOperation {
 	 * @param parsedCpClasses Collection of classes parsed from nested jars in jar.
 	 * @throws IOException
 	 */
-	public void parseClasses(JarInputStream jar, Collection<JavaClass> parsedClasses, 
+	public void parseClasses(JarInputStream jar, Collection<JavaClass> parsedClasses,
 			Collection<JavaClass> parsedCpClasses) throws IOException {
 		assert jar != null;
 		for (JarEntry entry = jar.getNextJarEntry(); entry != null; entry = jar.getNextJarEntry()) {
-			String name = entry.getName();
+			final String name = entry.getName();
 			if (classFileName.matcher(name).matches()) {
 				if (!filter(entry.getName())) {
 					continue;
 				}
-				ClassParser parser = new ClassParser(jar, entry.getName());
-				JavaClass javaClass = parser.parse();
+				final ClassParser parser = new ClassParser(jar, entry.getName());
+				final JavaClass javaClass = parser.parse();
 				setMajorFormatVersion(javaClass.getMajor());
 				setMinorFormatVersion(javaClass.getMinor());
 				parsedClasses.add(javaClass);
 			} else if (jarFileName.matcher(name).matches()) {
-				JarInputStream nestedJar = new JarInputStream(jar);
+				final JarInputStream nestedJar = new JarInputStream(jar);
 				// switch to classpath classes collection
 				parseClasses(nestedJar, parsedCpClasses, parsedCpClasses);
 				// do NOT close input stream!
@@ -179,15 +179,15 @@ public class ParseClasses extends JarToUMLOperation {
 		assert container != null;
 		final List<IFile> classFiles = new ArrayList<IFile>();
 		findClassFilesIn(container, classFiles);
-		for (IFile classFile : classFiles) {
-			IPath filePath = classFile.getLocation();
-			String filename = filePath.toString().substring(container.getLocation().toString().length());
+		for (final IFile classFile : classFiles) {
+			final IPath filePath = classFile.getLocation();
+			final String filename = filePath.toString().substring(container.getLocation().toString().length());
 			if (!filter(filename)) {
 				continue;
 			}
-			InputStream input = classFile.getContents();
-			ClassParser parser = new ClassParser(input, filename);
-			JavaClass javaClass = parser.parse();
+			final InputStream input = classFile.getContents();
+			final ClassParser parser = new ClassParser(input, filename);
+			final JavaClass javaClass = parser.parse();
 			setMajorFormatVersion(javaClass.getMajor());
 			setMinorFormatVersion(javaClass.getMinor());
 			input.close();
@@ -197,7 +197,7 @@ public class ParseClasses extends JarToUMLOperation {
 	}
 
 	/**
-	 * The class file format major version. 
+	 * The class file format major version.
 	 * @return the majorFormatVersion
 	 * @see <a href="http://en.wikipedia.org/wiki/Class_(file_format)">Class_(file_format)</a>
 	 */
@@ -206,7 +206,7 @@ public class ParseClasses extends JarToUMLOperation {
 	}
 
 	/**
-	 * The class file format minor version. 
+	 * The class file format minor version.
 	 * @param majorFormatVersion the majorFormatVersion to set
 	 * @see <a href="http://en.wikipedia.org/wiki/Class_(file_format)">Class_(file_format)</a>
 	 */
