@@ -28,18 +28,18 @@ import org.eclipselabs.jar2uml.JarToUMLResources;
 import org.eclipselabs.jar2uml.cflow.ControlFlow.InstructionFlow;
 
 /**
- * Keeps track of {@link Type#NULL} origins in a {@link SmartFrame} 
+ * Keeps track of {@link Type#NULL} origins in a {@link SmartFrame}
  * and works around the bugs in {@link ExecutionVisitor}.
- * 
+ *
  * Using the {@link #setTrackNull(boolean)} option, one can choose
  * to ignore the types in the local variable table in case a NULL
  * is being written into a local variable. This allows one to find
  * dead code caused by guaranteed NULLs.
- * 
+ *
  * @author Dennis Wagelaar <dennis.wagelaar@vub.ac.be>
  */
 public class SmartExecutionVisitor extends ExecutionVisitor {
-	
+
 	private ConstantPoolGen cpg;
 	private SmartFrame frame;
 	private InstructionFlow iflow;
@@ -106,7 +106,7 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 		 * Downcast object types stored in local variables.
 		 * If this is not done, method calls on the same local variable may
 		 * look like method calls on different (sub-)types.
-		 * 
+		 *
 		 * N.B. finally blocks store the "any" exception in an untyped local var!
 		 */
 		if (lv == null || (isTrackNull() && stack.peek().equals(Type.NULL))) {
@@ -114,10 +114,18 @@ public class SmartExecutionVisitor extends ExecutionVisitor {
 			locals.set(index, stack.pop());
 			frame.setResponsibleForLocalVariable(iflow1, index);
 		} else {
-			locals.set(index, Type.getType(lv.getSignature()));
+			locals.set(index, getLocalVariableType(lv));
 			stack.pop();
 			frame.setResponsibleForLocalVariable(iflow, index);
 		}
+	}
+
+	private Type getLocalVariableType(final LocalVariable lv) {
+		final Type type = Type.getType(lv.getSignature());
+		if (type == Type.BYTE || type == Type.SHORT || type == Type.BOOLEAN || type == Type.CHAR) {
+			return Type.INT;
+		}
+		return type;
 	}
 
 	/* (non-Javadoc)

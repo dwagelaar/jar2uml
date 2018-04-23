@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 
@@ -35,6 +37,7 @@ import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
@@ -86,7 +89,7 @@ public final class JarToUML extends JarToUMLRunnable {
 			jarToUML.setOutputModelName(args[2]);
 			jarToUML.run();
 			if (jarToUML.isRunComplete()) {
-				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
+				jarToUML.saveModel();
 			}
 		} catch (final Exception e) {
 			JarToUMLResources.report(e);
@@ -819,6 +822,17 @@ public final class JarToUML extends JarToUMLRunnable {
 	 */
 	public void setUpdateExistingFile(boolean updateExistingFile) {
 		this.updateExistingFile = updateExistingFile;
+	}
+
+	/**
+	 * Saves the UML model with default options.
+	 * 
+	 * @throws IOException
+	 */
+	public void saveModel() throws IOException {
+		final Map<String, String> options = new HashMap<>();
+		options.put(XMLResource.OPTION_PROCESS_DANGLING_HREF, XMLResource.OPTION_PROCESS_DANGLING_HREF_DISCARD);
+		getModel().eResource().save(options);
 	}
 
 }

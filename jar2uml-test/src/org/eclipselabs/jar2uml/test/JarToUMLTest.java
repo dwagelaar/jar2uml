@@ -540,7 +540,8 @@ public final class JarToUMLTest extends J2UTestCase {
 		final Model model = jar2uml.getModel();
 		validateModel(model);
 		validateInferredTags(model);
-		model.eResource().save(Collections.EMPTY_MAP);
+		jar2uml.saveModel();
+		jar2uml.getModel().eResource().load(Collections.emptyMap());
 		return model;
 	}
 

@@ -16,7 +16,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -252,7 +251,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 		jarToUML.run();
 		if (jarToUML.isRunComplete()) {
 			try {
-				jarToUML.getModel().eResource().save(Collections.EMPTY_MAP);
+				jarToUML.saveModel();
 			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -272,6 +271,7 @@ public abstract class AbstractImportWizardPage extends WizardNewFileCreationPage
 	protected FilesFieldEditor createFilesFieldEditor(Composite parent, final String fileExtension) {
 		final FilesFieldEditor editor = createFilesFieldEditor(parent);
 		editor.getTextControl(parent).addModifyListener(new ModifyListener(){
+			@Override
 			public void modifyText(ModifyEvent e) {
 				final IPath path = new Path(editor.getStringValue());
 				setFileName(path.removeFileExtension().lastSegment() + fileExtension);
