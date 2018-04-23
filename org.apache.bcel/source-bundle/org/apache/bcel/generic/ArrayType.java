@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,18 +12,17 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-import org.apache.bcel.Constants;
+import org.apache.bcel.Const;
 
-/** 
+/**
  * Denotes array type, such as int[][]
  *
- * @version $Id: ArrayType.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ArrayType.java 1806200 2017-08-25 16:33:06Z ggregory $
  */
 public final class ArrayType extends ReferenceType {
 
@@ -35,7 +35,7 @@ public final class ArrayType extends ReferenceType {
      *
      * @param type array type, e.g. T_INT
      */
-    public ArrayType(byte type, int dimensions) {
+    public ArrayType(final byte type, final int dimensions) {
         this(BasicType.getType(type), dimensions);
     }
 
@@ -45,8 +45,8 @@ public final class ArrayType extends ReferenceType {
      *
      * @param class_name complete name of class (java.lang.String, e.g.)
      */
-    public ArrayType(String class_name, int dimensions) {
-        this(new ObjectType(class_name), dimensions);
+    public ArrayType(final String class_name, final int dimensions) {
+        this(ObjectType.getInstance(class_name), dimensions);
     }
 
 
@@ -55,30 +55,30 @@ public final class ArrayType extends ReferenceType {
      *
      * @param type type of array (may be an array itself)
      */
-    public ArrayType(Type type, int dimensions) {
-        super(Constants.T_ARRAY, "<dummy>");
-        if ((dimensions < 1) || (dimensions > Constants.MAX_BYTE)) {
+    public ArrayType(final Type type, final int dimensions) {
+        super(Const.T_ARRAY, "<dummy>");
+        if ((dimensions < 1) || (dimensions > Const.MAX_BYTE)) {
             throw new ClassGenException("Invalid number of dimensions: " + dimensions);
         }
         switch (type.getType()) {
-            case Constants.T_ARRAY:
-                ArrayType array = (ArrayType) type;
+            case Const.T_ARRAY:
+                final ArrayType array = (ArrayType) type;
                 this.dimensions = dimensions + array.dimensions;
                 basic_type = array.basic_type;
                 break;
-            case Constants.T_VOID:
+            case Const.T_VOID:
                 throw new ClassGenException("Invalid type: void[]");
             default: // Basic type or reference
                 this.dimensions = dimensions;
                 basic_type = type;
                 break;
         }
-        StringBuffer buf = new StringBuffer();
+        final StringBuilder buf = new StringBuilder();
         for (int i = 0; i < this.dimensions; i++) {
             buf.append('[');
         }
         buf.append(basic_type.getSignature());
-        signature = buf.toString();
+        super.setSignature(buf.toString());
     }
 
 
@@ -110,6 +110,7 @@ public final class ArrayType extends ReferenceType {
 
     /** @return a hash code value for the object.
      */
+    @Override
     public int hashCode() {
         return basic_type.hashCode() ^ dimensions;
     }
@@ -117,9 +118,10 @@ public final class ArrayType extends ReferenceType {
 
     /** @return true if both type objects refer to the same array type.
      */
-    public boolean equals( Object _type ) {
+    @Override
+    public boolean equals( final Object _type ) {
         if (_type instanceof ArrayType) {
-            ArrayType array = (ArrayType) _type;
+            final ArrayType array = (ArrayType) _type;
             return (array.dimensions == dimensions) && array.basic_type.equals(basic_type);
         }
         return false;

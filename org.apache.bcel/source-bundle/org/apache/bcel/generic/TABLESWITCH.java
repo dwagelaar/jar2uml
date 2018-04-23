@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,43 +12,44 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+
 import org.apache.bcel.util.ByteSequence;
 
-/** 
+/**
  * TABLESWITCH - Switch within given range of values, i.e., low..high
  *
- * @version $Id: TABLESWITCH.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: TABLESWITCH.java 1812166 2017-10-13 23:48:11Z ggregory $
  * @see SWITCH
  */
 public class TABLESWITCH extends Select {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     TABLESWITCH() {
     }
 
 
     /**
-     * @param match sorted array of match values, match[0] must be low value, 
+     * @param match sorted array of match values, match[0] must be low value,
      * match[match_length - 1] high value
      * @param targets where to branch for matched values
      * @param defaultTarget default branch
      */
-    public TABLESWITCH(int[] match, InstructionHandle[] targets, InstructionHandle defaultTarget) {
-        super(org.apache.bcel.Constants.TABLESWITCH, match, targets, defaultTarget);
-        length = (short) (13 + match_length * 4); /* Alignment remainder assumed
-         * 0 here, until dump time */
-        fixed_length = length;
+    public TABLESWITCH(final int[] match, final InstructionHandle[] targets, final InstructionHandle defaultTarget) {
+        super(org.apache.bcel.Const.TABLESWITCH, match, targets, defaultTarget);
+        /* Alignment remainder assumed 0 here, until dump time */
+        final short _length = (short) (13 + getMatch_length() * 4);
+        super.setLength(_length);
+        setFixed_length(_length);
     }
 
 
@@ -55,14 +57,16 @@ public class TABLESWITCH extends Select {
      * Dump instruction as byte code to stream out.
      * @param out Output stream
      */
-    public void dump( DataOutputStream out ) throws IOException {
+    @Override
+    public void dump( final DataOutputStream out ) throws IOException {
         super.dump(out);
-        int low = (match_length > 0) ? match[0] : 0;
+        final int _match_length = getMatch_length();
+        final int low = (_match_length > 0) ? super.getMatch(0) : 0;
         out.writeInt(low);
-        int high = (match_length > 0) ? match[match_length - 1] : 0;
+        final int high = (_match_length > 0) ? super.getMatch(_match_length - 1) : 0;
         out.writeInt(high);
-        for (int i = 0; i < match_length; i++) {
-            out.writeInt(indices[i] = getTargetOffset(targets[i]));
+        for (int i = 0; i < _match_length; i++) {
+            out.writeInt(setIndices(i, getTargetOffset(super.getTarget(i))));
         }
     }
 
@@ -70,21 +74,22 @@ public class TABLESWITCH extends Select {
     /**
      * Read needed data (e.g. index) from file.
      */
-    protected void initFromFile( ByteSequence bytes, boolean wide ) throws IOException {
+    @Override
+    protected void initFromFile( final ByteSequence bytes, final boolean wide ) throws IOException {
         super.initFromFile(bytes, wide);
-        int low = bytes.readInt();
-        int high = bytes.readInt();
-        match_length = high - low + 1;
-        fixed_length = (short) (13 + match_length * 4);
-        length = (short) (fixed_length + padding);
-        match = new int[match_length];
-        indices = new int[match_length];
-        targets = new InstructionHandle[match_length];
-        for (int i = low; i <= high; i++) {
-            match[i - low] = i;
-        }
-        for (int i = 0; i < match_length; i++) {
-            indices[i] = bytes.readInt();
+        final int low = bytes.readInt();
+        final int high = bytes.readInt();
+        final int _match_length = high - low + 1;
+        setMatch_length(_match_length);
+        final short _fixed_length = (short) (13 + _match_length * 4);
+        setFixed_length(_fixed_length);
+        super.setLength((short) (_fixed_length + super.getPadding()));
+        super.setMatches(new int[_match_length]);
+        super.setIndices(new int[_match_length]);
+        super.setTargets(new InstructionHandle[_match_length]);
+        for (int i = 0; i < _match_length; i++) {
+            super.setMatch(i, low + i);
+            super.setIndices(i, bytes.readInt());
         }
     }
 
@@ -97,9 +102,10 @@ public class TABLESWITCH extends Select {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitVariableLengthInstruction(this);
-        v.visitStackProducer(this);
+        v.visitStackConsumer(this);
         v.visitBranchInstruction(this);
         v.visitSelect(this);
         v.visitTABLESWITCH(this);

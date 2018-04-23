@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,10 +17,11 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
+
+import org.apache.bcel.Const;
 import org.apache.bcel.Constants;
 
 /**
@@ -27,11 +29,10 @@ import org.apache.bcel.Constants;
  * attribute and is used only there. It contains a range in which a
  * particular exception handler is active.
  *
- * @version $Id: CodeException.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: CodeException.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see     Code
  */
-public final class CodeException implements Cloneable, Constants, Node, Serializable {
+public final class CodeException implements Cloneable, Node, Constants {
 
     private int start_pc; // Range in the code the exception handler is
     private int end_pc; // active. start_pc is inclusive, end_pc exclusive
@@ -47,7 +48,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     /**
      * Initialize from another object.
      */
-    public CodeException(CodeException c) {
+    public CodeException(final CodeException c) {
         this(c.getStartPC(), c.getEndPC(), c.getHandlerPC(), c.getCatchType());
     }
 
@@ -57,7 +58,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
      * @param file Input stream
      * @throws IOException
      */
-    CodeException(DataInputStream file) throws IOException {
+    CodeException(final DataInput file) throws IOException {
         this(file.readUnsignedShort(), file.readUnsignedShort(), file.readUnsignedShort(), file
                 .readUnsignedShort());
     }
@@ -69,11 +70,11 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
      * @param end_pc is exclusive
      * @param handler_pc Starting address of exception handler, i.e.,
      * an offset from start of code.
-     * @param catch_type If zero the handler catches any 
-     * exception, otherwise it points to the exception class which is 
+     * @param catch_type If zero the handler catches any
+     * exception, otherwise it points to the exception class which is
      * to be caught.
      */
-    public CodeException(int start_pc, int end_pc, int handler_pc, int catch_type) {
+    public CodeException(final int start_pc, final int end_pc, final int handler_pc, final int catch_type) {
         this.start_pc = start_pc;
         this.end_pc = end_pc;
         this.handler_pc = handler_pc;
@@ -88,7 +89,8 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitCodeException(this);
     }
 
@@ -99,7 +101,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
      * @param file Output file stream
      * @throws IOException
      */
-    public final void dump( DataOutputStream file ) throws IOException {
+    public final void dump( final DataOutputStream file ) throws IOException {
         file.writeShort(start_pc);
         file.writeShort(end_pc);
         file.writeShort(handler_pc);
@@ -143,7 +145,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     /**
      * @param catch_type the type of exception that is caught
      */
-    public final void setCatchType( int catch_type ) {
+    public final void setCatchType( final int catch_type ) {
         this.catch_type = catch_type;
     }
 
@@ -151,7 +153,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     /**
      * @param end_pc end of handled block
      */
-    public final void setEndPC( int end_pc ) {
+    public final void setEndPC( final int end_pc ) {
         this.end_pc = end_pc;
     }
 
@@ -159,7 +161,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     /**
      * @param handler_pc where the actual code is
      */
-    public final void setHandlerPC( int handler_pc ) {
+    public final void setHandlerPC( final int handler_pc ) { // TODO unused
         this.handler_pc = handler_pc;
     }
 
@@ -167,7 +169,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     /**
      * @param start_pc start of handled block
      */
-    public final void setStartPC( int start_pc ) {
+    public final void setStartPC( final int start_pc ) { // TODO unused
         this.start_pc = start_pc;
     }
 
@@ -175,6 +177,7 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     /**
      * @return String representation.
      */
+    @Override
     public final String toString() {
         return "CodeException(start_pc = " + start_pc + ", end_pc = " + end_pc + ", handler_pc = "
                 + handler_pc + ", catch_type = " + catch_type + ")";
@@ -184,19 +187,19 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     /**
      * @return String representation.
      */
-    public final String toString( ConstantPool cp, boolean verbose ) {
+    public final String toString( final ConstantPool cp, final boolean verbose ) {
         String str;
         if (catch_type == 0) {
             str = "<Any exception>(0)";
         } else {
-            str = Utility.compactClassName(cp.getConstantString(catch_type, CONSTANT_Class), false)
+            str = Utility.compactClassName(cp.getConstantString(catch_type, Const.CONSTANT_Class), false)
                     + (verbose ? "(" + catch_type + ")" : "");
         }
         return start_pc + "\t" + end_pc + "\t" + handler_pc + "\t" + str;
     }
 
 
-    public final String toString( ConstantPool cp ) {
+    public final String toString( final ConstantPool cp ) {
         return toString(cp, true);
     }
 
@@ -207,7 +210,8 @@ public final class CodeException implements Cloneable, Constants, Node, Serializ
     public CodeException copy() {
         try {
             return (CodeException) clone();
-        } catch (CloneNotSupportedException e) {
+        } catch (final CloneNotSupportedException e) {
+            // TODO should this throw?
         }
         return null;
     }

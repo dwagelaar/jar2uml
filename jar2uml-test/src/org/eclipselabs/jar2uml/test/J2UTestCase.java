@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
-import org.junit.Assert;
-
 import org.apache.bcel.classfile.ClassFormatException;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
@@ -35,6 +33,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.URI;
@@ -46,6 +45,7 @@ import org.eclipse.uml2.uml.Model;
 import org.eclipse.uml2.uml.NamedElement;
 import org.eclipselabs.jar2uml.JarToUML;
 import org.eclipselabs.jar2uml.JarToUMLResources;
+import org.junit.Assert;
 import org.osgi.framework.Bundle;
 
 /**
@@ -86,12 +86,12 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @throws IOException
 	 */
 	public static IFile copyFileToProject(String path, IProject project)
-	throws CoreException, IOException {
-		String targetPath = fileName(path);
-		IFile file = project.getFile(targetPath);
+			throws CoreException, IOException {
+		final String targetPath = fileName(path);
+		final IFile file = project.getFile(targetPath);
 		if (!file.exists()) {
 			JarToUMLResources.logger.info("Creating jar file: " + file);
-			URL url = bundle.getResource(path);
+			final URL url = bundle.getResource(path);
 			file.create(url.openStream(), true, null);
 		}
 		return file;
@@ -106,13 +106,13 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @throws IOException
 	 */
 	public static IFile copyClassToJavaProject(final Class<?> clazz, final IProject project)
-	throws CoreException, IOException {
-		String path = classFilePath(clazz);
+			throws CoreException, IOException {
+		final String path = classFilePath(clazz);
 		JarToUMLResources.logger.info("copying class file: " + path);
-		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
-		IPath outPath = jproject.getOutputLocation();
+		final IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+		final IPath outPath = jproject.getOutputLocation();
 		JarToUMLResources.logger.info("class file path: " + outPath);
-		IPath classFilePath = outPath.append(path);
+		final IPath classFilePath = outPath.append(path);
 		final IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classFilePath);
 		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -121,7 +121,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 					try {
 						classFile.create(getClassContents(clazz), true, null);
 						JarToUMLResources.logger.info("created file: " + classFile);
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						throw new RuntimeException(e);
 					}
 				}
@@ -136,8 +136,8 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @throws IOException
 	 */
 	public static InputStream getClassContents(Class<?> clazz) throws IOException {
-		String path = classFilePath(clazz);
-		URL classURL = bundle.getResource(path);
+		final String path = classFilePath(clazz);
+		final URL classURL = bundle.getResource(path);
 		if (classURL == null) {
 			dataBundle.getResource(path);
 		}
@@ -175,7 +175,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @param file
 	 * @return The {@link JarInputStream} corresponding to file.
 	 * @throws IOException
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
 	public static JarInputStream jarInputStream(IFile file) throws IOException, CoreException {
 		return new JarInputStream(file.getContents());
@@ -185,18 +185,22 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 * @param name
 	 * @return A new project with the Java project nature.
 	 * @throws CoreException
+	 * @throws InterruptedException
 	 */
-	public static IProject createJavaProject(final String name) throws CoreException {
+	public static IProject createJavaProject(final String name) throws CoreException, InterruptedException {
 		final IProject project = getProject(name);
 		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
+				final SubMonitor subMonitor = SubMonitor.convert(monitor);
 				if (!project.exists()) {
-					project.create(null);
-					project.open(null);
-					IProjectDescription description = project.getDescription();
-					String natures[] = new String[] { "org.eclipse.jdt.core.javanature" };
+					project.create(subMonitor);
+					project.open(subMonitor);
+					final IProjectDescription description = project.getDescription();
+					final String natures[] = new String[] { "org.eclipse.jdt.core.javanature" };
 					description.setNatureIds(natures);
-					project.setDescription(description, null);
+					project.setDescription(description, subMonitor);
+				} else if (!project.isOpen()) {
+					project.open(subMonitor);
 				}
 			}
 		}, null);
@@ -233,7 +237,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 */
 	public static Model loadModelFromUri(String uri) {
 		JarToUMLResources.logger.info("Loading UML model from: " + uri);
-		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(uri), true);
+		final Resource res = JarToUML.createResourceSet().getResource(URI.createURI(uri), true);
 		return findModel(res);
 	}
 
@@ -243,7 +247,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 */
 	public static Model findModel(Resource res) {
 		Model root = null;
-		for (EObject e : res.getContents()) {
+		for (final EObject e : res.getContents()) {
 			if (e instanceof Model) {
 				root = (Model) e;
 				break;
@@ -275,8 +279,8 @@ public abstract class J2UTestCase extends EMFTestCase {
 	 */
 	public static void validateModel(Model model) {
 		assertNotNull(model);
-		BasicDiagnostic diagnostics = new BasicDiagnostic();
-		Map<Object, Object> context = new HashMap<Object, Object>();
+		final BasicDiagnostic diagnostics = new BasicDiagnostic();
+		final Map<Object, Object> context = new HashMap<Object, Object>();
 		model.validateElementsPublicOrPrivate(diagnostics, context);
 		model.validateHasNoQualifiedName(diagnostics, context);
 		model.validateHasOwner(diagnostics, context);
@@ -297,7 +301,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 		if ("true".equals(JarToUML.getAnnotationValue(element, "inferred"))) {
 			// if this element is inferred, it cannot have any children marked as inferred
 			boolean someChildrenInferred = false;
-			for (Element child : element.getOwnedElements()) {
+			for (final Element child : element.getOwnedElements()) {
 				someChildrenInferred |= validateInferredTags(child);
 			}
 			Assert.assertFalse(
@@ -308,7 +312,7 @@ public abstract class J2UTestCase extends EMFTestCase {
 			// if this element is not inferred, it cannot have all children marked as inferred
 			boolean allChildrenInferred = true;
 			boolean hasChildren = false;
-			for (Element child : element.getOwnedElements()) {
+			for (final Element child : element.getOwnedElements()) {
 				hasChildren = true;
 				allChildrenInferred &= validateInferredTags(child);
 			}

@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
@@ -19,24 +20,23 @@ package org.apache.bcel.generic;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-/** 
+/**
  * JSR - Jump to subroutine
  *
- * @version $Id: JSR.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: JSR.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
 public class JSR extends JsrInstruction implements VariableLengthInstruction {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     JSR() {
     }
 
 
-    public JSR(InstructionHandle target) {
-        super(org.apache.bcel.Constants.JSR, target);
+    public JSR(final InstructionHandle target) {
+        super(org.apache.bcel.Const.JSR, target);
     }
 
 
@@ -44,25 +44,28 @@ public class JSR extends JsrInstruction implements VariableLengthInstruction {
      * Dump instruction as byte code to stream out.
      * @param out Output stream
      */
-    public void dump( DataOutputStream out ) throws IOException {
-        index = getTargetOffset();
-        if (opcode == org.apache.bcel.Constants.JSR) {
+    @Override
+    public void dump( final DataOutputStream out ) throws IOException {
+        super.setIndex(getTargetOffset());
+        if (super.getOpcode() == org.apache.bcel.Const.JSR) {
             super.dump(out);
         } else { // JSR_W
-            index = getTargetOffset();
-            out.writeByte(opcode);
-            out.writeInt(index);
+            super.setIndex(getTargetOffset());
+            out.writeByte(super.getOpcode());
+            out.writeInt(super.getIndex());
         }
     }
 
 
-    protected int updatePosition( int offset, int max_offset ) {
-        int i = getTargetOffset(); // Depending on old position value
-        position += offset; // Position may be shifted by preceding expansions
-        if (Math.abs(i) >= (32767 - max_offset)) { // to large for short (estimate)
-            opcode = org.apache.bcel.Constants.JSR_W;
-            length = 5;
-            return 2; // 5 - 3
+    @Override
+    protected int updatePosition( final int offset, final int max_offset ) {
+        final int i = getTargetOffset(); // Depending on old position value
+        setPosition(getPosition() + offset); // Position may be shifted by preceding expansions
+        if (Math.abs(i) >= (Short.MAX_VALUE - max_offset)) { // to large for short (estimate)
+            super.setOpcode(org.apache.bcel.Const.JSR_W);
+            final short old_length = (short) super.getLength();
+            super.setLength(5);
+            return super.getLength() - old_length;
         }
         return 0;
     }
@@ -76,7 +79,8 @@ public class JSR extends JsrInstruction implements VariableLengthInstruction {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitStackProducer(this);
         v.visitVariableLengthInstruction(this);
         v.visitBranchInstruction(this);

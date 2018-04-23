@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,22 +12,23 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import org.apache.bcel.ExceptionConst;
 import org.apache.bcel.util.ByteSequence;
 
-/** 
+/**
  * NEWARRAY -  Create new array of basic type (int, short, ...)
  * <PRE>Stack: ..., count -&gt; ..., arrayref</PRE>
  * type must be one of T_INT, T_SHORT, ...
- * 
- * @version $Id: NEWARRAY.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ *
+ * @version $Id: NEWARRAY.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
 public class NEWARRAY extends Instruction implements AllocationInstruction, ExceptionThrower,
         StackProducer {
@@ -35,20 +37,20 @@ public class NEWARRAY extends Instruction implements AllocationInstruction, Exce
 
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     NEWARRAY() {
     }
 
 
-    public NEWARRAY(byte type) {
-        super(org.apache.bcel.Constants.NEWARRAY, (short) 2);
+    public NEWARRAY(final byte type) {
+        super(org.apache.bcel.Const.NEWARRAY, (short) 2);
         this.type = type;
     }
 
 
-    public NEWARRAY(BasicType type) {
+    public NEWARRAY(final BasicType type) {
         this(type.getType());
     }
 
@@ -57,8 +59,9 @@ public class NEWARRAY extends Instruction implements AllocationInstruction, Exce
      * Dump instruction as byte code to stream out.
      * @param out Output stream
      */
-    public void dump( DataOutputStream out ) throws IOException {
-        out.writeByte(opcode);
+    @Override
+    public void dump( final DataOutputStream out ) throws IOException {
+        out.writeByte(super.getOpcode());
         out.writeByte(type);
     }
 
@@ -82,23 +85,26 @@ public class NEWARRAY extends Instruction implements AllocationInstruction, Exce
     /**
      * @return mnemonic for instruction
      */
-    public String toString( boolean verbose ) {
-        return super.toString(verbose) + " " + org.apache.bcel.Constants.TYPE_NAMES[type];
+    @Override
+    public String toString( final boolean verbose ) {
+        return super.toString(verbose) + " " + org.apache.bcel.Const.getTypeName(type);
     }
 
 
     /**
      * Read needed data (e.g. index) from file.
      */
-    protected void initFromFile( ByteSequence bytes, boolean wide ) throws IOException {
+    @Override
+    protected void initFromFile( final ByteSequence bytes, final boolean wide ) throws IOException {
         type = bytes.readByte();
-        length = 2;
+        super.setLength(2);
     }
 
 
-    public Class[] getExceptions() {
+    @Override
+    public Class<?>[] getExceptions() {
         return new Class[] {
-            org.apache.bcel.ExceptionConstants.NEGATIVE_ARRAY_SIZE_EXCEPTION
+            ExceptionConst.NEGATIVE_ARRAY_SIZE_EXCEPTION
         };
     }
 
@@ -111,7 +117,8 @@ public class NEWARRAY extends Instruction implements AllocationInstruction, Exce
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitAllocationInstruction(this);
         v.visitExceptionThrower(this);
         v.visitStackProducer(this);

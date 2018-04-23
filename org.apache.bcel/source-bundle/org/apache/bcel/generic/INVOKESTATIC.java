@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,44 +12,57 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-import org.apache.bcel.Constants;
-import org.apache.bcel.ExceptionConstants;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-/** 
+import org.apache.bcel.Const;
+import org.apache.bcel.ExceptionConst;
+
+/**
  * INVOKESTATIC - Invoke a class (static) method
  *
  * <PRE>Stack: ..., [arg1, [arg2 ...]] -&gt; ...</PRE>
  *
- * @version $Id: INVOKESTATIC.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: INVOKESTATIC.java 1812166 2017-10-13 23:48:11Z ggregory $
+ * @see
+ * <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.invokestatic">
+ * The invokestatic instruction in The Java Virtual Machine Specification</a>
  */
 public class INVOKESTATIC extends InvokeInstruction {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     INVOKESTATIC() {
     }
 
 
-    public INVOKESTATIC(int index) {
-        super(Constants.INVOKESTATIC, index);
+    public INVOKESTATIC(final int index) {
+        super(Const.INVOKESTATIC, index);
     }
 
 
-    public Class[] getExceptions() {
-        Class[] cs = new Class[2 + ExceptionConstants.EXCS_FIELD_AND_METHOD_RESOLUTION.length];
-        System.arraycopy(ExceptionConstants.EXCS_FIELD_AND_METHOD_RESOLUTION, 0, cs, 0,
-                ExceptionConstants.EXCS_FIELD_AND_METHOD_RESOLUTION.length);
-        cs[ExceptionConstants.EXCS_FIELD_AND_METHOD_RESOLUTION.length] = ExceptionConstants.UNSATISFIED_LINK_ERROR;
-        cs[ExceptionConstants.EXCS_FIELD_AND_METHOD_RESOLUTION.length + 1] = ExceptionConstants.INCOMPATIBLE_CLASS_CHANGE_ERROR;
-        return cs;
+    /**
+     * Dump instruction as byte code to stream out.
+     * @param out Output stream
+     */
+    @Override
+    public void dump( final DataOutputStream out ) throws IOException {
+      out.writeByte(super.getOpcode());
+      out.writeShort(super.getIndex());
+    }
+
+    @Override
+    public Class<?>[] getExceptions() {
+        return ExceptionConst.createExceptions(ExceptionConst.EXCS.EXCS_FIELD_AND_METHOD_RESOLUTION,
+            ExceptionConst.UNSATISFIED_LINK_ERROR,
+            ExceptionConst.INCOMPATIBLE_CLASS_CHANGE_ERROR);
     }
 
 
@@ -60,7 +74,8 @@ public class INVOKESTATIC extends InvokeInstruction {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitExceptionThrower(this);
         v.visitTypedInstruction(this);
         v.visitStackConsumer(this);

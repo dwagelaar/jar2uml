@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,25 +12,24 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-import org.apache.bcel.Constants;
+import org.apache.bcel.Const;
 
 /**
  * Super class for the x2y family of instructions.
  *
- * @version $Id: ConversionInstruction.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ConversionInstruction.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
 public abstract class ConversionInstruction extends Instruction implements TypedInstruction,
         StackProducer, StackConsumer {
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     ConversionInstruction() {
     }
@@ -38,39 +38,41 @@ public abstract class ConversionInstruction extends Instruction implements Typed
     /**
      * @param opcode opcode of instruction
      */
-    protected ConversionInstruction(short opcode) {
+    protected ConversionInstruction(final short opcode) {
         super(opcode, (short) 1);
     }
 
 
     /** @return type associated with the instruction
      */
-    public Type getType( ConstantPoolGen cp ) {
-        switch (opcode) {
-            case Constants.D2I:
-            case Constants.F2I:
-            case Constants.L2I:
+    @Override
+    public Type getType( final ConstantPoolGen cp ) {
+        final short _opcode = super.getOpcode();
+        switch (_opcode) {
+            case Const.D2I:
+            case Const.F2I:
+            case Const.L2I:
                 return Type.INT;
-            case Constants.D2F:
-            case Constants.I2F:
-            case Constants.L2F:
+            case Const.D2F:
+            case Const.I2F:
+            case Const.L2F:
                 return Type.FLOAT;
-            case Constants.D2L:
-            case Constants.F2L:
-            case Constants.I2L:
+            case Const.D2L:
+            case Const.F2L:
+            case Const.I2L:
                 return Type.LONG;
-            case Constants.F2D:
-            case Constants.I2D:
-            case Constants.L2D:
+            case Const.F2D:
+            case Const.I2D:
+            case Const.L2D:
                 return Type.DOUBLE;
-            case Constants.I2B:
+            case Const.I2B:
                 return Type.BYTE;
-            case Constants.I2C:
+            case Const.I2C:
                 return Type.CHAR;
-            case Constants.I2S:
+            case Const.I2S:
                 return Type.SHORT;
             default: // Never reached
-                throw new ClassGenException("Unknown type " + opcode);
+                throw new ClassGenException("Unknown type " + _opcode);
         }
     }
 }

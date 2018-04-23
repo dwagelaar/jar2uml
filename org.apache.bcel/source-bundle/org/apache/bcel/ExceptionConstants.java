@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel;
@@ -19,58 +20,69 @@ package org.apache.bcel;
 /**
  * Exception constants.
  *
- * @version $Id: ExceptionConstants.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  E. Haase
+ * @version $Id: ExceptionConstants.java 1806200 2017-08-25 16:33:06Z ggregory $
+ * @deprecated (since 6.0) DO NOT USE - use ExceptionConst instead
  */
+@Deprecated
 public interface ExceptionConstants {
 
     /** The mother of all exceptions
      */
-    public static final Class THROWABLE = Throwable.class;
+    Class<Throwable> THROWABLE = Throwable.class;
     /** Super class of any run-time exception
      */
-    public static final Class RUNTIME_EXCEPTION = RuntimeException.class;
+    Class<RuntimeException> RUNTIME_EXCEPTION = RuntimeException.class;
     /** Super class of any linking exception (aka Linkage Error)
      */
-    public static final Class LINKING_EXCEPTION = LinkageError.class;
+    Class<LinkageError> LINKING_EXCEPTION = LinkageError.class;
     /** Linking Exceptions
      */
-    public static final Class CLASS_CIRCULARITY_ERROR = ClassCircularityError.class;
-    public static final Class CLASS_FORMAT_ERROR = ClassFormatError.class;
-    public static final Class EXCEPTION_IN_INITIALIZER_ERROR = ExceptionInInitializerError.class;
-    public static final Class INCOMPATIBLE_CLASS_CHANGE_ERROR = IncompatibleClassChangeError.class;
-    public static final Class ABSTRACT_METHOD_ERROR = AbstractMethodError.class;
-    public static final Class ILLEGAL_ACCESS_ERROR = IllegalAccessError.class;
-    public static final Class INSTANTIATION_ERROR = InstantiationError.class;
-    public static final Class NO_SUCH_FIELD_ERROR = NoSuchFieldError.class;
-    public static final Class NO_SUCH_METHOD_ERROR = NoSuchMethodError.class;
-    public static final Class NO_CLASS_DEF_FOUND_ERROR = NoClassDefFoundError.class;
-    public static final Class UNSATISFIED_LINK_ERROR = UnsatisfiedLinkError.class;
-    public static final Class VERIFY_ERROR = VerifyError.class;
+    Class<ClassCircularityError> CLASS_CIRCULARITY_ERROR = ClassCircularityError.class;
+    Class<ClassFormatError> CLASS_FORMAT_ERROR = ClassFormatError.class;
+    Class<ExceptionInInitializerError> EXCEPTION_IN_INITIALIZER_ERROR = ExceptionInInitializerError.class;
+    Class<IncompatibleClassChangeError> INCOMPATIBLE_CLASS_CHANGE_ERROR = IncompatibleClassChangeError.class;
+    Class<AbstractMethodError> ABSTRACT_METHOD_ERROR = AbstractMethodError.class;
+    Class<IllegalAccessError> ILLEGAL_ACCESS_ERROR = IllegalAccessError.class;
+    Class<InstantiationError> INSTANTIATION_ERROR = InstantiationError.class;
+    Class<NoSuchFieldError> NO_SUCH_FIELD_ERROR = NoSuchFieldError.class;
+    Class<NoSuchMethodError> NO_SUCH_METHOD_ERROR = NoSuchMethodError.class;
+    Class<NoClassDefFoundError> NO_CLASS_DEF_FOUND_ERROR = NoClassDefFoundError.class;
+    Class<UnsatisfiedLinkError> UNSATISFIED_LINK_ERROR = UnsatisfiedLinkError.class;
+    Class<VerifyError> VERIFY_ERROR = VerifyError.class;
     /* UnsupportedClassVersionError is new in JDK 1.2 */
-    //public static final Class UnsupportedClassVersionError = UnsupportedClassVersionError.class;
-    /** Run-Time Exceptions 
+//    Class UnsupportedClassVersionError = UnsupportedClassVersionError.class;
+    /** Run-Time Exceptions
      */
-    public static final Class NULL_POINTER_EXCEPTION = NullPointerException.class;
-    public static final Class ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = ArrayIndexOutOfBoundsException.class;
-    public static final Class ARITHMETIC_EXCEPTION = ArithmeticException.class;
-    public static final Class NEGATIVE_ARRAY_SIZE_EXCEPTION = NegativeArraySizeException.class;
-    public static final Class CLASS_CAST_EXCEPTION = ClassCastException.class;
-    public static final Class ILLEGAL_MONITOR_STATE = IllegalMonitorStateException.class;
-    /** Pre-defined exception arrays according to chapters 5.1-5.4 of the Java Virtual
-     * Machine Specification 
+    Class<NullPointerException> NULL_POINTER_EXCEPTION = NullPointerException.class;
+    Class<ArrayIndexOutOfBoundsException> ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION
+                                                            = ArrayIndexOutOfBoundsException.class;
+    Class<ArithmeticException> ARITHMETIC_EXCEPTION = ArithmeticException.class;
+    Class<NegativeArraySizeException> NEGATIVE_ARRAY_SIZE_EXCEPTION = NegativeArraySizeException.class;
+    Class<ClassCastException> CLASS_CAST_EXCEPTION = ClassCastException.class;
+    Class<IllegalMonitorStateException> ILLEGAL_MONITOR_STATE = IllegalMonitorStateException.class;
+
+    /**
+     * Pre-defined exception arrays according to chapters 5.1-5.4 of the Java Virtual
+     * Machine Specification
+     * @deprecated Do not use these arrays, use the static methods in the ExceptionConst implementation class instead
      */
-    public static final Class[] EXCS_CLASS_AND_INTERFACE_RESOLUTION = {
+    @Deprecated
+    Class<?>[] EXCS_CLASS_AND_INTERFACE_RESOLUTION = {
             NO_CLASS_DEF_FOUND_ERROR, CLASS_FORMAT_ERROR, VERIFY_ERROR, ABSTRACT_METHOD_ERROR,
             EXCEPTION_IN_INITIALIZER_ERROR, ILLEGAL_ACCESS_ERROR
     }; // Chapter 5.1
-    public static final Class[] EXCS_FIELD_AND_METHOD_RESOLUTION = {
+    @Deprecated
+    Class<?>[] EXCS_FIELD_AND_METHOD_RESOLUTION = {
             NO_SUCH_FIELD_ERROR, ILLEGAL_ACCESS_ERROR, NO_SUCH_METHOD_ERROR
     }; // Chapter 5.2
-    public static final Class[] EXCS_INTERFACE_METHOD_RESOLUTION = new Class[0]; // Chapter 5.3 (as below)
-    public static final Class[] EXCS_STRING_RESOLUTION = new Class[0];
+    @Deprecated
+    Class<?>[] EXCS_INTERFACE_METHOD_RESOLUTION = new Class[0]; // Chapter 5.3 (as below)
+    @Deprecated
+    Class<?>[] EXCS_STRING_RESOLUTION = new Class[0];
     // Chapter 5.4 (no errors but the ones that _always_ could happen! How stupid.)
-    public static final Class[] EXCS_ARRAY_EXCEPTION = {
+    @Deprecated
+    Class<?>[] EXCS_ARRAY_EXCEPTION = {
             NULL_POINTER_EXCEPTION, ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION
     };
+
 }

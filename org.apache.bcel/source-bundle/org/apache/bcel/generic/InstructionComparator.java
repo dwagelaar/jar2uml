@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
@@ -26,28 +27,20 @@ package org.apache.bcel.generic;
  * instructions must have the same target.
  *
  * @see Instruction
- * @version $Id: InstructionComparator.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: InstructionComparator.java 1749597 2016-06-21 20:28:51Z ggregory $
  */
 public interface InstructionComparator {
 
-    public static final InstructionComparator DEFAULT = new InstructionComparator() {
+    InstructionComparator DEFAULT = new InstructionComparator() {
 
-        public boolean equals( Instruction i1, Instruction i2 ) {
-            if (i1.opcode == i2.opcode) {
-                if (i1 instanceof Select) {
-                    InstructionHandle[] t1 = ((Select) i1).getTargets();
-                    InstructionHandle[] t2 = ((Select) i2).getTargets();
-                    if (t1.length == t2.length) {
-                        for (int i = 0; i < t1.length; i++) {
-                            if (t1[i] != t2[i]) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                } else if (i1 instanceof BranchInstruction) {
-                    return ((BranchInstruction) i1).target == ((BranchInstruction) i2).target;
+        @Override
+        public boolean equals( final Instruction i1, final Instruction i2 ) {
+            if (i1.getOpcode() == i2.getOpcode()) {
+                if (i1 instanceof BranchInstruction) {
+                 // BIs are never equal to make targeters work correctly (BCEL-195)
+                    return false;
+//                } else if (i1 == i2) { TODO consider adding this shortcut
+//                    return true; // this must be AFTER the BI test
                 } else if (i1 instanceof ConstantPushInstruction) {
                     return ((ConstantPushInstruction) i1).getValue().equals(
                             ((ConstantPushInstruction) i2).getValue());
@@ -65,5 +58,5 @@ public interface InstructionComparator {
     };
 
 
-    public boolean equals( Instruction i1, Instruction i2 );
+    boolean equals( Instruction i1, Instruction i2 );
 }

@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.util;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 
@@ -32,17 +34,15 @@ import org.apache.bcel.classfile.JavaClass;
  *
  * @see org.apache.bcel.Repository
  *
- * @version $Id: ClassLoaderRepository.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
- * @author David Dixon-Peugh
+ * @version $Id: ClassLoaderRepository.java 1749603 2016-06-21 20:50:19Z ggregory $
  */
 public class ClassLoaderRepository implements Repository {
 
-    private java.lang.ClassLoader loader;
-    private Map loadedClasses = new HashMap(); // CLASSNAME X JAVACLASS
+    private final java.lang.ClassLoader loader;
+    private final Map<String, JavaClass> loadedClasses = new HashMap<>(); // CLASSNAME X JAVACLASS
 
 
-    public ClassLoaderRepository(java.lang.ClassLoader loader) {
+    public ClassLoaderRepository(final java.lang.ClassLoader loader) {
         this.loader = loader;
     }
 
@@ -50,7 +50,8 @@ public class ClassLoaderRepository implements Repository {
     /**
      * Store a new JavaClass into this Repository.
      */
-    public void storeClass( JavaClass clazz ) {
+    @Override
+    public void storeClass( final JavaClass clazz ) {
         loadedClasses.put(clazz.getClassName(), clazz);
         clazz.setRepository(this);
     }
@@ -59,7 +60,8 @@ public class ClassLoaderRepository implements Repository {
     /**
      * Remove class from repository
      */
-    public void removeClass( JavaClass clazz ) {
+    @Override
+    public void removeClass( final JavaClass clazz ) {
         loadedClasses.remove(clazz.getClassName());
     }
 
@@ -67,46 +69,45 @@ public class ClassLoaderRepository implements Repository {
     /**
      * Find an already defined JavaClass.
      */
-    public JavaClass findClass( String className ) {
-        if (loadedClasses.containsKey(className)) {
-            return (JavaClass) loadedClasses.get(className);
-        } else {
-            return null;
-        }
+    @Override
+    public JavaClass findClass( final String className ) {
+        return loadedClasses.containsKey(className) ? loadedClasses.get(className) : null;
     }
 
 
     /**
      * Lookup a JavaClass object from the Class Name provided.
      */
-    public JavaClass loadClass( String className ) throws ClassNotFoundException {
-        String classFile = className.replace('.', '/');
+    @Override
+    public JavaClass loadClass(final String className) throws ClassNotFoundException {
+        final String classFile = className.replace('.', '/');
         JavaClass RC = findClass(className);
         if (RC != null) {
             return RC;
         }
-        try {
-            InputStream is = loader.getResourceAsStream(classFile + ".class");
+        try (InputStream is = loader.getResourceAsStream(classFile + ".class")) {
             if (is == null) {
                 throw new ClassNotFoundException(className + " not found.");
             }
-            ClassParser parser = new ClassParser(is, className);
+            final ClassParser parser = new ClassParser(is, className);
             RC = parser.parse();
             storeClass(RC);
             return RC;
-        } catch (IOException e) {
-            throw new ClassNotFoundException(e.toString());
+        } catch (final IOException e) {
+            throw new ClassNotFoundException(className + " not found: " + e, e);
         }
     }
 
 
-    public JavaClass loadClass( Class clazz ) throws ClassNotFoundException {
+    @Override
+    public JavaClass loadClass( final Class<?> clazz ) throws ClassNotFoundException {
         return loadClass(clazz.getName());
     }
 
 
     /** Clear all entries from cache.
      */
+    @Override
     public void clear() {
         loadedClasses.clear();
     }
@@ -115,6 +116,7 @@ public class ClassLoaderRepository implements Repository {
     /*
      * @return null
      */
+    @Override
     public ClassPath getClassPath() {
         return null;
     }

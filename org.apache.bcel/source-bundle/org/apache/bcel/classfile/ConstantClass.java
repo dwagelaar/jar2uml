@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,18 +17,17 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.bcel.Constants;
 
-/** 
- * This class is derived from the abstract 
- * <A HREF="org.apache.bcel.classfile.Constant.html">Constant</A> class 
+import org.apache.bcel.Const;
+
+/**
+ * This class is derived from the abstract {@link Constant}
  * and represents a reference to a (external) class.
  *
- * @version $Id: ConstantClass.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ConstantClass.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see     Constant
  */
 public final class ConstantClass extends Constant implements ConstantObject {
@@ -38,7 +38,7 @@ public final class ConstantClass extends Constant implements ConstantObject {
     /**
      * Initialize from another object.
      */
-    public ConstantClass(ConstantClass c) {
+    public ConstantClass(final ConstantClass c) {
         this(c.getNameIndex());
     }
 
@@ -49,7 +49,7 @@ public final class ConstantClass extends Constant implements ConstantObject {
      * @param file Input stream
      * @throws IOException
      */
-    ConstantClass(DataInputStream file) throws IOException {
+    ConstantClass(final DataInput file) throws IOException {
         this(file.readUnsignedShort());
     }
 
@@ -58,8 +58,8 @@ public final class ConstantClass extends Constant implements ConstantObject {
      * @param name_index Name index in constant pool.  Should refer to a
      * ConstantUtf8.
      */
-    public ConstantClass(int name_index) {
-        super(Constants.CONSTANT_Class);
+    public ConstantClass(final int name_index) {
+        super(Const.CONSTANT_Class);
         this.name_index = name_index;
     }
 
@@ -71,19 +71,21 @@ public final class ConstantClass extends Constant implements ConstantObject {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitConstantClass(this);
     }
 
 
-    /** 
+    /**
      * Dump constant class to file stream in binary format.
      *
      * @param file Output file stream
      * @throws IOException
      */
-    public final void dump( DataOutputStream file ) throws IOException {
-        file.writeByte(tag);
+    @Override
+    public final void dump( final DataOutputStream file ) throws IOException {
+        file.writeByte(super.getTag());
         file.writeShort(name_index);
     }
 
@@ -99,22 +101,23 @@ public final class ConstantClass extends Constant implements ConstantObject {
     /**
      * @param name_index the name index in the constant pool of this Constant Class
      */
-    public final void setNameIndex( int name_index ) {
+    public final void setNameIndex( final int name_index ) {
         this.name_index = name_index;
     }
 
 
     /** @return String object
      */
-    public Object getConstantValue( ConstantPool cp ) {
-        Constant c = cp.getConstant(name_index, Constants.CONSTANT_Utf8);
+    @Override
+    public Object getConstantValue( final ConstantPool cp ) {
+        final Constant c = cp.getConstant(name_index, Const.CONSTANT_Utf8);
         return ((ConstantUtf8) c).getBytes();
     }
 
 
     /** @return dereferenced string
      */
-    public String getBytes( ConstantPool cp ) {
+    public String getBytes( final ConstantPool cp ) {
         return (String) getConstantValue(cp);
     }
 
@@ -122,6 +125,7 @@ public final class ConstantClass extends Constant implements ConstantObject {
     /**
      * @return String representation.
      */
+    @Override
     public final String toString() {
         return super.toString() + "(name_index = " + name_index + ")";
     }

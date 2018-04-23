@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,34 +17,34 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.IOException;
-import org.apache.bcel.Constants;
 
-/** 
+import org.apache.bcel.Const;
+
+/**
  * This class represents a constant pool reference to a method.
  *
- * @version $Id: ConstantMethodref.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ConstantMethodref.java 1806200 2017-08-25 16:33:06Z ggregory $
  */
 public final class ConstantMethodref extends ConstantCP {
 
     /**
      * Initialize from another object.
      */
-    public ConstantMethodref(ConstantMethodref c) {
-        super(Constants.CONSTANT_Methodref, c.getClassIndex(), c.getNameAndTypeIndex());
+    public ConstantMethodref(final ConstantMethodref c) {
+        super(Const.CONSTANT_Methodref, c.getClassIndex(), c.getNameAndTypeIndex());
     }
 
 
     /**
-     * Initialize instance from file data.
+     * Initialize instance from input data.
      *
-     * @param file input stream
+     * @param input input stream
      * @throws IOException
      */
-    ConstantMethodref(DataInputStream file) throws IOException {
-        super(Constants.CONSTANT_Methodref, file);
+    ConstantMethodref(final DataInput input) throws IOException {
+        super(Const.CONSTANT_Methodref, input);
     }
 
 
@@ -51,8 +52,8 @@ public final class ConstantMethodref extends ConstantCP {
      * @param class_index Reference to the class containing the method
      * @param name_and_type_index and the method signature
      */
-    public ConstantMethodref(int class_index, int name_and_type_index) {
-        super(Constants.CONSTANT_Methodref, class_index, name_and_type_index);
+    public ConstantMethodref(final int class_index, final int name_and_type_index) {
+        super(Const.CONSTANT_Methodref, class_index, name_and_type_index);
     }
 
 
@@ -63,7 +64,8 @@ public final class ConstantMethodref extends ConstantCP {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitConstantMethodref(this);
     }
 }

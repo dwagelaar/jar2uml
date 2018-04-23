@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,23 +12,23 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.classfile;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.bcel.Constants;
+
+import org.apache.bcel.Const;
 
 /**
  * This class is derived from <em>Attribute</em> and represents a reference
  * to a GJ attribute.
  *
- * @version $Id: Signature.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: Signature.java 1749603 2016-06-21 20:50:19Z ggregory $
  * @see     Attribute
  */
 public final class Signature extends Attribute {
@@ -39,7 +40,7 @@ public final class Signature extends Attribute {
      * Initialize from another object. Note that both objects use the same
      * references (shallow copy). Use clone() for a physical copy.
      */
-    public Signature(Signature c) {
+    public Signature(final Signature c) {
         this(c.getNameIndex(), c.getLength(), c.getSignatureIndex(), c.getConstantPool());
     }
 
@@ -48,13 +49,13 @@ public final class Signature extends Attribute {
      * Construct object from file stream.
      * @param name_index Index in constant pool to CONSTANT_Utf8
      * @param length Content length in bytes
-     * @param file Input stream
+     * @param input Input stream
      * @param constant_pool Array of constants
      * @throws IOException
      */
-    Signature(int name_index, int length, DataInputStream file, ConstantPool constant_pool)
+    Signature(final int name_index, final int length, final DataInput input, final ConstantPool constant_pool)
             throws IOException {
-        this(name_index, length, file.readUnsignedShort(), constant_pool);
+        this(name_index, length, input.readUnsignedShort(), constant_pool);
     }
 
 
@@ -64,8 +65,8 @@ public final class Signature extends Attribute {
      * @param signature_index Index in constant pool to CONSTANT_Utf8
      * @param constant_pool Array of constants
      */
-    public Signature(int name_index, int length, int signature_index, ConstantPool constant_pool) {
-        super(Constants.ATTR_SIGNATURE, name_index, length, constant_pool);
+    public Signature(final int name_index, final int length, final int signature_index, final ConstantPool constant_pool) {
+        super(Const.ATTR_SIGNATURE, name_index, length, constant_pool);
         this.signature_index = signature_index;
     }
 
@@ -77,7 +78,8 @@ public final class Signature extends Attribute {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         //System.err.println("Visiting non-standard Signature object");
         v.visitSignature(this);
     }
@@ -89,7 +91,8 @@ public final class Signature extends Attribute {
      * @param file Output file stream
      * @throws IOException
      */
-    public final void dump( DataOutputStream file ) throws IOException {
+    @Override
+    public final void dump( final DataOutputStream file ) throws IOException {
         super.dump(file);
         file.writeShort(signature_index);
     }
@@ -106,7 +109,7 @@ public final class Signature extends Attribute {
     /**
      * @param signature_index the index info the constant pool of this signature
      */
-    public final void setSignatureIndex( int signature_index ) {
+    public final void setSignatureIndex( final int signature_index ) {
         this.signature_index = signature_index;
     }
 
@@ -115,8 +118,8 @@ public final class Signature extends Attribute {
      * @return GJ signature.
      */
     public final String getSignature() {
-        ConstantUtf8 c = (ConstantUtf8) constant_pool.getConstant(signature_index,
-                Constants.CONSTANT_Utf8);
+        final ConstantUtf8 c = (ConstantUtf8) super.getConstantPool().getConstant(signature_index,
+                Const.CONSTANT_Utf8);
         return c.getBytes();
     }
 
@@ -125,23 +128,13 @@ public final class Signature extends Attribute {
      */
     private static final class MyByteArrayInputStream extends ByteArrayInputStream {
 
-        MyByteArrayInputStream(String data) {
+        MyByteArrayInputStream(final String data) {
             super(data.getBytes());
-        }
-
-
-        final int mark() {
-            return pos;
         }
 
 
         final String getData() {
             return new String(buf);
-        }
-
-
-        final void reset( int p ) {
-            pos = p;
         }
 
 
@@ -153,12 +146,12 @@ public final class Signature extends Attribute {
     }
 
 
-    private static boolean identStart( int ch ) {
+    private static boolean identStart( final int ch ) {
         return ch == 'T' || ch == 'L';
     }
 
 
-    private static final void matchIdent( MyByteArrayInputStream in, StringBuffer buf ) {
+    private static void matchIdent( final MyByteArrayInputStream in, final StringBuilder buf ) {
         int ch;
         if ((ch = in.read()) == -1) {
             throw new RuntimeException("Illegal signature: " + in.getData()
@@ -166,7 +159,7 @@ public final class Signature extends Attribute {
         }
         //System.out.println("return from ident:" + (char)ch);
         if (!identStart(ch)) {
-            StringBuffer buf2 = new StringBuffer();
+            final StringBuilder buf2 = new StringBuilder();
             int count = 1;
             while (Character.isJavaIdentifierPart((char) ch)) {
                 buf2.append((char) ch);
@@ -186,7 +179,7 @@ public final class Signature extends Attribute {
             }
             return;
         }
-        StringBuffer buf2 = new StringBuffer();
+        final StringBuilder buf2 = new StringBuilder();
         ch = in.read();
         do {
             buf2.append((char) ch);
@@ -201,7 +194,7 @@ public final class Signature extends Attribute {
     }
 
 
-    private static final void matchGJIdent( MyByteArrayInputStream in, StringBuffer buf ) {
+    private static void matchGJIdent( final MyByteArrayInputStream in, final StringBuilder buf ) {
         int ch;
         matchIdent(in, buf);
         ch = in.read();
@@ -237,20 +230,22 @@ public final class Signature extends Attribute {
     }
 
 
-    public static String translate( String s ) {
+    public static String translate( final String s ) {
         //System.out.println("Sig:" + s);
-        StringBuffer buf = new StringBuffer();
+        final StringBuilder buf = new StringBuilder();
         matchGJIdent(new MyByteArrayInputStream(s), buf);
         return buf.toString();
     }
 
 
-    public static final boolean isFormalParameterList( String s ) {
+    // @since 6.0 is no longer final
+    public static boolean isFormalParameterList( final String s ) {
         return s.startsWith("<") && (s.indexOf(':') > 0);
     }
 
 
-    public static final boolean isActualParameterList( String s ) {
+    // @since 6.0 is no longer final
+    public static boolean isActualParameterList( final String s ) {
         return s.startsWith("L") && s.endsWith(">;");
     }
 
@@ -258,16 +253,18 @@ public final class Signature extends Attribute {
     /**
      * @return String representation
      */
+    @Override
     public final String toString() {
-        String s = getSignature();
-        return "Signature(" + s + ")";
+        final String s = getSignature();
+        return "Signature: " + s;
     }
 
 
     /**
      * @return deep copy of this attribute
      */
-    public Attribute copy( ConstantPool _constant_pool ) {
-        return (Signature) clone();
+    @Override
+    public Attribute copy( final ConstantPool _constant_pool ) {
+        return (Attribute) clone();
     }
 }

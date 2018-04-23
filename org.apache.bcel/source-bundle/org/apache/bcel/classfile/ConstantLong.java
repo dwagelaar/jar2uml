@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,18 +17,17 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.bcel.Constants;
 
-/** 
- * This class is derived from the abstract 
- * <A HREF="org.apache.bcel.classfile.Constant.html">Constant</A> class 
+import org.apache.bcel.Const;
+
+/**
+ * This class is derived from the abstract {@link Constant}
  * and represents a reference to a long object.
  *
- * @version $Id: ConstantLong.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ConstantLong.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see     Constant
  */
 public final class ConstantLong extends Constant implements ConstantObject {
@@ -35,11 +35,11 @@ public final class ConstantLong extends Constant implements ConstantObject {
     private long bytes;
 
 
-    /** 
+    /**
      * @param bytes Data
      */
-    public ConstantLong(long bytes) {
-        super(Constants.CONSTANT_Long);
+    public ConstantLong(final long bytes) {
+        super(Const.CONSTANT_Long);
         this.bytes = bytes;
     }
 
@@ -47,18 +47,18 @@ public final class ConstantLong extends Constant implements ConstantObject {
     /**
      * Initialize from another object.
      */
-    public ConstantLong(ConstantLong c) {
+    public ConstantLong(final ConstantLong c) {
         this(c.getBytes());
     }
 
 
-    /** 
+    /**
      * Initialize instance from file data.
      *
      * @param file Input stream
      * @throws IOException
      */
-    ConstantLong(DataInputStream file) throws IOException {
+    ConstantLong(final DataInput file) throws IOException {
         this(file.readLong());
     }
 
@@ -70,7 +70,8 @@ public final class ConstantLong extends Constant implements ConstantObject {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitConstantLong(this);
     }
 
@@ -81,8 +82,9 @@ public final class ConstantLong extends Constant implements ConstantObject {
      * @param file Output file stream
      * @throws IOException
      */
-    public final void dump( DataOutputStream file ) throws IOException {
-        file.writeByte(tag);
+    @Override
+    public final void dump( final DataOutputStream file ) throws IOException {
+        file.writeByte(super.getTag());
         file.writeLong(bytes);
     }
 
@@ -96,9 +98,9 @@ public final class ConstantLong extends Constant implements ConstantObject {
 
 
     /**
-     * @param bytes thr raw bytes that represent this long
+     * @param bytes the raw bytes that represent this long
      */
-    public final void setBytes( long bytes ) {
+    public final void setBytes( final long bytes ) {
         this.bytes = bytes;
     }
 
@@ -106,6 +108,7 @@ public final class ConstantLong extends Constant implements ConstantObject {
     /**
      * @return String representation.
      */
+    @Override
     public final String toString() {
         return super.toString() + "(bytes = " + bytes + ")";
     }
@@ -113,7 +116,8 @@ public final class ConstantLong extends Constant implements ConstantObject {
 
     /** @return Long object
      */
-    public Object getConstantValue( ConstantPool cp ) {
-        return new Long(bytes);
+    @Override
+    public Object getConstantValue( final ConstantPool cp ) {
+        return Long.valueOf(bytes);
     }
 }

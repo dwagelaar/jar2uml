@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.bcel.classfile.Utility;
 
 /**
@@ -35,19 +37,25 @@ import org.apache.bcel.classfile.Utility;
  * can traverse the list via an Enumeration returned by
  * InstructionList.elements().
  *
- * @version $Id: InstructionHandle.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: InstructionHandle.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see Instruction
  * @see BranchHandle
- * @see InstructionList 
+ * @see InstructionList
  */
-public class InstructionHandle implements java.io.Serializable {
+public class InstructionHandle {
 
-    InstructionHandle next, prev; // Will be set from the outside
-    Instruction instruction;
+    private InstructionHandle next;
+    private InstructionHandle prev;
+    private Instruction instruction;
+
+    /**
+     * @deprecated (since 6.0) will be made private; do not access directly, use getter/setter
+     */
+    @Deprecated
     protected int i_position = -1; // byte code offset of instruction
-    private Set targeters;
-    private Map attributes;
+
+    private Set<InstructionTargeter> targeters;
+    private Map<Object, Object> attributes;
 
 
     public final InstructionHandle getNext() {
@@ -69,7 +77,7 @@ public class InstructionHandle implements java.io.Serializable {
      * Replace current instruction contained in this handle.
      * Old instruction is disposed using Instruction.dispose().
      */
-    public void setInstruction( Instruction i ) { // Overridden in BranchHandle
+    public void setInstruction( final Instruction i ) { // Overridden in BranchHandle TODO could be package-protected?
         if (i == null) {
             throw new ClassGenException("Assigning null to handle");
         }
@@ -87,15 +95,21 @@ public class InstructionHandle implements java.io.Serializable {
      * Temporarily swap the current instruction, without disturbing
      * anything. Meant to be used by a debugger, implementing
      * breakpoints. Current instruction is returned.
+     * <p>
+     * Warning: if this is used on a BranchHandle then some methods such as
+     * getPosition() will still refer to the original cached instruction, whereas
+     * other BH methods may affect the cache and the replacement instruction.
      */
-    public Instruction swapInstruction( Instruction i ) {
-        Instruction oldInstruction = instruction;
+    // See BCEL-273
+    // TODO remove this method in any redesign of BCEL
+    public Instruction swapInstruction( final Instruction i ) {
+        final Instruction oldInstruction = instruction;
         instruction = i;
         return oldInstruction;
     }
 
 
-    /*private*/protected InstructionHandle(Instruction i) {
+    /*private*/protected InstructionHandle(final Instruction i) {
         setInstruction(i);
     }
 
@@ -104,15 +118,14 @@ public class InstructionHandle implements java.io.Serializable {
 
     /** Factory method.
      */
-    static final InstructionHandle getInstructionHandle( Instruction i ) {
+    static InstructionHandle getInstructionHandle( final Instruction i ) {
         if (ih_list == null) {
             return new InstructionHandle(i);
-        } else {
-            InstructionHandle ih = ih_list;
-            ih_list = ih.next;
-            ih.setInstruction(i);
-            return ih;
         }
+        final InstructionHandle ih = ih_list;
+        ih_list = ih.next;
+        ih.setInstruction(i);
+        return ih;
     }
 
 
@@ -126,7 +139,7 @@ public class InstructionHandle implements java.io.Serializable {
      * @param max_offset the maximum offset that may be caused by these instructions
      * @return additional offset caused by possible change of this instruction's length
      */
-    protected int updatePosition( int offset, int max_offset ) {
+    protected int updatePosition( final int offset, final int max_offset ) {
         i_position += offset;
         return 0;
     }
@@ -144,7 +157,7 @@ public class InstructionHandle implements java.io.Serializable {
     /** Set the position, i.e., the byte code offset of the contained
      * instruction.
      */
-    void setPosition( int pos ) {
+    void setPosition( final int pos ) {
         i_position = pos;
     }
 
@@ -183,7 +196,7 @@ public class InstructionHandle implements java.io.Serializable {
     /**
      * Denote this handle isn't referenced anymore by t.
      */
-    public void removeTargeter( InstructionTargeter t ) {
+    public void removeTargeter( final InstructionTargeter t ) {
         if (targeters != null) {
             targeters.remove(t);
         }
@@ -193,9 +206,9 @@ public class InstructionHandle implements java.io.Serializable {
     /**
      * Denote this handle is being referenced by t.
      */
-    public void addTargeter( InstructionTargeter t ) {
+    public void addTargeter( final InstructionTargeter t ) {
         if (targeters == null) {
-            targeters = new HashSet();
+            targeters = new HashSet<>();
         }
         //if(!targeters.contains(t))
         targeters.add(t);
@@ -212,23 +225,24 @@ public class InstructionHandle implements java.io.Serializable {
      */
     public InstructionTargeter[] getTargeters() {
         if (!hasTargeters()) {
-            return null;
+            return new InstructionTargeter[0];
         }
-        InstructionTargeter[] t = new InstructionTargeter[targeters.size()];
+        final InstructionTargeter[] t = new InstructionTargeter[targeters.size()];
         targeters.toArray(t);
         return t;
     }
 
 
-    /** @return a (verbose) string representation of the contained instruction. 
+    /** @return a (verbose) string representation of the contained instruction.
      */
-    public String toString( boolean verbose ) {
+    public String toString( final boolean verbose ) {
         return Utility.format(i_position, 4, false, ' ') + ": " + instruction.toString(verbose);
     }
 
 
-    /** @return a string representation of the contained instruction. 
+    /** @return a string representation of the contained instruction.
      */
+    @Override
     public String toString() {
         return toString(true);
     }
@@ -239,9 +253,9 @@ public class InstructionHandle implements java.io.Serializable {
      * @param key the key object to store/retrieve the attribute
      * @param attr the attribute to associate with this handle
      */
-    public void addAttribute( Object key, Object attr ) {
+    public void addAttribute( final Object key, final Object attr ) {
         if (attributes == null) {
-            attributes = new HashMap(3);
+            attributes = new HashMap<>(3);
         }
         attributes.put(key, attr);
     }
@@ -251,7 +265,7 @@ public class InstructionHandle implements java.io.Serializable {
      *
      * @param key the key object to retrieve the attribute
      */
-    public void removeAttribute( Object key ) {
+    public void removeAttribute( final Object key ) {
         if (attributes != null) {
             attributes.remove(key);
         }
@@ -262,7 +276,7 @@ public class InstructionHandle implements java.io.Serializable {
      *
      * @param key the key object to store/retrieve the attribute
      */
-    public Object getAttribute( Object key ) {
+    public Object getAttribute( final Object key ) {
         if (attributes != null) {
             return attributes.get(key);
         }
@@ -272,9 +286,9 @@ public class InstructionHandle implements java.io.Serializable {
 
     /** @return all attributes associated with this handle
      */
-    public Collection getAttributes() {
+    public Collection<Object> getAttributes() {
         if (attributes == null) {
-            attributes = new HashMap(3);
+            attributes = new HashMap<>(3);
         }
         return attributes.values();
     }
@@ -284,7 +298,27 @@ public class InstructionHandle implements java.io.Serializable {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    public void accept( final Visitor v ) {
         instruction.accept(v);
+    }
+
+
+    /**
+     * @param next the next to set
+     * @ since 6.0
+     */
+    final InstructionHandle setNext(final InstructionHandle next) {
+        this.next = next;
+        return next;
+    }
+
+
+    /**
+     * @param prev the prev to set
+     * @ since 6.0
+     */
+    final InstructionHandle setPrev(final InstructionHandle prev) {
+        this.prev = prev;
+        return prev;
     }
 }

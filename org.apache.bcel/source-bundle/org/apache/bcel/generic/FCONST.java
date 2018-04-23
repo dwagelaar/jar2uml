@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,40 +12,39 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-/** 
+/**
  * FCONST - Push 0.0, 1.0 or 2.0, other values cause an exception
  *
  * <PRE>Stack: ... -&gt; ..., </PRE>
  *
- * @version $Id: FCONST.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: FCONST.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
-public class FCONST extends Instruction implements ConstantPushInstruction, TypedInstruction {
+public class FCONST extends Instruction implements ConstantPushInstruction {
 
     private float value;
 
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     FCONST() {
     }
 
 
-    public FCONST(float f) {
-        super(org.apache.bcel.Constants.FCONST_0, (short) 1);
+    public FCONST(final float f) {
+        super(org.apache.bcel.Const.FCONST_0, (short) 1);
         if (f == 0.0) {
-            opcode = org.apache.bcel.Constants.FCONST_0;
+            super.setOpcode(org.apache.bcel.Const.FCONST_0);
         } else if (f == 1.0) {
-            opcode = org.apache.bcel.Constants.FCONST_1;
+            super.setOpcode(org.apache.bcel.Const.FCONST_1);
         } else if (f == 2.0) {
-            opcode = org.apache.bcel.Constants.FCONST_2;
+            super.setOpcode(org.apache.bcel.Const.FCONST_2);
         } else {
             throw new ClassGenException("FCONST can be used only for 0.0, 1.0 and 2.0: " + f);
         }
@@ -52,6 +52,7 @@ public class FCONST extends Instruction implements ConstantPushInstruction, Type
     }
 
 
+    @Override
     public Number getValue() {
         return new Float(value);
     }
@@ -59,7 +60,8 @@ public class FCONST extends Instruction implements ConstantPushInstruction, Type
 
     /** @return Type.FLOAT
      */
-    public Type getType( ConstantPoolGen cp ) {
+    @Override
+    public Type getType( final ConstantPoolGen cp ) {
         return Type.FLOAT;
     }
 
@@ -72,7 +74,8 @@ public class FCONST extends Instruction implements ConstantPushInstruction, Type
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitPushInstruction(this);
         v.visitStackProducer(this);
         v.visitTypedInstruction(this);

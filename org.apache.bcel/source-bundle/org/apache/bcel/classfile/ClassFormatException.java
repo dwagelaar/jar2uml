@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,22 +17,30 @@
  */
 package org.apache.bcel.classfile;
 
-/** 
+/**
  * Thrown when the BCEL attempts to read a class file and determines
  * that the file is malformed or otherwise cannot be interpreted as a
  * class file.
  *
- * @version $Id: ClassFormatException.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ClassFormatException.java 1806200 2017-08-25 16:33:06Z ggregory $
  */
 public class ClassFormatException extends RuntimeException {
+
+    private static final long serialVersionUID = -3569097343160139969L;
 
     public ClassFormatException() {
         super();
     }
 
 
-    public ClassFormatException(String s) {
+    public ClassFormatException(final String s) {
         super(s);
+    }
+
+    /**
+     * @since 6.0
+     */
+    public ClassFormatException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }

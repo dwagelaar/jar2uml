@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,13 +12,12 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.verifier;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -28,20 +28,19 @@ import java.util.Vector;
  * operate on. That means, for every class (represented by a unique fully qualified
  * class name) there is exactly one Verifier.
  *
- * @version $Id: VerifierFactory.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author Enver Haase
- * @see org.apache.bcel.verifier.Verifier
+ * @version $Id: VerifierFactory.java 1749603 2016-06-21 20:50:19Z ggregory $
+ * @see Verifier
  */
 public class VerifierFactory {
 
     /**
      * The HashMap that holds the data about the already-constructed Verifier instances.
      */
-    private static Map hashMap = new HashMap();
+    private static final Map<String, Verifier> hashMap = new HashMap<>();
     /**
      * The VerifierFactoryObserver instances that observe the VerifierFactory.
      */
-    private static List observers = new Vector();
+    private static final List<VerifierFactoryObserver> observers = new Vector<>();
 
 
     /**
@@ -56,8 +55,8 @@ public class VerifierFactory {
      * Possibly a new Verifier object is transparently created.
      * @return the (only) verifier responsible for the class with the given name.
      */
-    public static Verifier getVerifier( String fully_qualified_classname ) {
-        Verifier v = (Verifier) (hashMap.get(fully_qualified_classname));
+    public static Verifier getVerifier( final String fully_qualified_classname ) {
+        Verifier v = hashMap.get(fully_qualified_classname);
         if (v == null) {
             v = new Verifier(fully_qualified_classname);
             hashMap.put(fully_qualified_classname, v);
@@ -70,11 +69,9 @@ public class VerifierFactory {
     /**
      * Notifies the observers of a newly generated Verifier.
      */
-    private static void notify( String fully_qualified_classname ) {
+    private static void notify( final String fully_qualified_classname ) {
         // notify the observers
-        Iterator i = observers.iterator();
-        while (i.hasNext()) {
-            VerifierFactoryObserver vfo = (VerifierFactoryObserver) i.next();
+        for (final VerifierFactoryObserver vfo : observers) {
             vfo.update(fully_qualified_classname);
         }
     }
@@ -88,15 +85,15 @@ public class VerifierFactory {
      * referenced class files.
      */
     public static Verifier[] getVerifiers() {
-        Verifier[] vs = new Verifier[hashMap.values().size()];
-        return (Verifier[]) (hashMap.values().toArray(vs)); // Because vs is big enough, vs is used to store the values into and returned!
+        final Verifier[] vs = new Verifier[hashMap.values().size()];
+        return hashMap.values().toArray(vs); // Because vs is big enough, vs is used to store the values into and returned!
     }
 
 
     /**
      * Adds the VerifierFactoryObserver o to the list of observers.
      */
-    public static void attach( VerifierFactoryObserver o ) {
+    public static void attach( final VerifierFactoryObserver o ) {
         observers.add(o);
     }
 
@@ -104,7 +101,7 @@ public class VerifierFactory {
     /**
      * Removes the VerifierFactoryObserver o from the list of observers.
      */
-    public static void detach( VerifierFactoryObserver o ) {
+    public static void detach( final VerifierFactoryObserver o ) {
         observers.remove(o);
     }
 }

@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,28 +12,27 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-/** 
+/**
  * Super class for JSR - Jump to subroutine
  *
- * @version $Id: JsrInstruction.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: JsrInstruction.java 1812166 2017-10-13 23:48:11Z ggregory $
  */
 public abstract class JsrInstruction extends BranchInstruction implements UnconditionalBranch,
         TypedInstruction, StackProducer {
 
-    JsrInstruction(short opcode, InstructionHandle target) {
+    JsrInstruction(final short opcode, final InstructionHandle target) {
         super(opcode, target);
     }
 
 
     /**
-     * Empty constructor needed for the Class.newInstance() statement in
-     * Instruction.readInstruction(). Not to be used otherwise.
+     * Empty constructor needed for Instruction.readInstruction.
+     * Not to be used otherwise.
      */
     JsrInstruction() {
     }
@@ -40,7 +40,8 @@ public abstract class JsrInstruction extends BranchInstruction implements Uncond
 
     /** @return return address type
      */
-    public Type getType( ConstantPoolGen cp ) {
+    @Override
+    public Type getType( final ConstantPoolGen cp ) {
         return new ReturnaddressType(physicalSuccessor());
     }
 
@@ -57,7 +58,7 @@ public abstract class JsrInstruction extends BranchInstruction implements Uncond
      * will be executed when RETurned from a subroutine.
      */
     public InstructionHandle physicalSuccessor() {
-        InstructionHandle ih = this.target;
+        InstructionHandle ih = super.getTarget();
         // Rewind!
         while (ih.getPrev() != null) {
             ih = ih.getPrev();
@@ -66,14 +67,14 @@ public abstract class JsrInstruction extends BranchInstruction implements Uncond
         while (ih.getInstruction() != this) {
             ih = ih.getNext();
         }
-        InstructionHandle toThis = ih;
+        final InstructionHandle toThis = ih;
         while (ih != null) {
             ih = ih.getNext();
             if ((ih != null) && (ih.getInstruction() == this)) {
                 throw new RuntimeException("physicalSuccessor() called on a shared JsrInstruction.");
             }
         }
-        // Return the physical successor		
+        // Return the physical successor
         return toThis.getNext();
     }
 }

@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,151 +12,302 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.classfile;
 
 /**
- * Visitor with empty method bodies, can be extended and used in conjunction with the
- * DescendingVisitor class, e.g.
- *
- * By courtesy of David Spencer.
+ * Visitor with empty method bodies, can be extended and used in conjunction
+ * with the DescendingVisitor class, e.g. By courtesy of David Spencer.
  *
  * @see DescendingVisitor
- * @version $Id: EmptyVisitor.java 388707 2006-03-25 05:40:28Z tcurdt $
- * 
+ * @version $Id: EmptyVisitor.java 1782852 2017-02-13 20:19:41Z markt $
  */
-public class EmptyVisitor implements Visitor {
-
-    protected EmptyVisitor() {
+public class EmptyVisitor implements Visitor
+{
+    protected EmptyVisitor()
+    {
     }
 
-
-    public void visitCode( Code obj ) {
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitAnnotation(final Annotations obj)
+    {
     }
 
-
-    public void visitCodeException( CodeException obj ) {
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitParameterAnnotation(final ParameterAnnotations obj)
+    {
     }
 
-
-    public void visitConstantClass( ConstantClass obj ) {
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitAnnotationEntry(final AnnotationEntry obj)
+    {
     }
 
-
-    public void visitConstantDouble( ConstantDouble obj ) {
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitAnnotationDefault(final AnnotationDefault obj)
+    {
     }
 
-
-    public void visitConstantFieldref( ConstantFieldref obj ) {
+    @Override
+    public void visitCode(final Code obj)
+    {
     }
 
-
-    public void visitConstantFloat( ConstantFloat obj ) {
+    @Override
+    public void visitCodeException(final CodeException obj)
+    {
     }
 
-
-    public void visitConstantInteger( ConstantInteger obj ) {
+    @Override
+    public void visitConstantClass(final ConstantClass obj)
+    {
     }
 
-
-    public void visitConstantInterfaceMethodref( ConstantInterfaceMethodref obj ) {
+    @Override
+    public void visitConstantDouble(final ConstantDouble obj)
+    {
     }
 
-
-    public void visitConstantLong( ConstantLong obj ) {
+    @Override
+    public void visitConstantFieldref(final ConstantFieldref obj)
+    {
     }
 
-
-    public void visitConstantMethodref( ConstantMethodref obj ) {
+    @Override
+    public void visitConstantFloat(final ConstantFloat obj)
+    {
     }
 
-
-    public void visitConstantNameAndType( ConstantNameAndType obj ) {
+    @Override
+    public void visitConstantInteger(final ConstantInteger obj)
+    {
     }
 
-
-    public void visitConstantPool( ConstantPool obj ) {
+    @Override
+    public void visitConstantInterfaceMethodref(final ConstantInterfaceMethodref obj)
+    {
     }
 
-
-    public void visitConstantString( ConstantString obj ) {
+    @Override
+    public void visitConstantInvokeDynamic(final ConstantInvokeDynamic obj)
+    {
     }
 
-
-    public void visitConstantUtf8( ConstantUtf8 obj ) {
+    @Override
+    public void visitConstantLong(final ConstantLong obj)
+    {
     }
 
-
-    public void visitConstantValue( ConstantValue obj ) {
+    @Override
+    public void visitConstantMethodref(final ConstantMethodref obj)
+    {
     }
 
-
-    public void visitDeprecated( Deprecated obj ) {
+    @Override
+    public void visitConstantNameAndType(final ConstantNameAndType obj)
+    {
     }
 
-
-    public void visitExceptionTable( ExceptionTable obj ) {
+    @Override
+    public void visitConstantPool(final ConstantPool obj)
+    {
     }
 
-
-    public void visitField( Field obj ) {
+    @Override
+    public void visitConstantString(final ConstantString obj)
+    {
     }
 
-
-    public void visitInnerClass( InnerClass obj ) {
+    @Override
+    public void visitConstantUtf8(final ConstantUtf8 obj)
+    {
     }
 
-
-    public void visitInnerClasses( InnerClasses obj ) {
+    @Override
+    public void visitConstantValue(final ConstantValue obj)
+    {
     }
 
-
-    public void visitJavaClass( JavaClass obj ) {
+    @Override
+    public void visitDeprecated(final Deprecated obj)
+    {
     }
 
-
-    public void visitLineNumber( LineNumber obj ) {
+    @Override
+    public void visitExceptionTable(final ExceptionTable obj)
+    {
     }
 
-
-    public void visitLineNumberTable( LineNumberTable obj ) {
+    @Override
+    public void visitField(final Field obj)
+    {
     }
 
-
-    public void visitLocalVariable( LocalVariable obj ) {
+    @Override
+    public void visitInnerClass(final InnerClass obj)
+    {
     }
 
-
-    public void visitLocalVariableTable( LocalVariableTable obj ) {
+    @Override
+    public void visitInnerClasses(final InnerClasses obj)
+    {
     }
 
-
-    public void visitMethod( Method obj ) {
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitBootstrapMethods(final BootstrapMethods obj)
+    {
     }
 
-
-    public void visitSignature( Signature obj ) {
+    @Override
+    public void visitJavaClass(final JavaClass obj)
+    {
     }
 
-
-    public void visitSourceFile( SourceFile obj ) {
+    @Override
+    public void visitLineNumber(final LineNumber obj)
+    {
     }
 
-
-    public void visitSynthetic( Synthetic obj ) {
+    @Override
+    public void visitLineNumberTable(final LineNumberTable obj)
+    {
     }
 
-
-    public void visitUnknown( Unknown obj ) {
+    @Override
+    public void visitLocalVariable(final LocalVariable obj)
+    {
     }
 
-
-    public void visitStackMap( StackMap obj ) {
+    @Override
+    public void visitLocalVariableTable(final LocalVariableTable obj)
+    {
     }
 
+    @Override
+    public void visitMethod(final Method obj)
+    {
+    }
 
-    public void visitStackMapEntry( StackMapEntry obj ) {
+    @Override
+    public void visitSignature(final Signature obj)
+    {
+    }
+
+    @Override
+    public void visitSourceFile(final SourceFile obj)
+    {
+    }
+
+    @Override
+    public void visitSynthetic(final Synthetic obj)
+    {
+    }
+
+    @Override
+    public void visitUnknown(final Unknown obj)
+    {
+    }
+
+    @Override
+    public void visitStackMap(final StackMap obj)
+    {
+    }
+
+    @Override
+    public void visitStackMapEntry(final StackMapEntry obj)
+    {
+    }
+
+    /**
+     * @since 6.0
+    @Override
+    public void visitStackMapTable(StackMapTable obj)
+    {
+    }
+     */
+
+    /**
+     * @since 6.0
+    @Override
+    public void visitStackMapTableEntry(StackMapTableEntry obj)
+    {
+    }
+     */
+
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitEnclosingMethod(final EnclosingMethod obj)
+    {
+    }
+
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitLocalVariableTypeTable(final LocalVariableTypeTable obj)
+    {
+    }
+
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitMethodParameters(final MethodParameters obj)
+    {
+    }
+
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitConstantMethodType(final ConstantMethodType obj)
+    {
+    }
+
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitConstantMethodHandle(final ConstantMethodHandle constantMethodHandle) {
+    }
+
+    /**
+     * @since 6.0
+     */
+    @Override
+    public void visitParameterAnnotationEntry(final ParameterAnnotationEntry parameterAnnotationEntry) {
+    }
+
+    /**
+     * @since 6.1
+     */
+    @Override
+    public void visitConstantPackage(final ConstantPackage constantPackage) {
+    }
+
+    /**
+     * @since 6.1
+     */
+    @Override
+    public void visitConstantModule(final ConstantModule constantModule) {
     }
 }

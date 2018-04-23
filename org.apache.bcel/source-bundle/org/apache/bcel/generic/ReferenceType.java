@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,24 +12,23 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.generic;
 
-import org.apache.bcel.Constants;
+import org.apache.bcel.Const;
 import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
 
 /**
  * Super class for object and array types.
  *
- * @version $Id: ReferenceType.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ReferenceType.java 1749603 2016-06-21 20:50:19Z ggregory $
  */
 public abstract class ReferenceType extends Type {
 
-    protected ReferenceType(byte t, String s) {
+    protected ReferenceType(final byte t, final String s) {
         super(t, s);
     }
 
@@ -36,7 +36,7 @@ public abstract class ReferenceType extends Type {
     /** Class is non-abstract but not instantiable from the outside
      */
     ReferenceType() {
-        super(Constants.T_OBJECT, "<null object>");
+        super(Const.T_OBJECT, "<null object>");
     }
 
 
@@ -51,9 +51,9 @@ public abstract class ReferenceType extends Type {
      * @throws ClassNotFoundException if any classes or interfaces required
      *  to determine assignment compatibility can't be found
      */
-    public boolean isCastableTo( Type t ) throws ClassNotFoundException {
+    public boolean isCastableTo( final Type t ) throws ClassNotFoundException {
         if (this.equals(Type.NULL)) {
-            return true; // If this is ever changed in isAssignmentCompatible()
+            return t instanceof ReferenceType; // If this is ever changed in isAssignmentCompatible()
         }
         return isAssignmentCompatibleWith(t);
         /* Yes, it's true: It's the same definition.
@@ -69,11 +69,11 @@ public abstract class ReferenceType extends Type {
      * @throws ClassNotFoundException if any classes or interfaces required
      *  to determine assignment compatibility can't be found
      */
-    public boolean isAssignmentCompatibleWith( Type t ) throws ClassNotFoundException {
+    public boolean isAssignmentCompatibleWith( final Type t ) throws ClassNotFoundException {
         if (!(t instanceof ReferenceType)) {
             return false;
         }
-        ReferenceType T = (ReferenceType) t;
+        final ReferenceType T = (ReferenceType) t;
         if (this.equals(Type.NULL)) {
             return true; // This is not explicitely stated, but clear. Isn't it?
         }
@@ -104,7 +104,7 @@ public abstract class ReferenceType extends Type {
         /* If this is an interface type, then:
          */
         if ((this instanceof ObjectType) && (((ObjectType) this).referencesInterfaceExact())) {
-            /* If T is a class type, then T must be Object (§2.4.7).
+            /* If T is a class type, then T must be Object (ï¿½2.4.7).
              */
             if ((T instanceof ObjectType) && (((ObjectType) T).referencesClassExact())) {
                 if (T.equals(Type.OBJECT)) {
@@ -112,7 +112,7 @@ public abstract class ReferenceType extends Type {
                 }
             }
             /* If T is an interface type, then T must be the same interface
-             * as this or a superinterface of this (§2.13.2).
+             * as this or a superinterface of this (ï¿½2.13.2).
              */
             if ((T instanceof ObjectType) && (((ObjectType) T).referencesInterfaceExact())) {
                 if (this.equals(T)) {
@@ -128,7 +128,7 @@ public abstract class ReferenceType extends Type {
          * array of components of type SC, then:
          */
         if (this instanceof ArrayType) {
-            /* If T is a class type, then T must be Object (§2.4.7).
+            /* If T is a class type, then T must be Object (ï¿½2.4.7).
              */
             if ((T instanceof ObjectType) && (((ObjectType) T).referencesClassExact())) {
                 if (T.equals(Type.OBJECT)) {
@@ -139,14 +139,14 @@ public abstract class ReferenceType extends Type {
              * of type TC, then one of the following must be true:
              */
             if (T instanceof ArrayType) {
-                /* TC and SC are the same primitive type (§2.4.1).
+                /* TC and SC are the same primitive type (ï¿½2.4.1).
                  */
-                Type sc = ((ArrayType) this).getElementType();
-                Type tc = ((ArrayType) T).getElementType();
+                final Type sc = ((ArrayType) this).getElementType();
+                final Type tc = ((ArrayType) T).getElementType();
                 if (sc instanceof BasicType && tc instanceof BasicType && sc.equals(tc)) {
                     return true;
                 }
-                /* TC and SC are reference types (§2.4.6), and type SC is
+                /* TC and SC are reference types (ï¿½2.4.6), and type SC is
                  * assignable to TC by these runtime rules.
                  */
                 if (tc instanceof ReferenceType && sc instanceof ReferenceType
@@ -154,15 +154,15 @@ public abstract class ReferenceType extends Type {
                     return true;
                 }
             }
-            /* If T is an interface type, T must be one of the interfaces implemented by arrays (§2.15). */
+            /* If T is an interface type, T must be one of the interfaces implemented by arrays (ï¿½2.15). */
             // TODO: Check if this is still valid or find a way to dynamically find out which
             // interfaces arrays implement. However, as of the JVM specification edition 2, there
             // are at least two different pages where assignment compatibility is defined and
             // on one of them "interfaces implemented by arrays" is exchanged with "'Cloneable' or
             // 'java.io.Serializable'"
             if ((T instanceof ObjectType) && (((ObjectType) T).referencesInterfaceExact())) {
-                for (int ii = 0; ii < Constants.INTERFACES_IMPLEMENTED_BY_ARRAYS.length; ii++) {
-                    if (T.equals(new ObjectType(Constants.INTERFACES_IMPLEMENTED_BY_ARRAYS[ii]))) {
+                for (final String element : Const.getInterfacesImplementedByArrays()) {
+                    if (T.equals(ObjectType.getInstance(element))) {
                         return true;
                     }
                 }
@@ -185,12 +185,12 @@ public abstract class ReferenceType extends Type {
      * first common super class of the basic types of "this" and t.
      * If "this" or t is a ReferenceType referencing an interface, then Type.OBJECT is returned.
      * If not all of the two classes' superclasses cannot be found, "null" is returned.
-     * See the JVM specification edition 2, "§4.9.2 The Bytecode Verifier".
+     * See the JVM specification edition 2, "ï¿½4.9.2 The Bytecode Verifier".
      *
      * @throws ClassNotFoundException on failure to find superclasses of this
      *  type, or the type passed as a parameter
      */
-    public ReferenceType getFirstCommonSuperclass( ReferenceType t ) throws ClassNotFoundException {
+    public ReferenceType getFirstCommonSuperclass( final ReferenceType t ) throws ClassNotFoundException {
         if (this.equals(Type.NULL)) {
             return t;
         }
@@ -209,8 +209,8 @@ public abstract class ReferenceType extends Type {
         }
         /* This code is from a bug report by Konstantin Shagin <konst@cs.technion.ac.il> */
         if ((this instanceof ArrayType) && (t instanceof ArrayType)) {
-            ArrayType arrType1 = (ArrayType) this;
-            ArrayType arrType2 = (ArrayType) t;
+            final ArrayType arrType1 = (ArrayType) this;
+            final ArrayType arrType2 = (ArrayType) t;
             if ((arrType1.getDimensions() == arrType2.getDimensions())
                     && arrType1.getBasicType() instanceof ObjectType
                     && arrType2.getBasicType() instanceof ObjectType) {
@@ -223,39 +223,38 @@ public abstract class ReferenceType extends Type {
             return Type.OBJECT;
             // TODO: Is there a proof of OBJECT being the direct ancestor of every ArrayType?
         }
-        if (((this instanceof ObjectType) && ((ObjectType) this).referencesInterface())
-                || ((t instanceof ObjectType) && ((ObjectType) t).referencesInterface())) {
+        if (((this instanceof ObjectType) && ((ObjectType) this).referencesInterfaceExact())
+                || ((t instanceof ObjectType) && ((ObjectType) t).referencesInterfaceExact())) {
             return Type.OBJECT;
             // TODO: The above line is correct comparing to the vmspec2. But one could
             // make class file verification a bit stronger here by using the notion of
             // superinterfaces or even castability or assignment compatibility.
         }
         // this and t are ObjectTypes, see above.
-        ObjectType thiz = (ObjectType) this;
-        ObjectType other = (ObjectType) t;
-        JavaClass[] thiz_sups = Repository.getSuperClasses(thiz.getClassName());
-        JavaClass[] other_sups = Repository.getSuperClasses(other.getClassName());
+        final ObjectType thiz = (ObjectType) this;
+        final ObjectType other = (ObjectType) t;
+        final JavaClass[] thiz_sups = Repository.getSuperClasses(thiz.getClassName());
+        final JavaClass[] other_sups = Repository.getSuperClasses(other.getClassName());
         if ((thiz_sups == null) || (other_sups == null)) {
             return null;
         }
         // Waaahh...
-        JavaClass[] this_sups = new JavaClass[thiz_sups.length + 1];
-        JavaClass[] t_sups = new JavaClass[other_sups.length + 1];
+        final JavaClass[] this_sups = new JavaClass[thiz_sups.length + 1];
+        final JavaClass[] t_sups = new JavaClass[other_sups.length + 1];
         System.arraycopy(thiz_sups, 0, this_sups, 1, thiz_sups.length);
         System.arraycopy(other_sups, 0, t_sups, 1, other_sups.length);
         this_sups[0] = Repository.lookupClass(thiz.getClassName());
         t_sups[0] = Repository.lookupClass(other.getClassName());
-        for (int i = 0; i < t_sups.length; i++) {
-            for (int j = 0; j < this_sups.length; j++) {
-                if (this_sups[j].equals(t_sups[i])) {
-                    return new ObjectType(this_sups[j].getClassName());
+        for (final JavaClass t_sup : t_sups) {
+            for (final JavaClass this_sup : this_sups) {
+                if (this_sup.equals(t_sup)) {
+                    return ObjectType.getInstance(this_sup.getClassName());
                 }
             }
         }
         // Huh? Did you ask for Type.OBJECT's superclass??
         return null;
     }
-
 
     /**
      * This commutative operation returns the first common superclass (narrowest ReferenceType
@@ -267,14 +266,15 @@ public abstract class ReferenceType extends Type {
      * If "this" or t is an ArrayType, then Type.OBJECT is returned.
      * If "this" or t is a ReferenceType referencing an interface, then Type.OBJECT is returned.
      * If not all of the two classes' superclasses cannot be found, "null" is returned.
-     * See the JVM specification edition 2, "§4.9.2 The Bytecode Verifier".
+     * See the JVM specification edition 2, "ï¿½4.9.2 The Bytecode Verifier".
      *
      * @deprecated use getFirstCommonSuperclass(ReferenceType t) which has
      *             slightly changed semantics.
      * @throws ClassNotFoundException on failure to find superclasses of this
      *  type, or the type passed as a parameter
      */
-    public ReferenceType firstCommonSuperclass( ReferenceType t ) throws ClassNotFoundException {
+    @Deprecated
+    public ReferenceType firstCommonSuperclass( final ReferenceType t ) throws ClassNotFoundException {
         if (this.equals(Type.NULL)) {
             return t;
         }
@@ -303,24 +303,24 @@ public abstract class ReferenceType extends Type {
             // superinterfaces or even castability or assignment compatibility.
         }
         // this and t are ObjectTypes, see above.
-        ObjectType thiz = (ObjectType) this;
-        ObjectType other = (ObjectType) t;
-        JavaClass[] thiz_sups = Repository.getSuperClasses(thiz.getClassName());
-        JavaClass[] other_sups = Repository.getSuperClasses(other.getClassName());
+        final ObjectType thiz = (ObjectType) this;
+        final ObjectType other = (ObjectType) t;
+        final JavaClass[] thiz_sups = Repository.getSuperClasses(thiz.getClassName());
+        final JavaClass[] other_sups = Repository.getSuperClasses(other.getClassName());
         if ((thiz_sups == null) || (other_sups == null)) {
             return null;
         }
         // Waaahh...
-        JavaClass[] this_sups = new JavaClass[thiz_sups.length + 1];
-        JavaClass[] t_sups = new JavaClass[other_sups.length + 1];
+        final JavaClass[] this_sups = new JavaClass[thiz_sups.length + 1];
+        final JavaClass[] t_sups = new JavaClass[other_sups.length + 1];
         System.arraycopy(thiz_sups, 0, this_sups, 1, thiz_sups.length);
         System.arraycopy(other_sups, 0, t_sups, 1, other_sups.length);
         this_sups[0] = Repository.lookupClass(thiz.getClassName());
         t_sups[0] = Repository.lookupClass(other.getClassName());
-        for (int i = 0; i < t_sups.length; i++) {
-            for (int j = 0; j < this_sups.length; j++) {
-                if (this_sups[j].equals(t_sups[i])) {
-                    return new ObjectType(this_sups[j].getClassName());
+        for (final JavaClass t_sup : t_sups) {
+            for (final JavaClass this_sup : this_sups) {
+                if (this_sup.equals(t_sup)) {
+                    return ObjectType.getInstance(this_sup.getClassName());
                 }
             }
         }

@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -11,7 +12,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package org.apache.bcel.util;
@@ -19,11 +20,11 @@ package org.apache.bcel.util;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.apache.bcel.Constants;
+
+import org.apache.bcel.Const;
 import org.apache.bcel.classfile.Utility;
 import org.apache.bcel.generic.AllocationInstruction;
 import org.apache.bcel.generic.ArrayInstruction;
@@ -40,7 +41,7 @@ import org.apache.bcel.generic.FieldInstruction;
 import org.apache.bcel.generic.IINC;
 import org.apache.bcel.generic.INSTANCEOF;
 import org.apache.bcel.generic.Instruction;
-import org.apache.bcel.generic.InstructionConstants;
+import org.apache.bcel.generic.InstructionConst;
 import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InvokeInstruction;
 import org.apache.bcel.generic.LDC;
@@ -60,30 +61,30 @@ import org.apache.bcel.generic.Type;
  * A helper class for BCELifier.
  *
  * @see BCELifier
- * @version $Id: BCELFactory.java 410087 2006-05-29 12:12:19Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: BCELFactory.java 1749603 2016-06-21 20:50:19Z ggregory $
  */
 class BCELFactory extends EmptyVisitor {
 
-    private MethodGen _mg;
-    private PrintWriter _out;
-    private ConstantPoolGen _cp;
+    private static final String CONSTANT_PREFIX = Const.class.getSimpleName()+".";
+    private final MethodGen _mg;
+    private final PrintWriter _out;
+    private final ConstantPoolGen _cp;
 
 
-    BCELFactory(MethodGen mg, PrintWriter out) {
+    BCELFactory(final MethodGen mg, final PrintWriter out) {
         _mg = mg;
         _cp = mg.getConstantPool();
         _out = out;
     }
 
-    private Map branch_map = new HashMap(); // Map<Instruction, InstructionHandle>
+    private final Map<Instruction, InstructionHandle> branch_map = new HashMap<>();
 
 
     public void start() {
         if (!_mg.isAbstract() && !_mg.isNative()) {
             for (InstructionHandle ih = _mg.getInstructionList().getStart(); ih != null; ih = ih
                     .getNext()) {
-                Instruction i = ih.getInstruction();
+                final Instruction i = ih.getInstruction();
                 if (i instanceof BranchInstruction) {
                     branch_map.put(i, ih); // memorize container
                 }
@@ -106,11 +107,11 @@ class BCELFactory extends EmptyVisitor {
     }
 
 
-    private boolean visitInstruction( Instruction i ) {
-        short opcode = i.getOpcode();
-        if ((InstructionConstants.INSTRUCTIONS[opcode] != null)
+    private boolean visitInstruction( final Instruction i ) {
+        final short opcode = i.getOpcode();
+        if ((InstructionConst.getInstruction(opcode) != null)
                 && !(i instanceof ConstantPushInstruction) && !(i instanceof ReturnInstruction)) { // Handled below
-            _out.println("il.append(InstructionConstants."
+            _out.println("il.append(InstructionConst."
                     + i.getName().toUpperCase(Locale.ENGLISH) + ");");
             return true;
         }
@@ -118,71 +119,77 @@ class BCELFactory extends EmptyVisitor {
     }
 
 
-    public void visitLocalVariableInstruction( LocalVariableInstruction i ) {
-        short opcode = i.getOpcode();
-        Type type = i.getType(_cp);
-        if (opcode == Constants.IINC) {
+    @Override
+    public void visitLocalVariableInstruction( final LocalVariableInstruction i ) {
+        final short opcode = i.getOpcode();
+        final Type type = i.getType(_cp);
+        if (opcode == Const.IINC) {
             _out.println("il.append(new IINC(" + i.getIndex() + ", " + ((IINC) i).getIncrement()
                     + "));");
         } else {
-            String kind = (opcode < Constants.ISTORE) ? "Load" : "Store";
+            final String kind = (opcode < Const.ISTORE) ? "Load" : "Store";
             _out.println("il.append(_factory.create" + kind + "(" + BCELifier.printType(type)
                     + ", " + i.getIndex() + "));");
         }
     }
 
 
-    public void visitArrayInstruction( ArrayInstruction i ) {
-        short opcode = i.getOpcode();
-        Type type = i.getType(_cp);
-        String kind = (opcode < Constants.IASTORE) ? "Load" : "Store";
+    @Override
+    public void visitArrayInstruction( final ArrayInstruction i ) {
+        final short opcode = i.getOpcode();
+        final Type type = i.getType(_cp);
+        final String kind = (opcode < Const.IASTORE) ? "Load" : "Store";
         _out.println("il.append(_factory.createArray" + kind + "(" + BCELifier.printType(type)
                 + "));");
     }
 
 
-    public void visitFieldInstruction( FieldInstruction i ) {
-        short opcode = i.getOpcode();
-        String class_name = i.getClassName(_cp);
-        String field_name = i.getFieldName(_cp);
-        Type type = i.getFieldType(_cp);
+    @Override
+    public void visitFieldInstruction( final FieldInstruction i ) {
+        final short opcode = i.getOpcode();
+        final String class_name = i.getClassName(_cp);
+        final String field_name = i.getFieldName(_cp);
+        final Type type = i.getFieldType(_cp);
         _out.println("il.append(_factory.createFieldAccess(\"" + class_name + "\", \"" + field_name
-                + "\", " + BCELifier.printType(type) + ", " + "Constants."
-                + Constants.OPCODE_NAMES[opcode].toUpperCase(Locale.ENGLISH) + "));");
+                + "\", " + BCELifier.printType(type) + ", " + CONSTANT_PREFIX
+                + Const.getOpcodeName(opcode).toUpperCase(Locale.ENGLISH) + "));");
     }
 
 
-    public void visitInvokeInstruction( InvokeInstruction i ) {
-        short opcode = i.getOpcode();
-        String class_name = i.getClassName(_cp);
-        String method_name = i.getMethodName(_cp);
-        Type type = i.getReturnType(_cp);
-        Type[] arg_types = i.getArgumentTypes(_cp);
+    @Override
+    public void visitInvokeInstruction( final InvokeInstruction i ) {
+        final short opcode = i.getOpcode();
+        final String class_name = i.getClassName(_cp);
+        final String method_name = i.getMethodName(_cp);
+        final Type type = i.getReturnType(_cp);
+        final Type[] arg_types = i.getArgumentTypes(_cp);
         _out.println("il.append(_factory.createInvoke(\"" + class_name + "\", \"" + method_name
                 + "\", " + BCELifier.printType(type) + ", "
-                + BCELifier.printArgumentTypes(arg_types) + ", " + "Constants."
-                + Constants.OPCODE_NAMES[opcode].toUpperCase(Locale.ENGLISH) + "));");
+                + BCELifier.printArgumentTypes(arg_types) + ", " + CONSTANT_PREFIX
+                + Const.getOpcodeName(opcode).toUpperCase(Locale.ENGLISH) + "));");
     }
 
 
-    public void visitAllocationInstruction( AllocationInstruction i ) {
+    @Override
+    public void visitAllocationInstruction( final AllocationInstruction i ) {
         Type type;
         if (i instanceof CPInstruction) {
             type = ((CPInstruction) i).getType(_cp);
         } else {
             type = ((NEWARRAY) i).getType();
         }
-        short opcode = ((Instruction) i).getOpcode();
+        final short opcode = ((Instruction) i).getOpcode();
         int dim = 1;
         switch (opcode) {
-            case Constants.NEW:
+            case Const.NEW:
                 _out.println("il.append(_factory.createNew(\"" + ((ObjectType) type).getClassName()
                         + "\"));");
                 break;
-            case Constants.MULTIANEWARRAY:
+            case Const.MULTIANEWARRAY:
                 dim = ((MULTIANEWARRAY) i).getDimensions();
-            case Constants.ANEWARRAY:
-            case Constants.NEWARRAY:
+                //$FALL-THROUGH$
+            case Const.ANEWARRAY:
+            case Const.NEWARRAY:
                 if (type instanceof ArrayType) {
                     type = ((ArrayType) type).getBasicType();
                 }
@@ -195,62 +202,77 @@ class BCELFactory extends EmptyVisitor {
     }
 
 
-    private void createConstant( Object value ) {
+    private void createConstant( final Object value ) {
         String embed = value.toString();
         if (value instanceof String) {
-            embed = '"' + Utility.convertString(value.toString()) + '"';
+            embed = '"' + Utility.convertString(embed) + '"';
         } else if (value instanceof Character) {
             embed = "(char)0x" + Integer.toHexString(((Character) value).charValue());
+        } else if (value instanceof Float) {
+            embed += "f";
+        } else if (value instanceof Long) {
+            embed += "L";
+        } else if (value instanceof ObjectType) {
+            final ObjectType ot = (ObjectType) value;
+            embed = "new ObjectType(\""+ot.getClassName()+"\")";
         }
+
         _out.println("il.append(new PUSH(_cp, " + embed + "));");
     }
 
 
-    public void visitLDC( LDC i ) {
+    @Override
+    public void visitLDC( final LDC i ) {
         createConstant(i.getValue(_cp));
     }
 
 
-    public void visitLDC2_W( LDC2_W i ) {
+    @Override
+    public void visitLDC2_W( final LDC2_W i ) {
         createConstant(i.getValue(_cp));
     }
 
 
-    public void visitConstantPushInstruction( ConstantPushInstruction i ) {
+    @Override
+    public void visitConstantPushInstruction( final ConstantPushInstruction i ) {
         createConstant(i.getValue());
     }
 
 
-    public void visitINSTANCEOF( INSTANCEOF i ) {
-        Type type = i.getType(_cp);
+    @Override
+    public void visitINSTANCEOF( final INSTANCEOF i ) {
+        final Type type = i.getType(_cp);
         _out.println("il.append(new INSTANCEOF(_cp.addClass(" + BCELifier.printType(type) + ")));");
     }
 
 
-    public void visitCHECKCAST( CHECKCAST i ) {
-        Type type = i.getType(_cp);
+    @Override
+    public void visitCHECKCAST( final CHECKCAST i ) {
+        final Type type = i.getType(_cp);
         _out.println("il.append(_factory.createCheckCast(" + BCELifier.printType(type) + "));");
     }
 
 
-    public void visitReturnInstruction( ReturnInstruction i ) {
-        Type type = i.getType(_cp);
+    @Override
+    public void visitReturnInstruction( final ReturnInstruction i ) {
+        final Type type = i.getType(_cp);
         _out.println("il.append(_factory.createReturn(" + BCELifier.printType(type) + "));");
     }
 
     // Memorize BranchInstructions that need an update
-    private List branches = new ArrayList();
+    private final List<BranchInstruction> branches = new ArrayList<>();
 
 
-    public void visitBranchInstruction( BranchInstruction bi ) {
-        BranchHandle bh = (BranchHandle) branch_map.get(bi);
-        int pos = bh.getPosition();
-        String name = bi.getName() + "_" + pos;
+    @Override
+    public void visitBranchInstruction( final BranchInstruction bi ) {
+        final BranchHandle bh = (BranchHandle) branch_map.get(bi);
+        final int pos = bh.getPosition();
+        final String name = bi.getName() + "_" + pos;
         if (bi instanceof Select) {
-            Select s = (Select) bi;
+            final Select s = (Select) bi;
             branches.add(bi);
-            StringBuffer args = new StringBuffer("new int[] { ");
-            int[] matchs = s.getMatchs();
+            final StringBuilder args = new StringBuilder("new int[] { ");
+            final int[] matchs = s.getMatchs();
             for (int i = 0; i < matchs.length; i++) {
                 args.append(matchs[i]);
                 if (i < matchs.length - 1) {
@@ -268,7 +290,7 @@ class BCELFactory extends EmptyVisitor {
             }
             _out.println(" }, null);");
         } else {
-            int t_pos = bh.getTarget().getPosition();
+            final int t_pos = bh.getTarget().getPosition();
             String target;
             if (pos > t_pos) {
                 target = "ih_" + t_pos;
@@ -277,7 +299,7 @@ class BCELFactory extends EmptyVisitor {
                 target = "null";
             }
             _out.println("    BranchInstruction " + name + " = _factory.createBranchInstruction("
-                    + "Constants." + bi.getName().toUpperCase(Locale.ENGLISH) + ", " + target
+                    + CONSTANT_PREFIX + bi.getName().toUpperCase(Locale.ENGLISH) + ", " + target
                     + ");");
         }
         if (bh.hasTargeters()) {
@@ -288,21 +310,21 @@ class BCELFactory extends EmptyVisitor {
     }
 
 
-    public void visitRET( RET i ) {
+    @Override
+    public void visitRET( final RET i ) {
         _out.println("il.append(new RET(" + i.getIndex() + ")));");
     }
 
 
     private void updateBranchTargets() {
-        for (Iterator i = branches.iterator(); i.hasNext();) {
-            BranchInstruction bi = (BranchInstruction) i.next();
-            BranchHandle bh = (BranchHandle) branch_map.get(bi);
-            int pos = bh.getPosition();
-            String name = bi.getName() + "_" + pos;
+        for (final BranchInstruction bi : branches) {
+            final BranchHandle bh = (BranchHandle) branch_map.get(bi);
+            final int pos = bh.getPosition();
+            final String name = bi.getName() + "_" + pos;
             int t_pos = bh.getTarget().getPosition();
             _out.println("    " + name + ".setTarget(ih_" + t_pos + ");");
             if (bi instanceof Select) {
-                InstructionHandle[] ihs = ((Select) bi).getTargets();
+                final InstructionHandle[] ihs = ((Select) bi).getTargets();
                 for (int j = 0; j < ihs.length; j++) {
                     t_pos = ihs[j].getPosition();
                     _out.println("    " + name + ".setTarget(" + j + ", ih_" + t_pos + ");");
@@ -313,10 +335,9 @@ class BCELFactory extends EmptyVisitor {
 
 
     private void updateExceptionHandlers() {
-        CodeExceptionGen[] handlers = _mg.getExceptionHandlers();
-        for (int i = 0; i < handlers.length; i++) {
-            CodeExceptionGen h = handlers[i];
-            String type = (h.getCatchType() == null) ? "null" : BCELifier.printType(h
+        final CodeExceptionGen[] handlers = _mg.getExceptionHandlers();
+        for (final CodeExceptionGen h : handlers) {
+            final String type = (h.getCatchType() == null) ? "null" : BCELifier.printType(h
                     .getCatchType());
             _out.println("    method.addExceptionHandler(" + "ih_" + h.getStartPC().getPosition()
                     + ", " + "ih_" + h.getEndPC().getPosition() + ", " + "ih_"

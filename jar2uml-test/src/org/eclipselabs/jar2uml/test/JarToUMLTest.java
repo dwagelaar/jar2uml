@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.bcel.Constants;
+import org.apache.bcel.Const;
 import org.apache.bcel.classfile.AccessFlags;
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
@@ -62,7 +62,7 @@ public final class JarToUMLTest extends J2UTestCase {
 	 * @return <code>true</code> iff the collection has no duplicate entries.
 	 */
 	public static boolean hasUniqueEntries(Collection<?> collection) {
-		Set<?> set = new HashSet<Object>(collection);
+		final Set<?> set = new HashSet<Object>(collection);
 		return set.size() == collection.size();
 	}
 
@@ -89,7 +89,7 @@ public final class JarToUMLTest extends J2UTestCase {
 	 * Test method for {@link org.eclipselabs.jar2uml.JarToUMLResources#getString(java.lang.String)}.
 	 */
 	public void testGetString() {
-		String usage = JarToUMLResources.getString("JarToUML.usage");
+		final String usage = JarToUMLResources.getString("JarToUML.usage");
 		assertNotNull(usage);
 		assertNotSame("JarToUML.usage", usage);
 	}
@@ -105,37 +105,37 @@ public final class JarToUMLTest extends J2UTestCase {
 	 * Test method for {@link org.eclipselabs.jar2uml.JarToUML#getJavaProject(org.eclipse.core.runtime.IPath)}.
 	 */
 	public void testGetJavaProject() {
-		IProject project = getProject(javatestProject);
+		final IProject project = getProject(javatestProject);
 		assertNotNull(JarToUML.getJavaProject(project.getFullPath()));
 	}
 
 	/**
 	 * Test method for {@link org.eclipselabs.jar2uml.JarToUML#findJavaProjectReferences(org.eclipse.jdt.core.IJavaProject, java.util.Set)}.
-	 * @throws JavaModelException 
+	 * @throws JavaModelException
 	 */
 	public void testFindJavaProjectReferences() throws JavaModelException {
 		//
 		// Retrieve Java project
 		//
-		IProject project = getProject(javatestProject);
-		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+		final IProject project = getProject(javatestProject);
+		final IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
 		//
 		// Retrieve another Java project and add it to the classpath of the first project
 		//
-		IProject projectref = getProject(javatestReferredProject);
-		IClasspathEntry[] cp = jproject.getResolvedClasspath(true);
-		List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-		for (IClasspathEntry entry : cp) {
+		final IProject projectref = getProject(javatestReferredProject);
+		final IClasspathEntry[] cp = jproject.getResolvedClasspath(true);
+		final List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+		for (final IClasspathEntry entry : cp) {
 			entries.add(entry);
 		}
 		entries.add(JavaCore.newProjectEntry(projectref.getFullPath()));
 		jproject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 		JarToUMLResources.logger.info("Java project classpath entries: " + entries);
-		IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
+		final IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
 		//
 		// Find references of the first project
 		//
-		Set<IJavaProject> refs = new HashSet<IJavaProject>();
+		final Set<IJavaProject> refs = new HashSet<IJavaProject>();
 		JarToUML.findJavaProjectReferences(jproject, refs);
 		JarToUMLResources.logger.info("Java project references: " + refs);
 		assertFalse(refs.isEmpty());
@@ -146,9 +146,9 @@ public final class JarToUMLTest extends J2UTestCase {
 	 * Test method for {@link org.eclipselabs.jar2uml.JarToUML#createResourceSet()}.
 	 */
 	public void testCreateResourceSet() {
-		ResourceSet resourceSet = JarToUML.createResourceSet();
+		final ResourceSet resourceSet = JarToUML.createResourceSet();
 		assertNotNull(resourceSet);
-		Object factory = resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().get(UMLResource.FILE_EXTENSION);
+		final Object factory = resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().get(UMLResource.FILE_EXTENSION);
 		assertSame(UMLResource.Factory.INSTANCE, factory);
 	}
 
@@ -160,18 +160,18 @@ public final class JarToUMLTest extends J2UTestCase {
 		// Load a UML model with derived classifiers, and find Model object
 		//
 		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
-		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
-		Model root = findModel(res);
+		final Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
+		final Model root = findModel(res);
 		//
 		// Find java.lang.String
 		//
-		FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
-		Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
+		final FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
+		final Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
 		assertNotNull(javaLangString);
 		//
 		// Find derived classifiers
 		//
-		Collection<Classifier> derived = MarkInferredClassifiers.findDerivedClassifiers(javaLangString);
+		final Collection<Classifier> derived = MarkInferredClassifiers.findDerivedClassifiers(javaLangString);
 		JarToUMLResources.logger.info("Found derived classifiers: " + derived);
 		assertFalse(derived.isEmpty());
 		assertFalse(derived.contains(javaLangString));
@@ -179,22 +179,22 @@ public final class JarToUMLTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link org.eclipselabs.jar2uml.JarToUML#isNamedClass(org.apache.bcel.classfile.JavaClass)}.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testIsNamedClass() throws IOException {
 		//
 		// Test this class
 		//
-		String thisClassFile = classFilePath(JarToUMLTest.class);
-		URL thisClassUrl = bundle.getResource(thisClassFile);
+		final String thisClassFile = classFilePath(JarToUMLTest.class);
+		final URL thisClassUrl = bundle.getResource(thisClassFile);
 		ClassParser parser = new ClassParser(thisClassUrl.openStream(), thisClassFile);
 		JavaClass javaClass = parser.parse();
 		assertTrue(JarToUML.isNamedClass(javaClass));
 		//
 		// Test an anonymous nested class
 		//
-		String anoClassFile = thisClassFile.replace(".class", "$1.class");
-		URL anoClassUrl = bundle.getResource(anoClassFile);
+		final String anoClassFile = thisClassFile.replace(".class", "$1.class");
+		final URL anoClassUrl = bundle.getResource(anoClassFile);
 		parser = new ClassParser(anoClassUrl.openStream(), anoClassFile);
 		javaClass = parser.parse();
 		assertFalse(JarToUML.isNamedClass(javaClass));
@@ -203,11 +203,13 @@ public final class JarToUMLTest extends J2UTestCase {
 	/**
 	 * Test method for {@link org.eclipselabs.jar2uml.JarToUML#toUMLVisibility(org.apache.bcel.classfile.AccessFlags)}.
 	 */
-	@SuppressWarnings("serial")
 	public void testToUMLVisibility() {
-		assertEquals(VisibilityKind.PUBLIC_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Constants.ACC_PUBLIC) { } ));
-		assertEquals(VisibilityKind.PROTECTED_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Constants.ACC_PROTECTED) { } ));
-		assertEquals(VisibilityKind.PRIVATE_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Constants.ACC_PRIVATE) { } ));
+		assertEquals(VisibilityKind.PUBLIC_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Const.ACC_PUBLIC) {
+		}));
+		assertEquals(VisibilityKind.PROTECTED_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Const.ACC_PROTECTED) {
+		}));
+		assertEquals(VisibilityKind.PRIVATE_LITERAL, JarToUML.toUMLVisibility(new AccessFlags(Const.ACC_PRIVATE) {
+		}));
 		assertEquals(VisibilityKind.PACKAGE_LITERAL, JarToUML.toUMLVisibility(new AccessFlags() { } ));
 	}
 
@@ -218,12 +220,12 @@ public final class JarToUMLTest extends J2UTestCase {
 		//
 		// Load a UML model with derived classifiers, and find Model object
 		//
-		Model root = loadModelFromUri(pkServletDepsUri);
+		final Model root = loadModelFromUri(pkServletDepsUri);
 		//
 		// Find java.lang.String
 		//
-		FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
-		Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
+		final FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
+		final Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
 		assertNotNull(javaLangString);
 		//
 		// Test qualified names
@@ -242,24 +244,24 @@ public final class JarToUMLTest extends J2UTestCase {
 		// Load a UML model with derived classifiers, and find Model object
 		//
 		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
-		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
-		Model root = findModel(res);
+		final Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
+		final Model root = findModel(res);
 		//
 		// Find java.lang.String, java.lang.Object
 		//
-		FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
-		Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
+		final FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
+		final Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
 		assertNotNull(javaLangString);
-		Classifier javaLangObject = find.findClassifier(root, "java.lang.Object", null);
+		final Classifier javaLangObject = find.findClassifier(root, "java.lang.Object", null);
 		assertNotNull(javaLangObject);
 		//
 		// Test name list
 		//
-		List<NamedElement> elements = new ArrayList<NamedElement>();
+		final List<NamedElement> elements = new ArrayList<NamedElement>();
 		elements.add(root);
 		elements.add(javaLangString);
 		elements.add(javaLangObject);
-		List<String> names = JarToUML.getNameList(elements);
+		final List<String> names = JarToUML.getNameList(elements);
 		JarToUMLResources.logger.info("Name list: " + names);
 		assertFalse(names.isEmpty());
 		assertTrue(names.size() == 3);
@@ -276,20 +278,20 @@ public final class JarToUMLTest extends J2UTestCase {
 		// Load a UML model, and find Model object
 		//
 		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
-		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
-		Model root = findModel(res);
+		final Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
+		final Model root = findModel(res);
 		//
 		// Find java.lang.String
 		//
-		FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
-		Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
+		final FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
+		final Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
 		assertNotNull(javaLangString);
 		//
 		// Annotate
 		//
 		JarToUML.annotate(javaLangString, "test", "test");
 		JarToUMLResources.logger.info("Found annotations: " + javaLangString.getEAnnotations());
-		EAnnotation ann = javaLangString.getEAnnotation(JarToUML.EANNOTATION);
+		final EAnnotation ann = javaLangString.getEAnnotation(JarToUML.EANNOTATION);
 		assertNotNull(ann);
 		assertEquals("test", ann.getDetails().get("test"));
 	}
@@ -302,13 +304,13 @@ public final class JarToUMLTest extends J2UTestCase {
 		// Load a UML model, and find Model object
 		//
 		JarToUMLResources.logger.info("Loading UML model from: " + pkServletDepsUri);
-		Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
-		Model root = findModel(res);
+		final Resource res = JarToUML.createResourceSet().getResource(URI.createURI(pkServletDepsUri), true);
+		final Model root = findModel(res);
 		//
 		// Find java.lang.String
 		//
-		FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
-		Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
+		final FindContainedClassifierSwitch find = new FindContainedClassifierSwitch();
+		final Classifier javaLangString = find.findClassifier(root, "java.lang.String", null);
 		assertNotNull(javaLangString);
 		//
 		// Annotate
@@ -333,23 +335,23 @@ public final class JarToUMLTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link JarToUML#addPaths(IJavaProject, boolean)}.
-	 * @throws IOException 
-	 * @throws JavaModelException 
+	 * @throws IOException
+	 * @throws JavaModelException
 	 */
 	public void testAddPaths() throws JavaModelException, IOException {
 		//
 		// Retrieve Java projects
 		//
-		IProject project = getProject(javatestProject);
-		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
-		IProject projectref = getProject(javatestReferredProject);
-		IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
+		final IProject project = getProject(javatestProject);
+		final IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+		final IProject projectref = getProject(javatestReferredProject);
+		final IJavaProject jprojectref = JarToUML.getJavaProject(projectref.getFullPath());
 		//
 		// Retrieve output locations for Java projects
 		//
-		IResource projectOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
+		final IResource projectOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
 				jproject.getOutputLocation());
-		IResource projectrefOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
+		final IResource projectrefOutput = ResourcesPlugin.getWorkspace().getRoot().findMember(
 				jprojectref.getOutputLocation());
 		//
 		// Test without workspace references
@@ -385,9 +387,9 @@ public final class JarToUMLTest extends J2UTestCase {
 
 	/**
 	 * Test method for {@link org.eclipselabs.jar2uml.JarToUML#run()}.
-	 * @throws IOException 
-	 * @throws CoreException 
-	 * @throws InterruptedException 
+	 * @throws IOException
+	 * @throws CoreException
+	 * @throws InterruptedException
 	 */
 	public void testRun() throws CoreException, IOException, InterruptedException {
 		//
@@ -477,9 +479,9 @@ public final class JarToUMLTest extends J2UTestCase {
 	 * @throws IOException
 	 */
 	private Model testRunProject(boolean depsOnly, boolean updateExisting) throws JavaModelException, IOException {
-		IProject project = getProject(javatestProject);
-		IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
-		JarToUML jar2uml = new JarToUML();
+		final IProject project = getProject(javatestProject);
+		final IJavaProject jproject = JarToUML.getJavaProject(project.getFullPath());
+		final JarToUML jar2uml = new JarToUML();
 		jar2uml.addPaths(jproject, true);
 		assertTrue(hasUniqueEntries(jar2uml.getPaths()));
 		assertTrue(hasUniqueEntries(jar2uml.getCpPaths()));
@@ -494,7 +496,7 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertFalse(jar2uml.isRunComplete());
 		jar2uml.run();
 		assertTrue(jar2uml.isRunComplete());
-		Model model = jar2uml.getModel();
+		final Model model = jar2uml.getModel();
 		validateModel(model);
 		validateInferredTags(model);
 		model.eResource().save(Collections.EMPTY_MAP);
@@ -511,11 +513,11 @@ public final class JarToUMLTest extends J2UTestCase {
 	 * @throws IOException
 	 */
 	private Model testRunJar(boolean depsOnly, IFile[] jarFiles, IFile[] cpJarFiles, boolean updateExisting) throws IOException {
-		JarToUML jar2uml = new JarToUML();
-		for (IFile file : jarFiles) {
+		final JarToUML jar2uml = new JarToUML();
+		for (final IFile file : jarFiles) {
 			jar2uml.addJar(jarFile(file));
 		}
-		for (IFile file : cpJarFiles) {
+		for (final IFile file : cpJarFiles) {
 			jar2uml.addCpJar(jarFile(file));
 		}
 		assertTrue(hasUniqueEntries(jar2uml.getJars()));
@@ -535,10 +537,11 @@ public final class JarToUMLTest extends J2UTestCase {
 		assertFalse(jar2uml.isRunComplete());
 		jar2uml.run();
 		assertTrue(jar2uml.isRunComplete());
-		Model model = jar2uml.getModel();
+		final Model model = jar2uml.getModel();
 		validateModel(model);
 		validateInferredTags(model);
-		model.eResource().save(Collections.EMPTY_MAP);
+		jar2uml.saveModel();
+		jar2uml.getModel().eResource().load(Collections.emptyMap());
 		return model;
 	}
 

@@ -1,9 +1,10 @@
 /*
- * Copyright  2000-2004 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,18 +17,17 @@
  */
 package org.apache.bcel.classfile;
 
-import java.io.DataInputStream;
+import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.apache.bcel.Constants;
 
-/** 
- * This class is derived from the abstract 
- * <A HREF="org.apache.bcel.classfile.Constant.html">Constant</A> class 
+import org.apache.bcel.Const;
+
+/**
+ * This class is derived from the abstract {@link Constant}
  * and represents a reference to a float object.
  *
- * @version $Id: ConstantFloat.java 386056 2006-03-15 11:31:56Z tcurdt $
- * @author  <A HREF="mailto:m.dahm@gmx.de">M. Dahm</A>
+ * @version $Id: ConstantFloat.java 1806200 2017-08-25 16:33:06Z ggregory $
  * @see     Constant
  */
 public final class ConstantFloat extends Constant implements ConstantObject {
@@ -35,11 +35,11 @@ public final class ConstantFloat extends Constant implements ConstantObject {
     private float bytes;
 
 
-    /** 
+    /**
      * @param bytes Data
      */
-    public ConstantFloat(float bytes) {
-        super(Constants.CONSTANT_Float);
+    public ConstantFloat(final float bytes) {
+        super(Const.CONSTANT_Float);
         this.bytes = bytes;
     }
 
@@ -48,18 +48,18 @@ public final class ConstantFloat extends Constant implements ConstantObject {
      * Initialize from another object. Note that both objects use the same
      * references (shallow copy). Use clone() for a physical copy.
      */
-    public ConstantFloat(ConstantFloat c) {
+    public ConstantFloat(final ConstantFloat c) {
         this(c.getBytes());
     }
 
 
-    /** 
+    /**
      * Initialize instance from file data.
      *
      * @param file Input stream
      * @throws IOException
      */
-    ConstantFloat(DataInputStream file) throws IOException {
+    ConstantFloat(final DataInput file) throws IOException {
         this(file.readFloat());
     }
 
@@ -71,7 +71,8 @@ public final class ConstantFloat extends Constant implements ConstantObject {
      *
      * @param v Visitor object
      */
-    public void accept( Visitor v ) {
+    @Override
+    public void accept( final Visitor v ) {
         v.visitConstantFloat(this);
     }
 
@@ -82,8 +83,9 @@ public final class ConstantFloat extends Constant implements ConstantObject {
      * @param file Output file stream
      * @throws IOException
      */
-    public final void dump( DataOutputStream file ) throws IOException {
-        file.writeByte(tag);
+    @Override
+    public final void dump( final DataOutputStream file ) throws IOException {
+        file.writeByte(super.getTag());
         file.writeFloat(bytes);
     }
 
@@ -99,7 +101,7 @@ public final class ConstantFloat extends Constant implements ConstantObject {
     /**
      * @param bytes the raw bytes that represent this float
      */
-    public final void setBytes( float bytes ) {
+    public final void setBytes( final float bytes ) {
         this.bytes = bytes;
     }
 
@@ -107,6 +109,7 @@ public final class ConstantFloat extends Constant implements ConstantObject {
     /**
      * @return String representation.
      */
+    @Override
     public final String toString() {
         return super.toString() + "(bytes = " + bytes + ")";
     }
@@ -114,7 +117,8 @@ public final class ConstantFloat extends Constant implements ConstantObject {
 
     /** @return Float object
      */
-    public Object getConstantValue( ConstantPool cp ) {
+    @Override
+    public Object getConstantValue( final ConstantPool cp ) {
         return new Float(bytes);
     }
 }
