@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipselabs.jar2uml.test
-Bundle-Version: 1.3.0
+Bundle-Version: 2.0.0
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipselabs.jar2uml,
@@ -18,3 +18,4 @@ Require-Bundle: org.eclipselabs.jar2uml,
  org.eclipse.jdt.core,
  org.eclipse.emf.compare;bundle-version="3.0.0",
  org.eclipselabs.jar2uml.test.data
+Automatic-Module-Name: org.eclipselabs.jar2uml.test
